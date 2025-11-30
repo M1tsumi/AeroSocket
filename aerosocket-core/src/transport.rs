@@ -80,7 +80,7 @@ impl Default for TransportConfig {
 }
 
 /// TCP transport implementation
-#[cfg(any(feature = "tokio-runtime", feature = "async-std-runtime"))]
+#[cfg(feature = "tokio-runtime")]
 pub mod tcp {
     use super::*;
 
@@ -120,7 +120,7 @@ pub mod tcp {
 }
 
 /// TLS transport implementation
-#[cfg(any(feature = "tokio-runtime", feature = "async-std-runtime"))]
+#[cfg(feature = "tokio-runtime")]
 #[cfg(feature = "transport-tls")]
 pub mod tls {
     use super::*;

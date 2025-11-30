@@ -18,7 +18,6 @@ default = ["tokio-runtime"]
 
 # Runtime features
 tokio-runtime = ["tokio"]
-async-std-runtime = ["async-std"]
 transport-tls = []
 
 # Serialization features
@@ -40,7 +39,6 @@ thiserror = { workspace = true }
 
 # Optional runtime dependencies
 tokio = { workspace = true, optional = true, features = ["io-util", "net", "time"] }
-async-std = { workspace = true, optional = true }
 
 # Optional serialization
 serde = { workspace = true, optional = true, features = ["derive"] }

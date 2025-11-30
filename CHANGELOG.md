@@ -5,6 +5,19 @@ All notable changes to AeroSocket will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2025-11-29
+
+### Fixed
+- **Security Vulnerabilities**: Resolved all security advisories
+- **Protobuf**: Updated prometheus to v0.14 (fixes protobuf vulnerability)
+- **Dependencies**: Removed unmaintained async-std dependency
+- **Code Cleanup**: Removed async-std runtime code references
+
+### Changed
+- **Security**: All crates now pass cargo audit with zero vulnerabilities
+- **Dependencies**: Modernized dependency stack for better security
+- **Runtime**: Focused on tokio-only runtime for better maintainability
+
 ## [0.1.5] - 2025-11-29
 
 ### Fixed

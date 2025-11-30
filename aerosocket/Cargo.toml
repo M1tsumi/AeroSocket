@@ -18,7 +18,6 @@ default = ["tokio-runtime", "transport-tcp"]
 
 # Runtime features
 tokio-runtime = ["tokio", "aerosocket-core/tokio-runtime"]
-async-std-runtime = ["async-std", "aerosocket-core/async-std-runtime"]
 
 # Component features
 server = ["dep:aerosocket-server"]
@@ -52,7 +51,6 @@ aerosocket-wasm = { path = "../aerosocket-wasm", version = "0.1.0", optional = t
 
 # Optional runtime dependencies
 tokio = { workspace = true, optional = true }
-async-std = { version = "1.12", optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
