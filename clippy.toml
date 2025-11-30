@@ -19,15 +19,11 @@ trivial-copy-size-limit = 64
 # Enum variant names
 enum-variant-name-threshold = 3
 
-# Function name repetitions
-function-name-repetitions = 3
-
 # Avoid breaking changes
 avoid-breaking-exported-api = true
 
 # Documentation requirements
 missing-docs-in-crate-items = true
-missing-docs-in-private-items = false
 
 # Allowed lints
 allow-expect-in-tests = true
@@ -35,47 +31,11 @@ allow-unwrap-in-tests = true
 allow-dbg-in-tests = true
 allow-print-in-tests = true
 
-# Disallowed lints
+# Disallowed names
 disallowed-names = ["foo", "bar", "baz", "qux"]
 
 # Upper case acronyms
 upper-case-acronyms-aggressive = true
 
-# Literal suffixes
-literal-representation-suffix = "always"
-
-# Self naming
-self-named-everything = false
-
-# Multiple bound locations
-multiple-bound-locations = true
-
-# Shadowing
-shadow-reuse = true
-shadow-same = true
-shadow-unrelated = false
-
-# Unsafe code
-avoid-unsafe = false
-
-# Documentation
-missing-errors-doc = true
-missing-panics-doc = true
-
 # Single char binding names
 single-char-binding-names-threshold = 4
-
-# Macro name repetitions
-macro-name-repetitions = 11
-
-# Module name repetitions
-module-name-repetitions = 11
-
-# Literal readability
-unreadable-literal-lint = true
-
-# String literals
-string-literal-when-possible = true
-
-# Vec initialization
-vec-init-size-push = true

@@ -168,7 +168,7 @@ impl Frame {
         let rsv2 = (first_byte & RSV2_BIT) != 0;
         let rsv3 = (first_byte & RSV3_BIT) != 0;
         let opcode = Opcode::from(first_byte & OPCODE_MASK)
-            .ok_or_else(|| FrameError::InvalidOpcode(first_byte & OPCODE_MASK))?;
+            .ok_or(FrameError::InvalidOpcode(first_byte & OPCODE_MASK))?;
 
         // Read second byte
         let second_byte = cursor.get_u8();

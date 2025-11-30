@@ -3,11 +3,7 @@
 //! This module provides a transport abstraction that allows AeroSocket to work
 //! with different underlying transports (TCP, TLS, QUIC, etc.).
 
-use crate::error::{Error, Result};
-use bytes::Bytes;
-use std::io;
-use std::pin::Pin;
-use std::task::{Context, Poll};
+use crate::error::Result;
 
 #[cfg(feature = "tokio-runtime")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
@@ -102,7 +98,7 @@ pub mod tcp {
 
     impl TcpTransport {
         /// Create a new TCP transport bound to the given address
-        pub async fn bind(addr: std::net::SocketAddr, config: TransportConfig) -> Result<Self> {
+        pub async fn bind(_addr: std::net::SocketAddr, config: TransportConfig) -> Result<Self> {
             // Placeholder implementation
             Ok(Self { config })
         }

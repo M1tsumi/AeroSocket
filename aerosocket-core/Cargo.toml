@@ -19,6 +19,7 @@ default = ["tokio-runtime"]
 # Runtime features
 tokio-runtime = ["tokio"]
 async-std-runtime = ["async-std"]
+transport-tls = []
 
 # Serialization features
 serde = ["dep:serde"]

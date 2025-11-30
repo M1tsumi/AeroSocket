@@ -42,7 +42,7 @@ pub struct HandshakeResponse {
 }
 
 /// WebSocket handshake configuration
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct HandshakeConfig {
     /// WebSocket protocols to offer/accept
     pub protocols: Vec<String>,
@@ -54,18 +54,6 @@ pub struct HandshakeConfig {
     pub host: Option<String>,
     /// Additional headers
     pub extra_headers: HashMap<String, String>,
-}
-
-impl Default for HandshakeConfig {
-    fn default() -> Self {
-        Self {
-            protocols: vec![],
-            extensions: vec![],
-            origin: None,
-            host: None,
-            extra_headers: HashMap::new(),
-        }
-    }
 }
 
 /// Generate a random WebSocket key
