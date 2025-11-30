@@ -5,12 +5,6 @@
 
 use crate::error::Result;
 
-#[cfg(feature = "tokio-runtime")]
-use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
-
-#[cfg(feature = "async-std-runtime")]
-use async_std::io::{Read as AsyncStdRead, Write as AsyncStdWrite};
-
 /// Transport trait for abstracting different transport types
 #[async_trait::async_trait]
 pub trait Transport: Send + Sync + 'static {
@@ -92,6 +86,7 @@ pub mod tcp {
 
     /// TCP transport
     #[derive(Debug)]
+    #[allow(dead_code)]
     pub struct TcpTransport {
         config: TransportConfig,
     }
@@ -111,6 +106,7 @@ pub mod tcp {
 
     /// TCP stream wrapper
     #[derive(Debug)]
+    #[allow(dead_code)]
     pub struct TcpStream {
         config: TransportConfig,
     }
@@ -131,13 +127,14 @@ pub mod tls {
 
     /// TLS transport
     #[derive(Debug)]
+    #[allow(dead_code)]
     pub struct TlsTransport {
         config: TransportConfig,
     }
 
     impl TlsTransport {
         /// Create a new TLS transport bound to the given address
-        pub async fn bind(addr: std::net::SocketAddr, config: TransportConfig) -> Result<Self> {
+        pub async fn bind(_addr: std::net::SocketAddr, config: TransportConfig) -> Result<Self> {
             // Placeholder implementation
             Ok(Self { config })
         }
@@ -145,6 +142,7 @@ pub mod tls {
 
     /// TLS stream wrapper
     #[derive(Debug)]
+    #[allow(dead_code)]
     pub struct TlsStream {
         config: TransportConfig,
     }
