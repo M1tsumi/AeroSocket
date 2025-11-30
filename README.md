@@ -306,18 +306,14 @@ We welcome contributions! AeroSocket is built by developers, for developers.
 ### Quick Start
 ```bash
 git clone https://github.com/M1tsumi/AeroSocket
-cd AeroSocket
-cargo test
-cargo run --example echo_server
-```
-
-### Areas for Contribution
-- 🐛 **Bug fixes** and performance improvements
-- 📚 **Documentation** and examples
-- 🔧 **New features** and extensions
-- 🧪 **Testing** and benchmarking
 
 See our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### 💬 Community & Support
+
+- **Discord**: [Join our Discord server](https://discord.gg/6nS2KqxQtj) for real-time discussions
+- **GitHub Issues**: [Report bugs and request features](https://github.com/M1tsumi/AeroSocket/issues)
+- **Discussions**: [Community discussions and Q&A](https://github.com/M1tsumi/AeroSocket/discussions)
 
 ---
 
