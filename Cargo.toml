@@ -6,6 +6,7 @@ members = [
     "aerosocket-client",
     "aerosocket-transport-tcp",
     "aerosocket-transport-tls",
+    "aerosocket-wasm",
 ]
 resolver = "2"
 
