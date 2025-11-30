@@ -370,18 +370,6 @@ AeroSocket integrates seamlessly with the Rust ecosystem:
 
 ---
 
-## 🏆 Production Users
-
-AeroSocket powers production applications at:
-
-- **[Company A]** - 1M+ concurrent connections
-- **[Company B]** - Real-time trading platform
-- **[Company C]** - Gaming backend infrastructure
-
-*Become our next success story! [Contact us](mailto:enterprise@aerosocket.rs) for enterprise support.*
-
----
-
 ## 📄 License
 
 Licensed under either of:
@@ -405,10 +393,8 @@ Built with inspiration from the Rust community and battle-tested in production e
 
 ## 📞 Connect With Us
 
-- **[Discord Community](https://discord.gg/aerosocket)** - Chat with us and other users
+- **[Discord Community](https://discord.gg/6nS2KqxQtj)** - Chat with us and other users
 - **[GitHub Discussions](https://github.com/M1tsumi/AeroSocket/discussions)** - Q&A and discussions
-- **[Twitter/X](https://twitter.com/aerosocket_rs)** - Updates and announcements
-- **[Newsletter](https://aerosocket.rs/newsletter)** - Monthly updates and tips
 
 ---
 
@@ -420,6 +406,6 @@ Built with inspiration from the Rust community and battle-tested in production e
 
 ---
 
-*Built with ❤️ by the AeroSocket team*
+*Built with ❤️ by the Rust community*
 
 </div>
