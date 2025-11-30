@@ -1,12 +1,10 @@
 //! Error types for AeroSocket
 //!
 //! This module defines all error types used throughout the AeroSocket library.
+//! Errors are designed to be ergonomic and provide clear context for debugging.
 
 #![allow(missing_docs)]
 #![allow(clippy::recursive_format_impl)]
-
-use std::fmt;
-//! Errors are designed to be ergonomic and provide clear context for debugging.
 
 use std::fmt;
 use thiserror::Error;
