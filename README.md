@@ -1,9 +1,72 @@
+<div align="center">
+  <svg width="800" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background gradient -->
+    <defs>
+      <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
+      </linearGradient>
+      <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+        <feOffset dx="0" dy="2" result="offsetblur"/>
+        <feComponentTransfer>
+          <feFuncA type="linear" slope="0.3"/>
+        </feComponentTransfer>
+        <feMerge>
+          <feMergeNode/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="800" height="200" rx="20" fill="url(#bgGradient)"/>
+    
+    <!-- Decorative elements -->
+    <circle cx="100" cy="50" r="30" fill="#ffffff" opacity="0.1"/>
+    <circle cx="700" cy="150" r="40" fill="#ffffff" opacity="0.1"/>
+    <circle cx="650" cy="40" r="20" fill="#ffffff" opacity="0.15"/>
+    <circle cx="150" cy="160" r="25" fill="#ffffff" opacity="0.15"/>
+    
+    <!-- Rocket icon -->
+    <g transform="translate(350, 60)">
+      <path d="M50 20 C50 20, 50 5, 35 0 C20 -5, 5 5, 0 20 C-5 35, 5 50, 20 50 C35 50, 50 35, 50 20 Z" 
+            fill="#ffffff" opacity="0.9" filter="url(#shadow)"/>
+      <!-- Rocket body -->
+      <ellipse cx="25" cy="20" rx="15" ry="25" fill="#ffffff"/>
+      <!-- Rocket window -->
+      <circle cx="25" cy="15" r="5" fill="url(#bgGradient)"/>
+      <!-- Rocket fins -->
+      <path d="M10 35 L5 50 L15 40 Z" fill="#ffffff" opacity="0.8"/>
+      <path d="M40 35 L45 50 L35 40 Z" fill="#ffffff" opacity="0.8"/>
+      <!-- Flame -->
+      <path d="M15 45 L25 55 L35 45 C30 50, 20 50, 15 45 Z" fill="#ff6b6b" opacity="0.8"/>
+    </g>
+    
+    <!-- Main title -->
+    <text x="400" y="130" font-family="Arial, sans-serif" font-size="48" font-weight="bold" 
+          text-anchor="middle" fill="url(#textGradient)" filter="url(#shadow)">
+      AeroSocket
+    </text>
+    
+    <!-- Subtitle -->
+    <text x="400" y="165" font-family="Arial, sans-serif" font-size="16" font-weight="300" 
+          text-anchor="middle" fill="#ffffff" opacity="0.9">
+      Ultra-fast WebSocket Library for Rust
+    </text>
+  </svg>
+</div>
+
 # 🚀 AeroSocket
 
 [![Crates.io](https://img.shields.io/crates/v/aerosocket.svg)](https://crates.io/crates/aerosocket)
 [![Documentation](https://docs.rs/aerosocket/badge.svg)](https://docs.rs/aerosocket)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
-[![Discord](https://img.shields.io/discord/123456789012345678?label=discord)](https://discord.gg/aerosocket)
+[![Discord](https://img.shields.io/discord/6nS2KqxQtj?label=discord)](https://discord.gg/6nS2KqxQtj)
 
 > **Ultra-fast, zero-copy WebSocket library for Rust built for enterprise-scale applications**
 

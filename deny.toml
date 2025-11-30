@@ -17,13 +17,12 @@ db-path = "~/.cargo/advisory-db"
 # URL to the advisory database
 db-urls = ["https://github.com/rustsec/advisory-db"]
 # Whether to ignore unmaintained crates
-ignore-unmaintained = true
-# Whether to ignore yanked crates
-ignore-yanked = true
+ignore = [
+    "unmaintained",
+    "yanked",
+]
 # Whether to warn for unmaintained crates
-warn-unmaintained = true
-# Whether to warn for yanked crates
-warn-yanked = true
+severity-threshold = "medium"
 
 [licenses]
 # List of allowed licenses
@@ -46,10 +45,6 @@ deny = [
 allow-osi-fsf-free = "neither"
 # Whether to allow dependencies with no license
 copyleft = "deny"
-# Whether to allow private licenses
-allow-private = false
-# Whether to allow empty license files
-allow-empty = false
 # Confidence threshold for license detection
 confidence-threshold = 0.8
 
@@ -78,34 +73,34 @@ wildcards = "allow"
 # Whether to highlight that a crate is missing from the workspace
 highlight = "all"
 # Whether to skip workspace crates
-skip-workspace-crates = true
+skip = [
+    { workspace = true },
+]
 # Whether to skip tree dependencies
 skip-tree = []
 
 [sources]
 # List of allowed sources
-allow = [
+allow-registry = [
     "https://github.com/rust-lang/crates.io-index",
 ]
 # List of denied sources
-deny = [
+deny-git = [
     "https://github.com/rust-lang/crates.io-index.git",
 ]
-# Whether to allow private registries
-allow-registry = "https://github.com/rust-lang/crates.io-index"
 # Whether to allow git sources
-allow-git = false
+allow-git = []
 
 [output]
 # Output format
 format = "human"
 # Whether to show the graph
-show-graph = true
+graph = true
 # Whether to show the license summary
-show-licenses = true
+licenses = true
 # Whether to show the advisory summary
-show-advisories = true
+advisories = true
 # Whether to show the ban summary
-show-bans = true
+bans = true
 # Whether to show the source summary
-show-sources = true
+sources = true
