@@ -20,7 +20,7 @@ crate-type = ["cdylib", "rlib"]
 default = ["wasm-bindgen"]
 
 # WASM features
-wasm-bindgen = ["dep:wasm-bindgen", "dep:js-sys", "dep:web-sys"]
+wasm-bindgen = ["dep:wasm-bindgen", "dep:wasm-bindgen-futures", "dep:js-sys", "dep:web-sys"]
 
 [dependencies]
 # Core dependencies
@@ -29,6 +29,7 @@ bytes = { workspace = true }
 
 # WASM dependencies
 wasm-bindgen = { workspace = true, optional = true }
+wasm-bindgen-futures = { version = "0.4", optional = true }
 js-sys = { workspace = true, optional = true }
 web-sys = { workspace = true, optional = true, features = [
   "MessageEvent",
@@ -36,6 +37,7 @@ web-sys = { workspace = true, optional = true, features = [
   "CloseEvent",
   "BinaryType",
   "Blob",
+  "WebSocket",
 ] }
 
 [dev-dependencies]
