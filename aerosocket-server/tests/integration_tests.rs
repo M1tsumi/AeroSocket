@@ -3,7 +3,7 @@
 //! These tests verify the core functionality of the WebSocket server components.
 
 use aerosocket_core::Message;
-use aerosocket_server::handler::{from_fn, FnHandler};
+use aerosocket_server::handler::from_fn;
 use aerosocket_server::prelude::*;
 use aerosocket_server::{CloseReason, ConnectionManager, ContextError, ErrorContext, ServerError};
 use std::time::Duration;
@@ -156,18 +156,18 @@ async fn test_handler_creation() {
     let remote_addr = "127.0.0.1:12345".parse().unwrap();
     let local_addr = "127.0.0.1:8080".parse().unwrap();
     let connection = Connection::new(remote_addr, local_addr);
-    let handle = ConnectionHandle::new(1, connection);
+    let _handle = ConnectionHandle::new(1, connection);
 
     // Handler should be cloneable
-    let echo_handler2 = echo_handler.clone();
+    let _echo_handler2 = echo_handler.clone();
 
     // Test default handler
     let default_handler = DefaultHandler::new();
-    let default_handler2 = default_handler.clone();
+    let _default_handler2 = default_handler.clone();
 
     // Test function handler
     let fn_handler = from_fn(|_connection| async move { Ok(()) });
-    let fn_handler2 = fn_handler.clone();
+    let _fn_handler2 = fn_handler.clone();
 }
 
 /// Test message creation and manipulation

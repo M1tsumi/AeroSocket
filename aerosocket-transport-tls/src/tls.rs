@@ -340,13 +340,13 @@ mod tests {
 
     #[test]
     fn test_tls_transport_creation() {
-        let transport = TlsTransport::new();
-        assert!(true); // Basic creation test
+        let _transport = TlsTransport::new_unbound();
+        // Basic creation test
     }
 
     #[test]
     fn test_tls_stream_creation() {
-        let stream = TlsStream::new();
-        assert!(true); // Basic creation test
+        let _stream = TlsStream::new();
+        // Basic creation test
     }
 }

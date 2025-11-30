@@ -40,6 +40,7 @@ impl Client {
 #[derive(Debug)]
 pub struct ClientConnection {
     /// Server address
+    #[allow(dead_code)]
     remote_addr: SocketAddr,
     /// Connection state
     connected: bool,

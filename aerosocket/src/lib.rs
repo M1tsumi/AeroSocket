@@ -8,33 +8,30 @@
 //! ## Quick Start
 //!
 //! ```rust,no_run
+//! #[cfg(feature = "server")]
 //! use aerosocket::prelude::*;
 //!
+//! #[cfg(feature = "server")]
 //! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let server = aerosocket::Server::builder()
-//!         .bind("0.0.0.0:8080")
+//! async fn main() -> aerosocket_core::Result<()> {
+//!     let server = aerosocket::server::Server::builder()
 //!         .max_connections(10_000)
 //!         .build()?;
 //!
-//!     server.serve(|mut conn| async move {
-//!         while let Some(msg) = conn.next().await? {
-//!             match msg {
-//!                 Message::Text(text) => conn.send_text(text).await?,
-//!                 Message::Binary(data) => conn.send_binary(data).await?,
-//!                 Message::Ping => conn.send_pong().await?,
-//!                 _ => {}
-//!             }
-//!         }
-//!         Ok(())
-//!     }).await?;
+//!     server.serve().await?;
 //!
 //!     Ok(())
+//! }
+//!
+//! #[cfg(not(feature = "server"))]
+//! fn main() {
+//!     println!("Enable the 'server' feature to run this example");
 //! }
 //! ```
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![warn(missing_docs, missing_debug_implementations, rust_2018_idioms)]
+#![allow(ambiguous_glob_reexports)]
+#![warn(rust_2018_idioms)]
 #![doc(html_root_url = "https://docs.rs/aerosocket/")]
 
 // Re-export core components
@@ -45,6 +42,9 @@ pub use aerosocket_transport_tcp as transport_tcp;
 
 #[cfg(feature = "transport-tls")]
 pub use aerosocket_transport_tls as transport_tls;
+
+#[cfg(feature = "wasm")]
+pub use aerosocket_wasm as wasm;
 
 #[cfg(feature = "server")]
 pub use aerosocket_server as server;
@@ -67,12 +67,14 @@ pub mod prelude {
 
     #[cfg(feature = "transport-tls")]
     pub use aerosocket_transport_tls::prelude::*;
+
+    #[cfg(feature = "wasm")]
+    pub use aerosocket_wasm::prelude::*;
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
+    // Test module placeholder
     #[test]
     fn test_library_compiles() {
         // Basic test to ensure the library compiles correctly

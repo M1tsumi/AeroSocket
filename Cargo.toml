@@ -1,12 +1,12 @@
 [workspace]
 members = [
-    "aerosocket",
     "aerosocket-core",
     "aerosocket-client", 
     "aerosocket-server",
     "aerosocket-transport-tcp",
     "aerosocket-transport-tls",
-    # "aerosocket-wasm",  # Temporarily disabled due to compilation issues
+    "aerosocket-wasm",
+    "aerosocket",
 ]
 resolver = "2"
 

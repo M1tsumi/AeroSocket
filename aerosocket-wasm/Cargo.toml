@@ -38,6 +38,7 @@ web-sys = { workspace = true, optional = true, features = [
   "BinaryType",
   "Blob",
   "WebSocket",
+  "console",
 ] }
 
 [dev-dependencies]

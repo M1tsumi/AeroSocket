@@ -211,13 +211,13 @@ mod tests {
 
     #[test]
     fn test_tcp_transport_creation() {
-        let transport = TcpTransport::new();
-        assert!(true); // Basic creation test
+        let _transport = TcpTransport::new_unbound();
+        // Basic creation test
     }
 
     #[test]
     fn test_tcp_stream_creation() {
-        let stream = TcpStream::new();
-        assert!(true); // Basic creation test
+        let _stream = TcpStream::new();
+        // Basic creation test
     }
 }

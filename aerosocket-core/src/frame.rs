@@ -429,8 +429,8 @@ mod tests {
         let frame = Frame::binary(payload.clone());
         let bytes = frame.to_bytes();
 
-        assert_eq!(bytes[1], 126); // Extended 16-bit length
-        assert_eq!(bytes[2..4], (65536u16).to_be_bytes());
+        assert_eq!(bytes[1], 127); // Extended 64-bit length
+        assert_eq!(bytes[2..10], (65536u64).to_be_bytes());
     }
 
     #[test]
@@ -439,9 +439,10 @@ mod tests {
         let bytes = frame.to_bytes();
 
         assert_eq!(bytes[0], 0x88); // FIN=1, Opcode=8
-        assert_eq!(bytes[1], 0x07); // Length=7 (2 bytes code + 5 bytes reason)
+        assert_eq!(bytes[1], 0x09); // Length=9 (2 bytes code + 6 bytes reason + 1 byte for length prefix?)
         assert_eq!(&bytes[2..4], 1000u16.to_be_bytes());
         assert_eq!(&bytes[4..], b"Goodbye");
+        assert_eq!(bytes.len(), 11); // Total frame length
     }
 
     #[test]

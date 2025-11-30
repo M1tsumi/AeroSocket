@@ -267,7 +267,7 @@ mod tests {
 
         // These should not fail even without actual implementation
         assert!(conn.send_text("Hello").await.is_ok());
-        assert!(conn.send_binary(&[1, 2, 3]).await.is_ok());
+        assert!(conn.send_binary(&[1u8, 2, 3][..]).await.is_ok());
         assert!(conn.ping(None).await.is_ok());
         assert!(conn.pong(None).await.is_ok());
     }

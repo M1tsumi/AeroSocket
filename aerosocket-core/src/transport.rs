@@ -181,9 +181,12 @@ pub mod mock {
 
         /// Accept a connection (blocking for testing)
         pub fn accept(&self) -> Result<MockStream> {
-            self.receiver
-                .recv()
-                .ok_or_else(|| Error::Connection("Mock transport closed".to_string()))
+            match self.receiver.recv() {
+                Ok(stream) => Ok(stream),
+                Err(_) => Err(crate::Error::Connection(
+                    "Mock transport closed".to_string(),
+                )),
+            }
         }
 
         /// Get local address
@@ -252,7 +255,6 @@ mod tests {
 
     #[cfg(test)]
     mod mock_tests {
-        use super::*;
         use crate::transport::mock::*;
 
         #[test]

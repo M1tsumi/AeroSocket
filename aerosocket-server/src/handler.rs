@@ -212,7 +212,6 @@ mod tests {
 
         // Note: This test will fail until Connection::next and send are implemented
         // For now, we just test that the handler can be created
-        assert!(true);
     }
 
     #[tokio::test]
@@ -224,7 +223,6 @@ mod tests {
 
         // Note: This test will fail until Connection::next and send are implemented
         // For now, we just test that the handler can be created
-        assert!(true);
     }
 
     #[tokio::test]
@@ -237,6 +235,5 @@ mod tests {
 
         // Note: This test will fail until Connection::next and send are implemented
         // For now, we just test that the handler can be created
-        assert!(true);
     }
 }

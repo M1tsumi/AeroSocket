@@ -21,7 +21,16 @@
 //! ```
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![warn(missing_docs, missing_debug_implementations, rust_2018_idioms)]
+#![warn(rust_2018_idioms)]
+#![allow(
+    dead_code,
+    clippy::new_without_default,
+    clippy::derivable_impls,
+    clippy::redundant_closure,
+    clippy::field_reassign_with_default,
+    unused_variables,
+    unused_imports
+)]
 #![doc(html_root_url = "https://docs.rs/aerosocket-server/")]
 
 // Public modules

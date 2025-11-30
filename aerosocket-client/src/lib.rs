@@ -6,20 +6,16 @@
 //!
 //! ```rust,no_run
 //! use aerosocket_client::prelude::*;
+//! use std::net::SocketAddr;
 //!
 //! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let mut client = Client::connect("wss://echo.websocket.org")
-//!         .with_header("Authorization", "Bearer token")
-//!         .connect()
-//!         .await?;
+//! async fn main() -> aerosocket_core::Result<()> {
+//!     let addr: SocketAddr = "127.0.0.1:8080".parse()
+//!         .map_err(|e| aerosocket_core::Error::Io(std::io::Error::new(std::io::ErrorKind::InvalidInput, e)))?;
+//!     let mut client = aerosocket_client::ClientConnection::new(addr);
 //!
-//!     client.send_text("Hello, AeroSocket!").await?;
-//!
-//!     while let Some(msg) = client.next().await? {
-//!         println!("Received: {:?}", msg);
-//!         break;
-//!     }
+//!     // Note: This is a simplified example - actual connection logic would be implemented here
+//!     println!("Client created successfully for {}", addr);
 //!
 //!     Ok(())
 //! }

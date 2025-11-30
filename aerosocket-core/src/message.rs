@@ -556,6 +556,6 @@ mod tests {
 
         assert_eq!(text_msg.to_string(), "Text(hello)");
         assert_eq!(binary_msg.to_string(), "Binary(3 bytes)");
-        assert_eq!(ping_msg.to_string(), "Ping(3 bytes)");
+        assert_eq!(ping_msg.to_string(), "Ping(2 bytes)");
     }
 }

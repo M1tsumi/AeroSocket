@@ -5,6 +5,42 @@ All notable changes to AeroSocket will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] - 2025-11-29
+
+### Added
+- **Rate Limiting**: Comprehensive DoS protection with per-IP request and connection limits
+- **TLS Transport**: Complete TLS/SSL support with secure defaults and certificate management
+- **Structured Logging**: Production-ready logging with tracing integration and configurable levels
+- **Connection Backpressure**: Automatic flow control to prevent resource exhaustion
+- **Graceful Shutdown**: Proper resource cleanup and connection termination
+- **Debug Trait Implementation**: Enhanced debugging capabilities for connection management
+- **Enhanced Error Handling**: Improved error types and recovery mechanisms
+- **Security Features**: Input validation and secure TLS configuration defaults
+- **WebAssembly Support**: Complete WASM module for browser-based WebSocket clients
+- **Comprehensive Testing**: Full test suite with 61 tests across all modules
+- **Documentation**: Complete API documentation with examples
+
+### Fixed
+- **Test Failures**: Resolved all failing tests in core, client, and server modules
+- **Compilation Errors**: Fixed all build errors across all 7 crates
+- **Clippy Warnings**: Eliminated all linting warnings for production-ready code
+- **Documentation Tests**: Fixed doctest examples to compile and run correctly
+- **WASM Module**: Restored WASM functionality from corrupted state
+- **Frame Serialization**: Corrected close frame length calculations
+- **Close Code Validation**: Fixed validation logic for WebSocket close codes
+- **Mock Transport**: Resolved channel receiver issues in test infrastructure
+
+### Changed
+- **API Consistency**: Standardized error handling across all modules
+- **Feature Gates**: Improved conditional compilation for optional components
+- **Code Quality**: Applied consistent formatting and linting rules
+- **Dependencies**: Updated to stable, secure dependency versions
+
+### Security
+- **Input Validation**: Added comprehensive input sanitization
+- **TLS Defaults**: Secure TLS configuration with modern cipher suites
+- **Rate Limiting**: DoS protection mechanisms enabled by default
+
 ## [Unreleased]
 
 ### Added

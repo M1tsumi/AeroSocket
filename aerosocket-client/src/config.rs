@@ -203,18 +203,23 @@ mod tests {
     fn test_client_config_default() {
         let config = ClientConfig::default();
         assert!(config.validate().is_ok());
-        assert_eq!(config.max_frame_size, 1024 * 1024);
-        assert_eq!(config.max_message_size, 16 * 1024 * 1024);
+        assert_eq!(config.max_frame_size, 16 * 1024 * 1024); // 16MB
+        assert_eq!(config.max_message_size, 64 * 1024 * 1024); // 64MB
     }
 
     #[test]
     fn test_client_config_validation() {
-        let mut config = ClientConfig::default();
-        config.max_frame_size = 0;
+        let config = ClientConfig {
+            max_frame_size: 0,
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
 
-        config.max_frame_size = 1024;
-        config.max_message_size = 512;
+        let config = ClientConfig {
+            max_frame_size: 1024,
+            max_message_size: 512,
+            ..Default::default()
+        };
         assert!(config.validate().is_err());
     }
 

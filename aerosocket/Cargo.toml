@@ -20,24 +20,24 @@ default = ["tokio-runtime", "transport-tcp"]
 tokio-runtime = ["tokio", "aerosocket-core/tokio-runtime"]
 async-std-runtime = ["async-std", "aerosocket-core/async-std-runtime"]
 
-# Transport features
-transport-tcp = ["aerosocket-transport-tcp"]
-transport-tls = ["aerosocket-transport-tls"]
-
-# Platform features
-server = ["aerosocket-server"]
-client = ["aerosocket-client"]
-# wasm = ["aerosocket-wasm"]  # Temporarily disabled
+# Component features
+server = ["dep:aerosocket-server"]
+client = ["dep:aerosocket-client"]
+transport-tcp = ["dep:aerosocket-transport-tcp"]
+transport-tls = ["dep:aerosocket-transport-tls"]
+wasm = ["dep:aerosocket-wasm"]
 
 # Serialization features
 serde = ["aerosocket-core/serde"]
 rkyv = ["aerosocket-core/rkyv"]
 
-# Full feature set
+# Feature combinations
 full = [
-    "tokio-runtime",
-    "transport-tcp", 
+    "server",
+    "client", 
+    "transport-tcp",
     "transport-tls",
+    "wasm",
     "serde",
     "rkyv"
 ]
@@ -48,7 +48,7 @@ aerosocket-server = { path = "../aerosocket-server", version = "0.1.0", optional
 aerosocket-client = { path = "../aerosocket-client", version = "0.1.0", optional = true }
 aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.1.0", optional = true }
 aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.1.0", optional = true }
-# aerosocket-wasm = { path = "../aerosocket-wasm", version = "0.1.0", optional = true }  # Temporarily disabled
+aerosocket-wasm = { path = "../aerosocket-wasm", version = "0.1.0", optional = true }
 
 # Optional runtime dependencies
 tokio = { workspace = true, optional = true }
