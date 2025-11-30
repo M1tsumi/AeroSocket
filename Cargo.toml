@@ -1,0 +1,75 @@
+[workspace]
+members = [
+    "aerosocket",
+    "aerosocket-core",
+    "aerosocket-server", 
+    "aerosocket-client",
+    "aerosocket-transport-tcp",
+    "aerosocket-transport-tls",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+authors = ["AeroSocket Team"]
+edition = "2021"
+rust-version = "1.70"
+license = "MIT OR Apache-2.0"
+homepage = "https://aerosocket.rs"
+repository = "https://github.com/M1tsumi/AeroSocket"
+documentation = "https://docs.rs/aerosocket"
+readme = "README.md"
+keywords = ["websocket", "async", "tokio", "server", "client"]
+categories = ["asynchronous", "network-programming", "web-programming::websocket"]
+description = "Ultra-fast, zero-copy WebSocket library for enterprise-scale applications"
+
+[workspace.dependencies]
+# Core dependencies
+tokio = { version = "1.35", features = ["full"] }
+async-std = { version = "1.12" }
+bytes = "1.5"
+rustls = "0.21"
+tracing = "0.1"
+metrics = "0.22"
+thiserror = "1.0"
+futures-util = "0.3"
+http = "1.0"
+httparse = "1.8"
+base64 = "0.21"
+rand = "0.8"
+sha1 = "0.10"
+async-trait = "0.1"
+
+# Optional dependencies (defined in individual crates)
+serde = { version = "1.0", features = ["derive"] }
+rkyv = { version = "0.7" }
+tokio-rustls = "0.24"
+
+# WASM dependencies
+web-sys = { version = "0.3", features = ["MessageEvent", "ErrorEvent", "CloseEvent", "BinaryType", "Blob", "ArrayBuffer"] }
+wasm-bindgen = { version = "0.2" }
+js-sys = { version = "0.3" }
+
+# Development dependencies
+criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "1.4"
+tokio-test = "0.4"
+tracing-test = "0.2"
+tempfile = "3.8"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+opt-level = 3
+
+[profile.bench]
+debug = true
+lto = true
+codegen-units = 1
+
+[workspace.metadata.release]
+pre-release-replacements = [
+  {file="README.md", search="aerosocket = \".*\"", replace="aerosocket = \"{{version}}\""},
+  {file="CHANGELOG.md", search="Unreleased", replace="{{version}}", prerelease = true},
+]

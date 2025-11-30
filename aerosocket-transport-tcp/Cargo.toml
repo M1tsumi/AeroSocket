@@ -1,0 +1,40 @@
+[package]
+name = "aerosocket-transport-tcp"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "TCP transport implementation for AeroSocket"
+
+[features]
+default = ["tokio-runtime"]
+
+# Runtime features
+tokio-runtime = ["tokio", "aerosocket-core/tokio-runtime"]
+async-std-runtime = ["async-std", "aerosocket-core/async-std-runtime"]
+
+[dependencies]
+# Core dependencies
+aerosocket-core = { path = "../aerosocket-core", version = "0.1.0" }
+bytes = { workspace = true }
+futures-util = { workspace = true }
+async-trait = { workspace = true }
+
+# Runtime dependencies
+tokio = { workspace = true, optional = true, features = ["io-util", "net", "time"] }
+async-std = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+tokio-test = { workspace = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

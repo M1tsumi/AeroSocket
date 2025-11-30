@@ -1,0 +1,74 @@
+//! Echo Client Example
+//!
+//! This example demonstrates a WebSocket client that connects to an echo server
+//! and sends messages to test the connection.
+
+use aerosocket::prelude::*;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize logging
+    tracing_subscriber::fmt::init();
+
+    // Create and connect the client
+    let mut client = Client::connect("ws://127.0.0.1:8080")
+        .connect()
+        .await?;
+
+    println!("🔗 Connected to echo server");
+
+    // Send a text message
+    client.send_text("Hello, AeroSocket!").await?;
+    println!("📤 Sent: Hello, AeroSocket!");
+
+    // Receive the echo response
+    if let Some(msg) = client.next().await? {
+        match msg {
+            Message::Text(text) => {
+                println!("📨 Received: {}", text);
+            }
+            _ => {
+                println!("📨 Received unexpected message type");
+            }
+        }
+    }
+
+    // Send a binary message
+    let binary_data = b"Binary payload";
+    client.send_binary(binary_data).await?;
+    println!("📤 Sent binary: {} bytes", binary_data.len());
+
+    // Receive the binary echo
+    if let Some(msg) = client.next().await? {
+        match msg {
+            Message::Binary(data) => {
+                println!("📨 Received binary: {} bytes", data.len());
+            }
+            _ => {
+                println!("📨 Received unexpected message type");
+            }
+        }
+    }
+
+    // Send a ping
+    client.ping(None).await?;
+    println!("📤 Sent ping");
+
+    // Wait for pong response
+    if let Some(msg) = client.next().await? {
+        match msg {
+            Message::Pong => {
+                println!("📨 Received pong");
+            }
+            _ => {
+                println!("📨 Received unexpected message type");
+            }
+        }
+    }
+
+    // Close the connection
+    client.close(Some(1000), Some("Goodbye")).await?;
+    println!("🔌 Connection closed");
+
+    Ok(())
+}

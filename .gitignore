@@ -1,0 +1,107 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+*.profraw
+*.profdata
+target/coverage/
+
+# Temporary files
+*.tmp
+*.temp
+*.pid
+
+# Backup files
+*.bak
+*.backup
+
+# Node.js (for documentation tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documentation build
+docs/build/
+docs/_build/
+
+# Benchmark results
+*.svg
+target/criterion/
+
+# Security audit files
+.cargo-audit.toml
+
+# Rust Analyzer
+.rust-analyzer/
+
+# Local development
+.env
+.env.local
+.env.*.local
+
+# Test artifacts
+*.test
+tests/output/
+
+# WASM
+*.wasm
+wasm-pack.log
+
+# Performance profiling
+*.perf
+*.flamegraph
+*.svg
+
+# Dependency tracking
+.dependency-cruiser.json
+
+# Local configuration
+local.toml
+dev.toml
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Cache directories
+.cache/
+.cargo/
+.rustup/
+
+# Temporary test data
+test_data/
+temp_data/
+
+# Editor specific
+.vscode/settings.json
+.idea/workspace.xml
+*.sublime-project
+*.sublime-workspace
+
+# Local development scripts
+run.sh
+dev.sh

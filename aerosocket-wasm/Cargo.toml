@@ -1,0 +1,46 @@
+[package]
+name = "aerosocket-wasm"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "WebAssembly support for AeroSocket"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["wasm-bindgen"]
+
+# WASM features
+wasm-bindgen = ["dep:wasm-bindgen", "dep:js-sys", "dep:web-sys"]
+
+[dependencies]
+# Core dependencies
+aerosocket-core = { path = "../aerosocket-core", version = "0.1.0" }
+bytes = { workspace = true }
+
+# WASM dependencies
+wasm-bindgen = { workspace = true, optional = true }
+js-sys = { workspace = true, optional = true }
+web-sys = { workspace = true, optional = true, features = [
+  "MessageEvent",
+  "ErrorEvent", 
+  "CloseEvent",
+  "BinaryType",
+  "Blob",
+] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

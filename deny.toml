@@ -1,0 +1,111 @@
+# Cargo-deny configuration for AeroSocket
+# Ensures dependency security and licensing compliance
+
+[graph]
+# Use the workspace root as the target directory
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "x86_64-unknown-linux-musl" },
+    { triple = "x86_64-apple-darwin" },
+    { triple = "x86_64-pc-windows-msvc" },
+    { triple = "wasm32-unknown-unknown" },
+]
+
+[advisories]
+# Path to the advisory database
+db-path = "~/.cargo/advisory-db"
+# URL to the advisory database
+db-urls = ["https://github.com/rustsec/advisory-db"]
+# Whether to ignore unmaintained crates
+ignore-unmaintained = true
+# Whether to ignore yanked crates
+ignore-yanked = true
+# Whether to warn for unmaintained crates
+warn-unmaintained = true
+# Whether to warn for yanked crates
+warn-yanked = true
+
+[licenses]
+# List of allowed licenses
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-DFS-2016",
+    "CC0-1.0",
+]
+# List of denied licenses
+deny = [
+    "GPL-2.0",
+    "GPL-3.0",
+    "AGPL-3.0",
+]
+# Whether to allow deprecated licenses
+allow-osi-fsf-free = "neither"
+# Whether to allow dependencies with no license
+copyleft = "deny"
+# Whether to allow private licenses
+allow-private = false
+# Whether to allow empty license files
+allow-empty = false
+# Confidence threshold for license detection
+confidence-threshold = 0.8
+
+[[licenses.clarify]]
+# Example of clarifying a license
+name = "ring"
+expression = "MIT AND ISC AND OpenSSL"
+license-files = [{ path = "LICENSE", hash = 0xbd89eed7 }]
+
+[bans]
+# List of banned crates
+deny = [
+    # Example: ban a specific crate
+    # { name = "openssl", version = "*" },
+]
+# List of allowed duplicates
+allow = [
+    # Example: allow specific duplicates
+    # { name = "syn", version = "1" },
+    # { name = "syn", version = "2" },
+]
+# Whether to detect multiple versions of the same crate
+multiple-versions = "warn"
+# Whether to detect wildcard dependencies
+wildcards = "allow"
+# Whether to highlight that a crate is missing from the workspace
+highlight = "all"
+# Whether to skip workspace crates
+skip-workspace-crates = true
+# Whether to skip tree dependencies
+skip-tree = []
+
+[sources]
+# List of allowed sources
+allow = [
+    "https://github.com/rust-lang/crates.io-index",
+]
+# List of denied sources
+deny = [
+    "https://github.com/rust-lang/crates.io-index.git",
+]
+# Whether to allow private registries
+allow-registry = "https://github.com/rust-lang/crates.io-index"
+# Whether to allow git sources
+allow-git = false
+
+[output]
+# Output format
+format = "human"
+# Whether to show the graph
+show-graph = true
+# Whether to show the license summary
+show-licenses = true
+# Whether to show the advisory summary
+show-advisories = true
+# Whether to show the ban summary
+show-bans = true
+# Whether to show the source summary
+show-sources = true
