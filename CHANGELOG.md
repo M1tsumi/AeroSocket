@@ -5,6 +5,28 @@ All notable changes to AeroSocket will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2025-11-29
+
+### Fixed
+- **Test Failures**: Resolved all failing tests in core, client, and server modules
+- **Compilation Errors**: Fixed all build errors across all 7 crates
+- **Clippy Warnings**: Eliminated all linting warnings for production-ready code
+- **Documentation Tests**: Fixed doctest examples to compile and run correctly
+- **WASM Module**: Restored WASM functionality from corrupted state
+- **Frame Serialization**: Corrected close frame length calculations
+- **Close Code Validation**: Fixed validation logic for WebSocket close codes
+- **Mock Transport**: Resolved channel receiver issues in test infrastructure
+
+### Added
+- **WebAssembly Support**: Complete WASM module for browser-based WebSocket clients
+- **Comprehensive Testing**: Full test suite with 61 tests across all modules
+
+### Changed
+- **API Consistency**: Standardized error handling across all modules
+- **Feature Gates**: Improved conditional compilation for optional components
+- **Code Quality**: Applied consistent formatting and linting rules
+- **Dependencies**: Updated to stable, secure dependency versions
+
 ## [0.1.0] - 2025-11-29
 
 ### Added
