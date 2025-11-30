@@ -21,8 +21,7 @@ If you discover a security vulnerability in AeroSocket, please report it respons
 
 **Do NOT open a public issue.** Instead, send your report privately to:
 
-- **Email**: security@aerosocket.rs (placeholder - configure when available)
-- **PGP Key**: Available on our website
+quefep on discord
 
 ### What to Include
 
