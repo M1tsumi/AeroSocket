@@ -2,11 +2,11 @@
 members = [
     "aerosocket",
     "aerosocket-core",
-    "aerosocket-server", 
-    "aerosocket-client",
+    "aerosocket-client", 
+    "aerosocket-server",
     "aerosocket-transport-tcp",
     "aerosocket-transport-tls",
-    "aerosocket-wasm",
+    # "aerosocket-wasm",  # Temporarily disabled due to compilation issues
 ]
 resolver = "2"
 
