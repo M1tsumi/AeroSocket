@@ -146,7 +146,7 @@ impl Server {
         _shutdown_signal: F,
     ) -> Result<()>
     where
-        F: std::future::Future<Output = ()> + Send + Unpin,
+        F: std::future::Future<Output = ()> + Send + Unpin + 'static,
     {
         // Create transport based on configuration
         #[cfg(feature = "tcp-transport")]
@@ -184,7 +184,7 @@ impl Server {
         self,
         transport: crate::tcp_transport::TcpTransport,
         connection_manager: Arc<ConnectionManager>,
-        shutdown_signal: F,
+        _shutdown_signal: F,
     ) -> Result<()>
     where
         F: std::future::Future<Output = ()> + Send + 'static,
