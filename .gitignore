@@ -48,8 +48,8 @@ docs/build/
 docs/_build/
 
 # Benchmark results
-*.svg
 target/criterion/
+!assets/banner.svg
 
 # Security audit files
 .cargo-audit.toml
@@ -73,7 +73,7 @@ wasm-pack.log
 # Performance profiling
 *.perf
 *.flamegraph
-*.svg
+!assets/banner.svg
 
 # Dependency tracking
 .dependency-cruiser.json
