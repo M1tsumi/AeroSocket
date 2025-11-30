@@ -184,10 +184,10 @@ impl Server {
         self,
         transport: crate::tcp_transport::TcpTransport,
         connection_manager: Arc<ConnectionManager>,
-        mut shutdown_signal: F,
+        shutdown_signal: F,
     ) -> Result<()>
     where
-        F: std::future::Future<Output = ()> + Send + Unpin,
+        F: std::future::Future<Output = ()> + Send + 'static,
     {
         // Spawn connection handling task
         let handler = self.handler;
@@ -256,26 +256,17 @@ impl Server {
                             }
                         }
                     }
-                    _ = &mut shutdown_signal => {
+                    _ = tokio::signal::ctrl_c() => {
                         break;
                     }
                 }
             }
         });
 
-        // Wait for shutdown signal or server task completion
-        tokio::select! {
-            result = server_task => {
-                match result {
-                    Ok(()) => Ok(()),
-                    Err(e) => Err(Error::Other(format!("Server task panicked: {}", e))),
-                }
-            }
-            _ = &mut shutdown_signal => {
-                // Graceful shutdown
-                self.graceful_shutdown(connection_manager).await?;
-                Ok(())
-            }
+        // Wait for server task completion
+        match server_task.await {
+            Ok(()) => Ok(()),
+            Err(e) => Err(Error::Other(format!("Server task panicked: {}", e))),
         }
     }
 
