@@ -3,13 +3,13 @@
 //! This module provides WebSocket client functionality for WebAssembly targets,
 //! enabling AeroSocket to run in browsers and WASM environments.
 
-use wasm_bindgen::prelude::*;
-use web_sys::{MessageEvent, ErrorEvent, CloseEvent, BinaryType, Blob};
+use aerosocket_core::{Error, Message, Result};
 use js_sys::Uint8Array;
-use aerosocket_core::{Message, Result, Error};
-use std::sync::Arc;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::Arc;
+use wasm_bindgen::prelude::*;
+use web_sys::{BinaryType, Blob, CloseEvent, ErrorEvent, MessageEvent};
 
 /// WebAssembly-based WebSocket client
 #[wasm_bindgen]
@@ -90,7 +90,8 @@ impl WebSocketClient {
                 for (i, byte) in data.iter().enumerate() {
                     array.set_index(i as u32, *byte);
                 }
-                self.inner.send_with_array_buffer(&array.buffer())
+                self.inner
+                    .send_with_array_buffer(&array.buffer())
                     .map_err(|e| Error::Other(format!("Failed to send binary message: {:?}", e)))?;
             }
             Message::Ping(_) => {
