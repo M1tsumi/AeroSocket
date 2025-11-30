@@ -1,15 +1,25 @@
 //! TLS transport implementation for WebSocket server
 //!
 //! This module provides TLS/SSL support for secure WebSocket connections.
+//! Note: TLS functionality requires the "tls-transport" feature and proper certificate setup.
 
+#[cfg(feature = "tls-transport")]
 use aerosocket_core::{Error, Result, Transport};
+#[cfg(feature = "tls-transport")]
 use aerosocket_core::transport::TransportStream;
+#[cfg(feature = "tls-transport")]
 use async_trait::async_trait;
+#[cfg(feature = "tls-transport")]
 use std::net::SocketAddr;
+#[cfg(feature = "tls-transport")]
 use std::sync::Arc;
+
+#[cfg(feature = "tls-transport")]
 use tokio::net::{TcpListener, TcpStream as TokioTcpStream};
+#[cfg(feature = "tls-transport")]
 use tokio_rustls::{TlsAcceptor, server::TlsStream, rustls::ServerConfig as RustlsServerConfig};
 
+#[cfg(feature = "tls-transport")]
 /// TLS transport for WebSocket connections
 pub struct TlsTransport {
     /// TCP listener
@@ -20,11 +30,13 @@ pub struct TlsTransport {
     local_addr: SocketAddr,
 }
 
+#[cfg(feature = "tls-transport")]
 /// TLS stream wrapper
 pub struct TlsStreamWrapper {
     inner: TlsStream<TokioTcpStream>,
 }
 
+#[cfg(feature = "tls-transport")]
 #[async_trait]
 impl Transport for TlsTransport {
     type Stream = TlsStreamWrapper;
@@ -49,6 +61,7 @@ impl Transport for TlsTransport {
     }
 }
 
+#[cfg(feature = "tls-transport")]
 #[async_trait]
 impl TransportStream for TlsStreamWrapper {
     async fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
@@ -92,6 +105,7 @@ impl TransportStream for TlsStreamWrapper {
     }
 }
 
+#[cfg(feature = "tls-transport")]
 impl TlsTransport {
     /// Bind to the given address with TLS configuration
     pub async fn bind(addr: SocketAddr, tls_config: RustlsServerConfig) -> Result<Self> {
@@ -117,38 +131,22 @@ impl TlsTransport {
     }
 }
 
+#[cfg(feature = "tls-transport")]
 /// Create a default TLS configuration for testing/development
 pub fn create_default_tls_config() -> Result<RustlsServerConfig> {
-    use rustls::Certificate;
-    use rustls::PrivateKey;
-    use rustls::ServerConfig;
-    use std::io::Cursor;
+    // For now, return a basic config - in production this should load real certificates
+    Err(Error::Other("TLS configuration not available in this release. Please implement your own TLS config.".to_string()))
+}
 
-    // For development purposes, we'll create a self-signed certificate
-    // In production, you should load proper certificates from files
-    let cert_pem = include_str!("../certificates/server.crt");
-    let key_pem = include_str!("../certificates/server.key");
+#[cfg(not(feature = "tls-transport"))]
+/// TLS transport is not available without the tls-transport feature
+pub struct TlsTransport;
 
-    let cert_der = rustls_pemfile::certs(&mut Cursor::new(cert_pem))
-        .into_iter()
-        .flatten()
-        .map(Certificate)
-        .collect();
-
-    let key_der = rustls_pemfile::pkcs8_private_keys(&mut Cursor::new(key_pem))
-        .into_iter()
-        .flatten()
-        .map(PrivateKey)
-        .next()
-        .ok_or_else(|| Error::Other("No private key found".to_string()))?;
-
-    let config = ServerConfig::builder()
-        .with_safe_defaults()
-        .with_no_client_auth()
-        .with_single_cert(cert_der, key_der)
-        .map_err(|e| Error::Other(format!("Failed to create TLS config: {}", e)))?;
-
-    Ok(config)
+#[cfg(not(feature = "tls-transport"))]
+impl TlsTransport {
+    pub async fn bind(_addr: std::net::SocketAddr, _config: ()) -> Result<Self> {
+        Err(Error::Other("TLS transport requires the 'tls-transport' feature to be enabled".to_string()))
+    }
 }
 
 #[cfg(test)]

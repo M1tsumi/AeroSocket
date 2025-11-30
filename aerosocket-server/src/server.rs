@@ -160,11 +160,10 @@ impl Server {
         #[cfg(feature = "tls-transport")]
         {
             if self.config.transport_type == crate::config::TransportType::Tls {
-                let tls_config = self.config.tls.as_ref()
+                let _tls_config = self.config.tls.as_ref()
                     .ok_or_else(|| Error::Other("TLS configuration required for TLS transport".to_string()))?;
-                let rustls_config = crate::tls_transport::create_default_tls_config()?;
-                let transport = crate::tls_transport::TlsTransport::bind(self.config.bind_address, rustls_config).await?;
-                return self.serve_with_tls_transport(transport, _connection_manager, _shutdown_signal).await;
+                // Note: TLS transport is disabled in this release
+                return Err(Error::Other("TLS transport is not available in this release. Please enable the 'tls-transport' feature and implement proper TLS configuration.".to_string()));
             }
         }
 
