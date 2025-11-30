@@ -251,6 +251,7 @@ impl Server {
                                 }
 
                                 connection_counter += 1;
+                                crate::log_debug!("Accepted connection #{} from {}", connection_counter, remote_addr);
                                 let manager = manager.clone();
                                 let handler = handler.clone();
                                 let config = config.clone();
