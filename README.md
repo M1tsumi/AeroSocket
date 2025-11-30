@@ -3,8 +3,6 @@
 [![Crates.io](https://img.shields.io/crates/v/aerosocket.svg)](https://crates.io/crates/aerosocket)
 [![Documentation](https://docs.rs/aerosocket/badge.svg)](https://docs.rs/aerosocket)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
-[![Build Status](https://github.com/M1tsumi/AeroSocket/workflows/CI/badge.svg)](https://github.com/M1tsumi/AeroSocket/actions)
-[![Coverage](https://codecov.io/gh/M1tsumi/AeroSocket/branch/main/graph/badge.svg)](https://codecov.io/gh/M1tsumi/AeroSocket)
 [![Discord](https://img.shields.io/discord/123456789012345678?label=discord)](https://discord.gg/aerosocket)
 
 > **Ultra-fast, zero-copy WebSocket library for Rust built for enterprise-scale applications**
