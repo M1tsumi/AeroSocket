@@ -5,6 +5,17 @@ All notable changes to AeroSocket will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2025-11-29
+
+### Fixed
+- **CI Dependencies**: Fixed tokio dependency resolution in workspace
+- **Build Issues**: Made tokio a required dependency for server/client crates
+- **Feature Gates**: Corrected feature references between workspace crates
+
+### Changed
+- **Dependency Management**: Improved workspace dependency inheritance
+- **Runtime Features**: Made tokio runtime non-optional for primary crates
+
 ## [0.1.3] - 2025-11-29
 
 ### Fixed

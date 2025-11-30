@@ -18,8 +18,8 @@ default = ["tokio", "tcp-transport"]
 full = ["tokio", "tcp-transport", "tls-transport", "compression", "metrics", "serde", "logging"]
 
 # Runtime features
-tokio = ["dep:tokio", "aerosocket-transport-tcp/tokio"]
-async-std = ["dep:async-std", "aerosocket-transport-tcp/async-std"]
+tokio = ["aerosocket-transport-tcp/tokio-runtime"]
+async-std = ["dep:async-std", "aerosocket-transport-tcp/async-std-runtime"]
 
 # Transport features
 tcp-transport = ["aerosocket-transport-tcp"]
@@ -49,8 +49,8 @@ log = "0.4"
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter"] }
 
-# Optional runtime dependencies
-tokio = { workspace = true, optional = true, features = ["io-util", "net", "time", "sync"] }
+# Runtime dependencies
+tokio = { workspace = true, features = ["io-util", "net", "time", "sync", "rt-multi-thread", "macros"] }
 async-std = { workspace = true, optional = true }
 
 # Optional transport dependencies

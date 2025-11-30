@@ -17,7 +17,7 @@ description = "TCP transport implementation for AeroSocket"
 default = ["tokio-runtime"]
 
 # Runtime features
-tokio-runtime = ["tokio", "aerosocket-core/tokio-runtime"]
+tokio-runtime = ["aerosocket-core/tokio-runtime"]
 async-std-runtime = ["async-std", "aerosocket-core/async-std-runtime"]
 
 [dependencies]
@@ -28,7 +28,7 @@ futures-util = { workspace = true }
 async-trait = { workspace = true }
 
 # Runtime dependencies
-tokio = { workspace = true, optional = true, features = ["io-util", "net", "time"] }
+tokio = { workspace = true, features = ["io-util", "net", "time"] }
 async-std = { workspace = true, optional = true }
 
 [dev-dependencies]
