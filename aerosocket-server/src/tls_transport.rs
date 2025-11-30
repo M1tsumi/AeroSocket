@@ -144,8 +144,8 @@ pub struct TlsTransport;
 
 #[cfg(not(feature = "tls-transport"))]
 impl TlsTransport {
-    pub async fn bind(_addr: std::net::SocketAddr, _config: ()) -> Result<Self> {
-        Err(Error::Other("TLS transport requires the 'tls-transport' feature to be enabled".to_string()))
+    pub async fn bind(_addr: std::net::SocketAddr, _config: ()) -> aerosocket_core::Result<Self> {
+        Err(aerosocket_core::Error::Other("TLS transport requires the 'tls-transport' feature to be enabled".to_string()))
     }
 }
 

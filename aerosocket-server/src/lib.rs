@@ -45,7 +45,7 @@ pub use connection::{Connection, ConnectionHandle, ConnectionState, ConnectionMe
 pub use error::{
     ServerError, ConfigError, ConnectionError, HandshakeError, 
     ProtocolError, TransportError, HandlerError, ManagerError,
-    ErrorContext, ContextError, ContextResult, logging
+    ErrorContext, ContextError, ContextResult
 };
 pub use handler::{Handler, BoxedHandler, DefaultHandler, EchoHandler};
 pub use manager::{ConnectionManager, ManagerStats, ConnectionHealth, CloseReason};

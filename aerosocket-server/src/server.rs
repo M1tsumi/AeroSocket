@@ -283,136 +283,26 @@ impl Server {
     #[cfg(feature = "tls-transport")]
     async fn serve_with_tls_transport<F>(
         self,
-        transport: crate::tls_transport::TlsTransport,
-        connection_manager: Arc<ConnectionManager>,
-        mut shutdown_signal: F,
+        _transport: crate::tls_transport::TlsTransport,
+        _connection_manager: Arc<ConnectionManager>,
+        _shutdown_signal: F,
     ) -> Result<()>
     where
-        F: std::future::Future<Output = ()> + Send + Unpin,
+        F: std::future::Future<Output = ()> + Send + Unpin + 'static,
     {
-        // Spawn connection handling task
-        let handler = self.handler;
-        let config = self.config.clone();
-        let manager = connection_manager.clone();
-        let rate_limiter = self.rate_limiter.clone();
-        
-        let server_task = tokio::spawn(async move {
-            let mut connection_counter = 0u64;
-            
-            loop {
-                // Check for shutdown
-                tokio::select! {
-                    result = transport.accept() => {
-                        match result {
-                            Ok(mut stream) => {
-                                // Get remote address for rate limiting
-                                let remote_addr = match stream.remote_addr() {
-                                    Ok(addr) => addr.ip(),
-                                    Err(e) => {
-                                        crate::log_error!("Failed to get TLS remote address: {:?}", e);
-                                        let _ = stream.close().await;
-                                        continue;
-                                    }
-                                };
-
-                                // Check rate limiting if enabled
-                                if let Some(ref rate_limiter) = rate_limiter {
-                                    if !rate_limiter.check_connection(remote_addr).await.unwrap_or(true) {
-                                        crate::log_warn!("TLS rate limit exceeded for IP: {}", remote_addr);
-                                        let _ = stream.close().await;
-                                        continue;
-                                    }
-                                }
-
-                                // Check connection limit
-                                if manager.connection_count().await >= config.max_connections {
-                                    crate::log_warn!("TLS connection limit reached, rejecting connection from {}", remote_addr);
-                                    let _ = stream.close().await;
-                                    continue;
-                                }
-
-                                connection_counter += 1;
-                                let manager = manager.clone();
-                                let handler = handler.clone();
-                                let config = config.clone();
-                                let rate_limiter = rate_limiter.clone();
-                                
-                                // Spawn connection handler
-                                tokio::spawn(async move {
-                                    if let Err(e) = Self::handle_tls_connection(
-                                        stream,
-                                        handler,
-                                        config,
-                                        manager,
-                                        rate_limiter,
-                                    ).await {
-                                        crate::log_error!("TLS connection handling error: {:?}", e);
-                                    }
-                                });
-                            }
-                            Err(e) => {
-                                crate::log_error!("TLS accept error: {:?}", e);
-                                // Continue accepting other connections
-                            }
-                        }
-                    }
-                    _ = &mut shutdown_signal => {
-                        break;
-                    }
-                }
-            }
-        });
-
-        // Wait for shutdown signal or server task completion
-        tokio::select! {
-            result = server_task => {
-                match result {
-                    Ok(()) => Ok(()),
-                    Err(e) => Err(Error::Other(format!("TLS server task panicked: {}", e))),
-                }
-            }
-            _ = &mut shutdown_signal => {
-                // Graceful shutdown
-                self.graceful_shutdown(connection_manager).await?;
-                Ok(())
-            }
-        }
+        Err(Error::Other("TLS transport is not available in this release".to_string()))
     }
 
     /// Handle a single TLS connection
     #[cfg(feature = "tls-transport")]
     async fn handle_tls_connection(
-        mut stream: crate::tls_transport::TlsStreamWrapper,
-        handler: BoxedHandler,
-        config: ServerConfig,
-        connection_manager: Arc<ConnectionManager>,
-        rate_limiter: Option<Arc<RateLimitMiddleware>>,
+        _stream: crate::tls_transport::TlsStreamWrapper,
+        _handler: BoxedHandler,
+        _config: ServerConfig,
+        _connection_manager: Arc<ConnectionManager>,
+        _rate_limiter: Option<Arc<RateLimitMiddleware>>,
     ) -> Result<()> {
-        // Perform WebSocket handshake over TLS
-        let (remote_addr, local_addr) = Self::perform_tls_handshake(&mut stream, &config).await?;
-        
-        // Convert to boxed transport stream
-        let boxed_stream: Box<dyn TransportStream> = Box::new(stream);
-        
-        // Create connection with stream
-        let connection = Connection::with_stream(remote_addr, local_addr, boxed_stream);
-        
-        // Add to connection manager
-        let connection_id = connection_manager.add_connection(connection).await;
-        
-        // Get connection handle
-        let connection_handle = connection_manager.get_connection(connection_id).await
-            .ok_or_else(|| Error::Other("Failed to get TLS connection handle".to_string()))?;
-
-        // Call handler
-        if let Err(e) = handler.handle(connection_handle).await {
-            crate::log_error!("TLS handler error: {:?}", e);
-        }
-
-        // Remove connection from manager
-        connection_manager.remove_connection(connection_id).await;
-        
-        Ok(())
+        Err(Error::Other("TLS connection handling is not available in this release".to_string()))
     }
 
     /// Handle a single connection
