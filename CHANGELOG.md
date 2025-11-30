@@ -5,6 +5,17 @@ All notable changes to AeroSocket will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2025-11-29
+
+### Fixed
+- **CI No-Default-Features**: Fixed tokio dependency in TLS transport for `--no-default-features` builds
+- **TLS Transport**: Made tokio required dependency for TLS transport (uses tokio-specific APIs)
+- **Feature Resolution**: Ensured all crates build correctly without default features
+
+### Changed
+- **Dependency Strategy**: Made tokio required for crates that use tokio-specific APIs
+- **CI Compatibility**: Improved build reliability across different feature combinations
+
 ## [0.1.4] - 2025-11-29
 
 ### Fixed

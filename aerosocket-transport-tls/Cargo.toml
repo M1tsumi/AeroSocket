@@ -17,7 +17,7 @@ description = "TLS transport implementation for AeroSocket"
 default = ["tokio-runtime"]
 
 # Runtime features
-tokio-runtime = ["tokio", "aerosocket-core/tokio-runtime"]
+tokio-runtime = ["aerosocket-core/tokio-runtime"]
 async-std-runtime = ["async-std", "aerosocket-core/async-std-runtime"]
 
 [dependencies]
@@ -33,7 +33,7 @@ tokio-rustls = { version = "0.24", features = ["tls12"] }
 webpki-roots = "0.25"
 
 # Runtime dependencies
-tokio = { workspace = true, optional = true, features = ["io-util", "net", "time"] }
+tokio = { workspace = true, features = ["io-util", "net", "time"] }
 async-std = { workspace = true, optional = true }
 
 [dev-dependencies]
