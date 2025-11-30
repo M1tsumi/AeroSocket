@@ -4,7 +4,13 @@
 //! enabling AeroSocket to run in browsers and WASM environments.
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![allow(missing_docs, missing_debug_implementations, clippy::new_without_default, unused_variables, dead_code)]
+#![allow(
+    missing_docs,
+    missing_debug_implementations,
+    clippy::new_without_default,
+    unused_variables,
+    dead_code
+)]
 #![doc(html_root_url = "https://docs.rs/aerosocket-wasm/")]
 
 /// WebSocket client for WebAssembly environments
@@ -35,7 +41,10 @@ impl WebSocketClient {
         }
         #[cfg(feature = "wasm-bindgen")]
         {
-            Self { ws: None, url: _url }
+            Self {
+                ws: None,
+                url: _url,
+            }
         }
     }
 }
@@ -49,7 +58,9 @@ impl WebSocketConfig {
         }
         #[cfg(feature = "wasm-bindgen")]
         {
-            Self { protocols: Vec::new() }
+            Self {
+                protocols: Vec::new(),
+            }
         }
     }
 }
@@ -58,10 +69,10 @@ impl WebSocketConfig {
 #[cfg(feature = "wasm-bindgen")]
 mod wasm_impl {
     use super::*;
+    use aerosocket_core::Error as CoreError;
+    use js_sys::Uint8Array;
     use wasm_bindgen::prelude::*;
     use web_sys::{MessageEvent, WebSocket};
-    use js_sys::Uint8Array;
-    use aerosocket_core::Error as CoreError;
 
     // Helper function to convert errors
     fn error_to_js(error: CoreError) -> JsValue {
@@ -70,33 +81,31 @@ mod wasm_impl {
 
     impl WebSocketClient {
         pub fn new_wasm(url: String) -> Self {
-            Self {
-                ws: None,
-                url,
-            }
+            Self { ws: None, url }
         }
 
         pub async fn connect(&mut self) -> Result<(), JsValue> {
-            let ws = WebSocket::new(&self.url).map_err(|e| JsValue::from_str(&e.as_string().unwrap_or_default()))?;
-            
+            let ws = WebSocket::new(&self.url)
+                .map_err(|e| JsValue::from_str(&e.as_string().unwrap_or_default()))?;
+
             let _ws_clone = ws.clone();
             let onopen_closure = Closure::wrap(Box::new(move |_event: MessageEvent| {
                 web_sys::console::log_1(&"WebSocket connected".into());
             }) as Box<dyn Fn(MessageEvent)>);
-            
+
             ws.set_onopen(Some(onopen_closure.as_ref().unchecked_ref()));
             onopen_closure.forget();
-            
+
             self.ws = Some(ws);
             Ok(())
         }
 
         pub fn send_text(&self, text: &str) -> Result<(), JsValue> {
             match &self.ws {
-                Some(ws) => {
-                    ws.send_with_str(text).map_err(|e| JsValue::from_str(&e.as_string().unwrap_or_default()))
-                }
-                None => Err(JsValue::from_str("WebSocket not connected"))
+                Some(ws) => ws
+                    .send_with_str(text)
+                    .map_err(|e| JsValue::from_str(&e.as_string().unwrap_or_default())),
+                None => Err(JsValue::from_str("WebSocket not connected")),
             }
         }
 
@@ -104,18 +113,19 @@ mod wasm_impl {
             match &self.ws {
                 Some(ws) => {
                     let array = Uint8Array::from(data);
-                    ws.send_with_array_buffer(&array.buffer()).map_err(|e| JsValue::from_str(&e.as_string().unwrap_or_default()))
+                    ws.send_with_array_buffer(&array.buffer())
+                        .map_err(|e| JsValue::from_str(&e.as_string().unwrap_or_default()))
                 }
-                None => Err(JsValue::from_str("WebSocket not connected"))
+                None => Err(JsValue::from_str("WebSocket not connected")),
             }
         }
 
         pub fn close(&self) -> Result<(), JsValue> {
             match &self.ws {
-                Some(ws) => {
-                    ws.close().map_err(|e| JsValue::from_str(&e.as_string().unwrap_or_default()))
-                }
-                None => Err(JsValue::from_str("WebSocket not connected"))
+                Some(ws) => ws
+                    .close()
+                    .map_err(|e| JsValue::from_str(&e.as_string().unwrap_or_default())),
+                None => Err(JsValue::from_str("WebSocket not connected")),
             }
         }
     }
