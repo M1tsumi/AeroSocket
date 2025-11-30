@@ -57,15 +57,15 @@ impl Frame {
     /// Create a close frame with optional code and reason
     pub fn close(code: Option<u16>, reason: Option<&str>) -> Self {
         let mut payload = BytesMut::new();
-        
+
         if let Some(code) = code {
             payload.put_u16(code);
         }
-        
+
         if let Some(reason) = reason {
             payload.put_slice(reason.as_bytes());
         }
-        
+
         Self::new(Opcode::Close, payload.freeze())
     }
 
@@ -152,7 +152,11 @@ impl Frame {
     /// Parse a frame from bytes
     pub fn parse(buf: &mut BytesMut) -> Result<Self> {
         if buf.len() < 2 {
-            return Err(FrameError::InsufficientData { needed: 2, have: buf.len() }.into());
+            return Err(FrameError::InsufficientData {
+                needed: 2,
+                have: buf.len(),
+            }
+            .into());
         }
 
         let mut cursor = std::io::Cursor::new(&buf[..]);
@@ -174,12 +178,20 @@ impl Frame {
         // Read extended payload length if needed
         if payload_len == 126 {
             if buf.len() < 4 {
-                return Err(FrameError::InsufficientData { needed: 4, have: buf.len() }.into());
+                return Err(FrameError::InsufficientData {
+                    needed: 4,
+                    have: buf.len(),
+                }
+                .into());
             }
             payload_len = cursor.get_u16() as usize;
         } else if payload_len == 127 {
             if buf.len() < 10 {
-                return Err(FrameError::InsufficientData { needed: 10, have: buf.len() }.into());
+                return Err(FrameError::InsufficientData {
+                    needed: 10,
+                    have: buf.len(),
+                }
+                .into());
             }
             payload_len = cursor.get_u64() as usize;
         }
@@ -187,12 +199,11 @@ impl Frame {
         // Read masking key if present
         let mask = if masked {
             if buf.len() < cursor.position() as usize + 4 + payload_len {
-                return Err(
-                    FrameError::InsufficientData {
-                        needed: cursor.position() as usize + 4 + payload_len,
-                        have: buf.len()
-                    }.into()
-                );
+                return Err(FrameError::InsufficientData {
+                    needed: cursor.position() as usize + 4 + payload_len,
+                    have: buf.len(),
+                }
+                .into());
             }
             let mut mask = [0u8; 4];
             cursor.copy_to_slice(&mut mask);
@@ -203,15 +214,16 @@ impl Frame {
 
         // Read payload
         if buf.len() < cursor.position() as usize + payload_len {
-            return Err(
-                FrameError::InsufficientData {
-                    needed: cursor.position() as usize + payload_len,
-                    have: buf.len()
-                }.into()
-            );
+            return Err(FrameError::InsufficientData {
+                needed: cursor.position() as usize + payload_len,
+                have: buf.len(),
+            }
+            .into());
         }
 
-        let mut payload = Bytes::copy_from_slice(&buf[cursor.position() as usize..cursor.position() as usize + payload_len]);
+        let mut payload = Bytes::copy_from_slice(
+            &buf[cursor.position() as usize..cursor.position() as usize + payload_len],
+        );
 
         // Unmask payload if needed
         if let Some(mask) = mask {
@@ -344,7 +356,7 @@ impl FrameParser {
     /// Try to parse a single frame from the buffer
     fn try_parse_frame(&mut self) -> Option<Result<Frame>> {
         let mut buf = self.buffer.clone();
-        
+
         match Frame::parse(&mut buf) {
             Ok(frame) => {
                 // Remove the parsed data from the buffer
@@ -384,7 +396,7 @@ mod tests {
     fn test_text_frame_serialization() {
         let frame = Frame::text("hello");
         let bytes = frame.to_bytes();
-        
+
         assert_eq!(bytes[0], 0x81); // FIN=1, RSV=000, Opcode=0001
         assert_eq!(bytes[1], 0x05); // MASK=0, Length=5
         assert_eq!(&bytes[2..], b"hello");
@@ -394,7 +406,7 @@ mod tests {
     fn test_masked_frame() {
         let frame = Frame::text("hello").mask(true);
         let bytes = frame.to_bytes();
-        
+
         assert_eq!(bytes[1] & 0x80, 0x80); // MASK bit set
         assert_eq!(bytes.len(), 2 + 4 + 5); // header + mask + payload
     }
@@ -404,7 +416,7 @@ mod tests {
         let original = Frame::text("hello");
         let bytes = original.to_bytes();
         let mut buf = BytesMut::from(&bytes[..]);
-        
+
         let parsed = Frame::parse(&mut buf).unwrap();
         assert_eq!(parsed.kind(), FrameKind::Text);
         assert_eq!(parsed.payload, "hello");
@@ -416,7 +428,7 @@ mod tests {
         let payload = vec![0u8; 65536]; // 64KB
         let frame = Frame::binary(payload.clone());
         let bytes = frame.to_bytes();
-        
+
         assert_eq!(bytes[1], 126); // Extended 16-bit length
         assert_eq!(bytes[2..4], (65536u16).to_be_bytes());
     }
@@ -425,7 +437,7 @@ mod tests {
     fn test_close_frame() {
         let frame = Frame::close(Some(1000), Some("Goodbye"));
         let bytes = frame.to_bytes();
-        
+
         assert_eq!(bytes[0], 0x88); // FIN=1, Opcode=8
         assert_eq!(bytes[1], 0x07); // Length=7 (2 bytes code + 5 bytes reason)
         assert_eq!(&bytes[2..4], 1000u16.to_be_bytes());
@@ -435,22 +447,22 @@ mod tests {
     #[test]
     fn test_frame_parser() {
         let mut parser = FrameParser::new();
-        
+
         let frame1 = Frame::text("frame1");
         let frame2 = Frame::ping("ping");
-        
+
         let bytes1 = frame1.to_bytes();
         let bytes2 = frame2.to_bytes();
-        
+
         // Feed partial data
         let frames = parser.feed(&bytes1[..5]);
         assert_eq!(frames.len(), 0); // Not enough data
-        
+
         // Feed remaining data
         let frames = parser.feed(&bytes1[5..]);
         assert_eq!(frames.len(), 1);
         assert!(frames[0].as_ref().unwrap().is_data());
-        
+
         // Feed second frame
         let frames = parser.feed(&bytes2);
         assert_eq!(frames.len(), 1);

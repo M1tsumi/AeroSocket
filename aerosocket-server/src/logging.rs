@@ -3,7 +3,7 @@
 //! This module provides structured logging capabilities for the server.
 
 #[cfg(feature = "logging")]
-use tracing::{error, warn, info, debug, trace};
+use tracing::{debug, error, info, trace, warn};
 
 /// Log an error message
 #[macro_export]
@@ -84,7 +84,7 @@ macro_rules! log_trace {
 #[cfg(feature = "logging")]
 pub fn init_logging() -> Result<(), Box<dyn std::error::Error>> {
     use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-    
+
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
             std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string()),

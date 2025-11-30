@@ -2,9 +2,9 @@
 //!
 //! This module provides connection management for WebSocket clients.
 
-use aerosocket_core::{Message, Result, transport::TransportStream};
 use aerosocket_core::frame::Frame;
 use aerosocket_core::protocol::Opcode;
+use aerosocket_core::{transport::TransportStream, Message, Result};
 use bytes::{Bytes, BytesMut};
 use std::net::SocketAddr;
 use std::time::Duration;
@@ -98,7 +98,11 @@ impl Connection {
     }
 
     /// Create a new connection with a transport stream
-    pub fn with_stream(remote_addr: SocketAddr, local_addr: SocketAddr, stream: Box<dyn TransportStream>) -> Self {
+    pub fn with_stream(
+        remote_addr: SocketAddr,
+        local_addr: SocketAddr,
+        stream: Box<dyn TransportStream>,
+    ) -> Self {
         let now = std::time::Instant::now();
         Self {
             remote_addr,
@@ -122,10 +126,10 @@ impl Connection {
 
     /// Create a new connection with timeout settings
     pub fn with_timeout(
-        remote_addr: SocketAddr, 
-        local_addr: SocketAddr, 
+        remote_addr: SocketAddr,
+        local_addr: SocketAddr,
         stream: Box<dyn TransportStream>,
-        idle_timeout: Option<Duration>
+        idle_timeout: Option<Duration>,
     ) -> Self {
         let now = std::time::Instant::now();
         Self {
@@ -210,7 +214,7 @@ impl Connection {
     pub async fn send(&mut self, message: Message) -> Result<()> {
         // Update activity timestamp before borrowing stream
         self.update_activity();
-        
+
         if let Some(stream) = &mut self.stream {
             // Convert message to WebSocket frame
             let frame = match message {
@@ -225,18 +229,20 @@ impl Connection {
 
             // Serialize frame to bytes
             let frame_bytes = frame.to_bytes();
-            
+
             // Send frame
             stream.write_all(&frame_bytes).await?;
             stream.flush().await?;
-            
+
             // Update metadata
             self.metadata.messages_sent += 1;
             self.metadata.bytes_sent += frame_bytes.len() as u64;
-            
+
             Ok(())
         } else {
-            Err(aerosocket_core::Error::Other("Connection not established".to_string()))
+            Err(aerosocket_core::Error::Other(
+                "Connection not established".to_string(),
+            ))
         }
     }
 
@@ -269,7 +275,7 @@ impl Connection {
     pub async fn next(&mut self) -> Result<Option<Message>> {
         // Update activity timestamp before borrowing stream
         self.update_activity();
-        
+
         if let Some(stream) = &mut self.stream {
             let mut message_buffer = Vec::new();
             let mut final_frame = false;
@@ -279,7 +285,7 @@ impl Connection {
             while !final_frame {
                 // Read frame data
                 let mut frame_buffer = BytesMut::new();
-                
+
                 // Read at least the frame header (2 bytes)
                 loop {
                     let mut temp_buf = [0u8; 2];
@@ -289,7 +295,7 @@ impl Connection {
                         return Ok(None);
                     }
                     frame_buffer.extend_from_slice(&temp_buf[..n]);
-                    
+
                     if frame_buffer.len() >= 2 {
                         break;
                     }
@@ -321,31 +327,38 @@ impl Connection {
                                 } else {
                                     1000 // Normal closure
                                 };
-                                
+
                                 let close_reason = if frame.payload.len() > 2 {
                                     String::from_utf8_lossy(&frame.payload[2..]).to_string()
                                 } else {
                                     String::new()
                                 };
-                                
+
                                 self.state = ConnectionState::Closing;
-                                return Ok(Some(Message::close(Some(close_code), Some(close_reason))));
+                                return Ok(Some(Message::close(
+                                    Some(close_code),
+                                    Some(close_reason),
+                                )));
                             }
                             Opcode::Continuation | Opcode::Text | Opcode::Binary => {
                                 // Handle data frames
                                 if opcode.is_none() {
                                     opcode = Some(frame.opcode);
                                 }
-                                
+
                                 message_buffer.extend_from_slice(&frame.payload);
                                 final_frame = frame.fin;
-                                
+
                                 if !final_frame && frame.opcode != Opcode::Continuation {
-                                    return Err(aerosocket_core::Error::Other("Expected continuation frame".to_string()));
+                                    return Err(aerosocket_core::Error::Other(
+                                        "Expected continuation frame".to_string(),
+                                    ));
                                 }
                             }
                             _ => {
-                                return Err(aerosocket_core::Error::Other("Unsupported opcode".to_string()));
+                                return Err(aerosocket_core::Error::Other(
+                                    "Unsupported opcode".to_string(),
+                                ));
                             }
                         }
                     }
@@ -377,7 +390,11 @@ impl Connection {
                     let data = Bytes::from(message_buffer.clone());
                     Message::binary(data)
                 }
-                _ => return Err(aerosocket_core::Error::Other("Invalid message opcode".to_string())),
+                _ => {
+                    return Err(aerosocket_core::Error::Other(
+                        "Invalid message opcode".to_string(),
+                    ))
+                }
             };
 
             // Update metadata
@@ -386,14 +403,17 @@ impl Connection {
 
             Ok(Some(message))
         } else {
-            Err(aerosocket_core::Error::Other("Connection not established".to_string()))
+            Err(aerosocket_core::Error::Other(
+                "Connection not established".to_string(),
+            ))
         }
     }
 
     /// Close the connection
     pub async fn close(&mut self, code: Option<u16>, reason: Option<&str>) -> Result<()> {
         self.state = ConnectionState::Closing;
-        self.send(Message::close(code, reason.map(|s| s.to_string()))).await
+        self.send(Message::close(code, reason.map(|s| s.to_string())))
+            .await
     }
 
     /// Check if the connection is established
@@ -442,7 +462,9 @@ impl ConnectionHandle {
 
     /// Try to lock the connection
     pub async fn try_lock(&self) -> Result<tokio::sync::MutexGuard<'_, Connection>> {
-        self.connection.try_lock().map_err(|_| aerosocket_core::Error::Other("Failed to lock connection".to_string()))
+        self.connection
+            .try_lock()
+            .map_err(|_| aerosocket_core::Error::Other("Failed to lock connection".to_string()))
     }
 }
 

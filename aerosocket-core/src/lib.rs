@@ -29,7 +29,7 @@ pub mod prelude;
 // Re-export key types for convenience
 pub use error::{Error, Result};
 pub use frame::{Frame, FrameKind};
-pub use handshake::{HandshakeRequest, HandshakeResponse, HandshakeConfig};
+pub use handshake::{HandshakeConfig, HandshakeRequest, HandshakeResponse};
 pub use message::{Message, MessageKind};
 pub use protocol::Opcode;
 pub use transport::Transport;

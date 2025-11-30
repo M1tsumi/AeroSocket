@@ -3,14 +3,17 @@
 //! This module provides handler abstractions for processing WebSocket connections.
 
 use aerosocket_core::{Message, Result};
-use std::pin::Pin;
 use std::future::Future;
+use std::pin::Pin;
 
 /// Trait for handling WebSocket connections
 pub trait Handler: Send + Sync + 'static {
     /// Handle a new connection
-    fn handle<'a>(&'a self, connection: crate::connection::ConnectionHandle) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>>;
-    
+    fn handle<'a>(
+        &'a self,
+        connection: crate::connection::ConnectionHandle,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>>;
+
     /// Clone the handler
     fn clone_box(&self) -> Box<dyn Handler>;
 }
@@ -42,12 +45,16 @@ impl Default for DefaultHandler {
 }
 
 impl Handler for DefaultHandler {
-    fn handle<'a>(&'a self, connection: crate::connection::ConnectionHandle) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> {
+    fn handle<'a>(
+        &'a self,
+        connection: crate::connection::ConnectionHandle,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> {
         Box::pin(async move {
             // Get the connection from the handle
-            let mut conn = connection.try_lock().await
-                .map_err(|_| aerosocket_core::Error::Other("Failed to lock connection".to_string()))?;
-            
+            let mut conn = connection.try_lock().await.map_err(|_| {
+                aerosocket_core::Error::Other("Failed to lock connection".to_string())
+            })?;
+
             while let Some(msg) = conn.next().await? {
                 match msg {
                     Message::Text(text) => {
@@ -70,11 +77,11 @@ impl Handler for DefaultHandler {
                     }
                 }
             }
-            
+
             Ok(())
         })
     }
-    
+
     fn clone_box(&self) -> Box<dyn Handler> {
         Box::new(self.clone())
     }
@@ -98,12 +105,16 @@ impl Default for EchoHandler {
 }
 
 impl Handler for EchoHandler {
-    fn handle<'a>(&'a self, connection: crate::connection::ConnectionHandle) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> {
+    fn handle<'a>(
+        &'a self,
+        connection: crate::connection::ConnectionHandle,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> {
         Box::pin(async move {
             // Get the connection from the handle
-            let mut conn = connection.try_lock().await
-                .map_err(|_| aerosocket_core::Error::Other("Failed to lock connection".to_string()))?;
-            
+            let mut conn = connection.try_lock().await.map_err(|_| {
+                aerosocket_core::Error::Other("Failed to lock connection".to_string())
+            })?;
+
             while let Some(msg) = conn.next().await? {
                 match msg {
                     Message::Text(text) => {
@@ -127,11 +138,11 @@ impl Handler for EchoHandler {
                     }
                 }
             }
-            
+
             Ok(())
         })
     }
-    
+
     fn clone_box(&self) -> Box<dyn Handler> {
         Box::new(self.clone())
     }
@@ -152,12 +163,19 @@ impl<F> FnHandler<F> {
 
 impl<F> Handler for FnHandler<F>
 where
-    F: Fn(crate::connection::ConnectionHandle) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync + Clone + 'static,
+    F: Fn(crate::connection::ConnectionHandle) -> Pin<Box<dyn Future<Output = Result<()>> + Send>>
+        + Send
+        + Sync
+        + Clone
+        + 'static,
 {
-    fn handle<'a>(&'a self, connection: crate::connection::ConnectionHandle) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> {
+    fn handle<'a>(
+        &'a self,
+        connection: crate::connection::ConnectionHandle,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> {
         Box::pin((self.f)(connection))
     }
-    
+
     fn clone_box(&self) -> Box<dyn Handler> {
         Box::new(self.clone())
     }
@@ -191,7 +209,7 @@ mod tests {
         let remote = "127.0.0.1:12345".parse().unwrap();
         let local = "127.0.0.1:8080".parse().unwrap();
         let connection = crate::connection::Connection::new(remote, local);
-        
+
         // Note: This test will fail until Connection::next and send are implemented
         // For now, we just test that the handler can be created
         assert!(true);
@@ -203,7 +221,7 @@ mod tests {
         let remote = "127.0.0.1:12345".parse().unwrap();
         let local = "127.0.0.1:8080".parse().unwrap();
         let connection = crate::connection::Connection::new(remote, local);
-        
+
         // Note: This test will fail until Connection::next and send are implemented
         // For now, we just test that the handler can be created
         assert!(true);
@@ -211,14 +229,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_fn_handler() {
-        let handler = from_fn(|_conn| async {
-            Ok(())
-        });
-        
+        let handler = from_fn(|_conn| async { Ok(()) });
+
         let remote = "127.0.0.1:12345".parse().unwrap();
         let local = "127.0.0.1:8080".parse().unwrap();
         let connection = crate::connection::Connection::new(remote, local);
-        
+
         // Note: This test will fail until Connection::next and send are implemented
         // For now, we just test that the handler can be created
         assert!(true);

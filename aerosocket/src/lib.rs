@@ -55,16 +55,16 @@ pub use aerosocket_client as client;
 /// Prelude module with common imports
 pub mod prelude {
     pub use aerosocket_core::prelude::*;
-    
+
     #[cfg(feature = "server")]
     pub use aerosocket_server::prelude::*;
-    
+
     #[cfg(feature = "client")]
     pub use aerosocket_client::prelude::*;
-    
+
     #[cfg(feature = "transport-tcp")]
     pub use aerosocket_transport_tcp::prelude::*;
-    
+
     #[cfg(feature = "transport-tls")]
     pub use aerosocket_transport_tls::prelude::*;
 }

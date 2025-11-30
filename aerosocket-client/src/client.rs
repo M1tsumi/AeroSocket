@@ -95,7 +95,7 @@ pub struct ClientConfig {
 impl Default for ClientConfig {
     fn default() -> Self {
         Self {
-            max_frame_size: 1024 * 1024, // 1MB
+            max_frame_size: 1024 * 1024,        // 1MB
             max_message_size: 16 * 1024 * 1024, // 16MB
             handshake_timeout: std::time::Duration::from_secs(30),
             compression_enabled: false,
@@ -174,7 +174,7 @@ mod tests {
             .max_frame_size(2048)
             .compression(true)
             .build();
-        
+
         assert_eq!(client.addr, addr);
         assert_eq!(client.config.max_frame_size, 2048);
         assert!(client.config.compression_enabled);

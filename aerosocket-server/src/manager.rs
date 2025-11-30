@@ -2,13 +2,13 @@
 //!
 //! This module provides connection management, monitoring, and cleanup functionality.
 
-use crate::connection::{Connection, ConnectionHandle};
 use crate::config::ServerConfig;
+use crate::connection::{Connection, ConnectionHandle};
 use aerosocket_core::Result;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{Mutex, mpsc};
+use tokio::sync::{mpsc, Mutex};
 use tokio::time::interval;
 
 /// Connection manager statistics
@@ -67,7 +67,7 @@ impl ConnectionManager {
     /// Create a new connection manager
     pub fn new(config: ServerConfig) -> Self {
         let (cleanup_tx, cleanup_rx) = mpsc::channel(1000);
-        
+
         Self {
             cleanup_interval: Duration::from_secs(30), // Default cleanup interval
             config,
@@ -91,7 +91,7 @@ impl ConnectionManager {
         *next_id += 1;
 
         let handle = ConnectionHandle::new(id, connection);
-        
+
         let mut connections = self.connections.lock().await;
         connections.insert(id, handle.clone());
 
@@ -111,7 +111,7 @@ impl ConnectionManager {
             // Update statistics
             let mut stats = self.stats.lock().await;
             stats.active_connections = connections.len();
-            
+
             match reason {
                 CloseReason::Timeout => stats.timeout_closures += 1,
                 CloseReason::Error => stats.error_closures += 1,
@@ -163,7 +163,7 @@ impl ConnectionManager {
         tokio::spawn(async move {
             let mut cleanup_interval_timer = interval(cleanup_interval);
             let mut cleanup_receiver = cleanup_rx.lock().await;
-            
+
             loop {
                 tokio::select! {
                     _ = cleanup_interval_timer.tick() => {
@@ -215,7 +215,7 @@ impl ConnectionManager {
         if connections_map.remove(&id).is_some() {
             let mut stats = stats.lock().await;
             stats.active_connections = connections_map.len();
-            
+
             match reason {
                 CloseReason::Timeout => stats.timeout_closures += 1,
                 CloseReason::Error => stats.error_closures += 1,
@@ -266,7 +266,7 @@ impl ConnectionManager {
         // Clear all connections and update stats
         let mut connections_map = self.connections.lock().await;
         connections_map.clear();
-        
+
         // Update statistics
         let mut stats = self.stats.lock().await;
         stats.active_connections = 0;

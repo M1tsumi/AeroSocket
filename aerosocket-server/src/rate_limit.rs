@@ -2,11 +2,11 @@
 //!
 //! This module provides rate limiting capabilities to protect against DoS attacks.
 
+use aerosocket_core::Result;
 use std::collections::HashMap;
 use std::net::IpAddr;
 use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
-use aerosocket_core::Result;
 
 /// Rate limiter configuration
 #[derive(Debug, Clone)]
@@ -112,7 +112,7 @@ impl RateLimiter {
     /// Cleanup expired entries
     pub async fn cleanup(&self) {
         let now = Instant::now();
-        
+
         // Cleanup expired request counters
         {
             let mut counters = self.request_counters.lock().await;
@@ -133,7 +133,7 @@ impl RateLimiter {
     pub async fn get_stats(&self) -> RateLimitStats {
         let request_count = self.request_counters.lock().await.len();
         let connection_count = self.connection_counters.lock().await.len();
-        
+
         RateLimitStats {
             tracked_ips: request_count,
             active_connections: connection_count,
@@ -207,16 +207,16 @@ mod tests {
 
         // First request should be allowed
         assert!(limiter.check_request_rate(ip).await.unwrap());
-        
+
         // Second request should be allowed
         assert!(limiter.check_request_rate(ip).await.unwrap());
-        
+
         // Third request should be denied
         assert!(!limiter.check_request_rate(ip).await.unwrap());
 
         // Wait for window to reset
         tokio::time::sleep(Duration::from_secs(2)).await;
-        
+
         // Should be allowed again
         assert!(limiter.check_request_rate(ip).await.unwrap());
     }
@@ -235,16 +235,16 @@ mod tests {
 
         // First connection should be allowed
         assert!(limiter.can_connect(ip).await.unwrap());
-        
+
         // Second connection should be allowed
         assert!(limiter.can_connect(ip).await.unwrap());
-        
+
         // Third connection should be denied
         assert!(!limiter.can_connect(ip).await.unwrap());
 
         // Remove one connection
         limiter.remove_connection(ip).await;
-        
+
         // Should be allowed again
         assert!(limiter.can_connect(ip).await.unwrap());
     }
@@ -257,15 +257,15 @@ mod tests {
 
         // Should allow connection
         assert!(middleware.check_connection(ip).await.unwrap());
-        
+
         // Get stats
         let stats = middleware.stats().await;
         assert_eq!(stats.tracked_ips, 1);
         assert_eq!(stats.active_connections, 1);
-        
+
         // Close connection
         middleware.connection_closed(ip).await;
-        
+
         let stats = middleware.stats().await;
         assert_eq!(stats.active_connections, 0);
     }

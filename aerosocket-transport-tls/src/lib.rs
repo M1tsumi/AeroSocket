@@ -9,10 +9,10 @@
 pub mod tls;
 
 // Re-export TLS transport types
-pub use tls::{TlsTransport, TlsStream};
+pub use tls::{TlsStream, TlsTransport};
 
 /// Prelude module
 pub mod prelude {
-    pub use crate::tls::{TlsTransport, TlsStream};
+    pub use crate::tls::{TlsStream, TlsTransport};
     pub use aerosocket_core::transport::{Transport, TransportStream};
 }

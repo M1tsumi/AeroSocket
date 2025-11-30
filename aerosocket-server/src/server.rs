@@ -4,18 +4,21 @@
 
 use crate::{
     config::ServerConfig,
-    handler::{BoxedHandler, Handler},
     connection::{Connection, ConnectionHandle},
+    handler::{BoxedHandler, Handler},
     rate_limit::RateLimitMiddleware,
 };
-use aerosocket_core::{Error, Result, Transport};
-use aerosocket_core::transport::TransportStream;
-use aerosocket_core::handshake::{HandshakeConfig, parse_client_handshake, validate_client_handshake, create_server_handshake, response_to_string};
 use aerosocket_core::error::ConfigError;
-use std::sync::Arc;
+use aerosocket_core::handshake::{
+    create_server_handshake, parse_client_handshake, response_to_string, validate_client_handshake,
+    HandshakeConfig,
+};
+use aerosocket_core::transport::TransportStream;
+use aerosocket_core::{Error, Result, Transport};
 use std::collections::HashMap;
 use std::net::SocketAddr;
-use tokio::sync::{Mutex, mpsc};
+use std::sync::Arc;
+use tokio::sync::{mpsc, Mutex};
 use tokio::time::{timeout, Duration};
 
 /// WebSocket server
@@ -91,18 +94,20 @@ impl Server {
     /// Create a new server with the given config and handler
     pub fn new(config: ServerConfig, handler: BoxedHandler) -> Self {
         let rate_limiter = if config.backpressure.enabled {
-            Some(Arc::new(RateLimitMiddleware::new(crate::rate_limit::RateLimitConfig {
-                max_requests: config.backpressure.max_requests_per_minute,
-                window: Duration::from_secs(60),
-                max_connections: config.max_connections / 10, // 10% of max connections per IP
-                connection_timeout: config.idle_timeout,
-            })))
+            Some(Arc::new(RateLimitMiddleware::new(
+                crate::rate_limit::RateLimitConfig {
+                    max_requests: config.backpressure.max_requests_per_minute,
+                    window: Duration::from_secs(60),
+                    max_connections: config.max_connections / 10, // 10% of max connections per IP
+                    connection_timeout: config.idle_timeout,
+                },
+            )))
         } else {
             None
         };
 
-        Self { 
-            config, 
+        Self {
+            config,
             handler,
             rate_limiter,
         }
@@ -126,17 +131,22 @@ impl Server {
     {
         let connection_manager = Arc::new(ConnectionManager::new());
         let shutdown_signal = Box::pin(shutdown_signal);
-        self.serve_with_connection_manager_and_shutdown(connection_manager, shutdown_signal).await
+        self.serve_with_connection_manager_and_shutdown(connection_manager, shutdown_signal)
+            .await
     }
 
     /// Internal serve method
-    async fn serve_with_connection_manager(self, connection_manager: Arc<ConnectionManager>) -> Result<()> {
+    async fn serve_with_connection_manager(
+        self,
+        connection_manager: Arc<ConnectionManager>,
+    ) -> Result<()> {
         let (_shutdown_tx, mut shutdown_rx) = mpsc::channel::<()>(1);
         let shutdown_rx = Box::pin(async move {
             let _ = shutdown_rx.recv().await;
         });
 
-        self.serve_with_connection_manager_and_shutdown(connection_manager, shutdown_rx).await
+        self.serve_with_connection_manager_and_shutdown(connection_manager, shutdown_rx)
+            .await
     }
 
     /// Internal serve method with shutdown signal
@@ -152,16 +162,20 @@ impl Server {
         #[cfg(feature = "tcp-transport")]
         {
             if self.config.transport_type == crate::config::TransportType::Tcp {
-                let transport = crate::tcp_transport::TcpTransport::bind(self.config.bind_address).await?;
-                return self.serve_with_tcp_transport(transport, _connection_manager, _shutdown_signal).await;
+                let transport =
+                    crate::tcp_transport::TcpTransport::bind(self.config.bind_address).await?;
+                return self
+                    .serve_with_tcp_transport(transport, _connection_manager, _shutdown_signal)
+                    .await;
             }
         }
-        
+
         #[cfg(feature = "tls-transport")]
         {
             if self.config.transport_type == crate::config::TransportType::Tls {
-                let _tls_config = self.config.tls.as_ref()
-                    .ok_or_else(|| Error::Other("TLS configuration required for TLS transport".to_string()))?;
+                let _tls_config = self.config.tls.as_ref().ok_or_else(|| {
+                    Error::Other("TLS configuration required for TLS transport".to_string())
+                })?;
                 // Note: TLS transport is disabled in this release
                 return Err(Error::Other("TLS transport is not available in this release. Please enable the 'tls-transport' feature and implement proper TLS configuration.".to_string()));
             }
@@ -171,11 +185,16 @@ impl Server {
         if self.config.transport_type == crate::config::TransportType::Tcp {
             #[cfg(feature = "tcp-transport")]
             {
-                let transport = crate::tcp_transport::TcpTransport::bind(self.config.bind_address).await?;
-                return self.serve_with_tcp_transport(transport, _connection_manager, _shutdown_signal).await;
+                let transport =
+                    crate::tcp_transport::TcpTransport::bind(self.config.bind_address).await?;
+                return self
+                    .serve_with_tcp_transport(transport, _connection_manager, _shutdown_signal)
+                    .await;
             }
         }
-        Err(Error::Config(ConfigError::Validation("No transport available".to_string())))
+        Err(Error::Config(ConfigError::Validation(
+            "No transport available".to_string(),
+        )))
     }
 
     /// Serve with TCP transport
@@ -194,10 +213,10 @@ impl Server {
         let config = self.config.clone();
         let manager = connection_manager.clone();
         let rate_limiter = self.rate_limiter.clone();
-        
+
         let server_task = tokio::spawn(async move {
             let mut connection_counter = 0u64;
-            
+
             loop {
                 // Check for shutdown
                 tokio::select! {
@@ -236,7 +255,7 @@ impl Server {
                                 let handler = handler.clone();
                                 let config = config.clone();
                                 let rate_limiter = rate_limiter.clone();
-                                
+
                                 // Spawn connection handler
                                 tokio::spawn(async move {
                                     if let Err(e) = Self::handle_connection(
@@ -281,7 +300,9 @@ impl Server {
     where
         F: std::future::Future<Output = ()> + Send + Unpin + 'static,
     {
-        Err(Error::Other("TLS transport is not available in this release".to_string()))
+        Err(Error::Other(
+            "TLS transport is not available in this release".to_string(),
+        ))
     }
 
     /// Handle a single TLS connection
@@ -293,7 +314,9 @@ impl Server {
         _connection_manager: Arc<ConnectionManager>,
         _rate_limiter: Option<Arc<RateLimitMiddleware>>,
     ) -> Result<()> {
-        Err(Error::Other("TLS connection handling is not available in this release".to_string()))
+        Err(Error::Other(
+            "TLS connection handling is not available in this release".to_string(),
+        ))
     }
 
     /// Handle a single connection
@@ -306,18 +329,20 @@ impl Server {
     ) -> Result<()> {
         // Perform WebSocket handshake
         let (remote_addr, local_addr) = Self::perform_handshake(&mut stream, &config).await?;
-        
+
         // Convert to boxed transport stream
         let boxed_stream: Box<dyn TransportStream> = Box::new(stream);
-        
+
         // Create connection with stream
         let connection = Connection::with_stream(remote_addr, local_addr, boxed_stream);
-        
+
         // Add to connection manager
         let connection_id = connection_manager.add_connection(connection).await;
-        
+
         // Get connection handle
-        let connection_handle = connection_manager.get_connection(connection_id).await
+        let connection_handle = connection_manager
+            .get_connection(connection_id)
+            .await
             .ok_or_else(|| Error::Other("Failed to get connection handle".to_string()))?;
 
         // Call handler
@@ -327,12 +352,12 @@ impl Server {
 
         // Remove connection from manager
         connection_manager.remove_connection(connection_id).await;
-        
+
         // Clean up rate limiting
         if let Some(ref rate_limiter) = rate_limiter {
             rate_limiter.connection_closed(remote_addr.ip()).await;
         }
-        
+
         Ok(())
     }
 
@@ -343,12 +368,13 @@ impl Server {
         config: &ServerConfig,
     ) -> Result<(SocketAddr, SocketAddr)> {
         // Read HTTP request over TLS
-        let request_data = Self::read_tls_handshake_request(stream, config.handshake_timeout).await?;
+        let request_data =
+            Self::read_tls_handshake_request(stream, config.handshake_timeout).await?;
         let request_str = String::from_utf8_lossy(&request_data);
-        
+
         // Parse handshake request
         let request = parse_client_handshake(&request_str)?;
-        
+
         // Create handshake config
         let handshake_config = HandshakeConfig {
             protocols: config.supported_protocols.clone(),
@@ -357,22 +383,22 @@ impl Server {
             host: None,
             extra_headers: config.extra_headers.clone(),
         };
-        
+
         // Validate request
         validate_client_handshake(&request, &handshake_config)?;
-        
+
         // Create response
         let response = create_server_handshake(&request, &handshake_config)?;
         let response_str = response_to_string(&response);
-        
+
         // Send response over TLS
         stream.write_all(response_str.as_bytes()).await?;
         stream.flush().await?;
-        
+
         // Get addresses
         let remote_addr = stream.remote_addr()?;
         let local_addr = stream.local_addr()?;
-        
+
         Ok((remote_addr, local_addr))
     }
 
@@ -384,35 +410,36 @@ impl Server {
     ) -> Result<Vec<u8>> {
         let mut buffer = Vec::new();
         let mut temp_buffer = [0u8; 1024];
-        
+
         let read_result = timeout(timeout_duration, async {
             loop {
                 let n = stream.read(&mut temp_buffer).await?;
                 if n == 0 {
                     break;
                 }
-                
+
                 buffer.extend_from_slice(&temp_buffer[..n]);
-                
+
                 // Check for end of headers (double CRLF)
                 if buffer.windows(4).any(|w| w == b"\r\n\r\n") {
                     break;
                 }
-                
+
                 // Prevent reading too much
                 if buffer.len() > 8192 {
                     return Err(Error::Other("TLS handshake request too large".to_string()));
                 }
             }
-            
+
             Ok::<(), Error>(())
-        }).await;
-        
+        })
+        .await;
+
         match read_result {
             Ok(result) => {
                 result?;
                 Ok(buffer)
-            },
+            }
             Err(_) => Err(Error::Other("TLS handshake timeout".to_string())),
         }
     }
@@ -425,10 +452,10 @@ impl Server {
         // Read HTTP request
         let request_data = Self::read_handshake_request(stream, config.handshake_timeout).await?;
         let request_str = String::from_utf8_lossy(&request_data);
-        
+
         // Parse handshake request
         let request = parse_client_handshake(&request_str)?;
-        
+
         // Create handshake config
         let handshake_config = HandshakeConfig {
             protocols: config.supported_protocols.clone(),
@@ -437,22 +464,22 @@ impl Server {
             host: None,
             extra_headers: config.extra_headers.clone(),
         };
-        
+
         // Validate request
         validate_client_handshake(&request, &handshake_config)?;
-        
+
         // Create response
         let response = create_server_handshake(&request, &handshake_config)?;
         let response_str = response_to_string(&response);
-        
+
         // Send response
         stream.write_all(response_str.as_bytes()).await?;
         stream.flush().await?;
-        
+
         // Get addresses
         let remote_addr = stream.remote_addr()?;
         let local_addr = stream.local_addr()?;
-        
+
         Ok((remote_addr, local_addr))
     }
 
@@ -463,35 +490,36 @@ impl Server {
     ) -> Result<Vec<u8>> {
         let mut buffer = Vec::new();
         let mut temp_buffer = [0u8; 1024];
-        
+
         let read_result = timeout(timeout_duration, async {
             loop {
                 let n = stream.read(&mut temp_buffer).await?;
                 if n == 0 {
                     break;
                 }
-                
+
                 buffer.extend_from_slice(&temp_buffer[..n]);
-                
+
                 // Check for end of headers (double CRLF)
                 if buffer.windows(4).any(|w| w == b"\r\n\r\n") {
                     break;
                 }
-                
+
                 // Prevent reading too much
                 if buffer.len() > 8192 {
                     return Err(Error::Other("Handshake request too large".to_string()));
                 }
             }
-            
+
             Ok::<(), Error>(())
-        }).await;
-        
+        })
+        .await;
+
         match read_result {
             Ok(result) => {
                 result?;
                 Ok(buffer)
-            },
+            }
             Err(_) => Err(Error::Other("Handshake timeout".to_string())),
         }
     }
@@ -500,14 +528,14 @@ impl Server {
     async fn graceful_shutdown(&self, connection_manager: Arc<ConnectionManager>) -> Result<()> {
         // Get all connections
         let connections = connection_manager.get_all_connections().await;
-        
+
         // Send close frames to all connections
         for handle in connections {
             if let Ok(mut connection) = handle.try_lock().await {
                 let _ = connection.close(Some(1000), Some("Server shutdown")).await;
             }
         }
-        
+
         Ok(())
     }
 }

@@ -342,8 +342,8 @@ pub mod extensions {
 /// Utility functions for WebSocket protocol operations
 pub mod utils {
     use crate::error::{Error, ProtocolError};
-    use sha1::{Digest, Sha1};
     use base64::{engine::general_purpose, Engine as _};
+    use sha1::{Digest, Sha1};
 
     /// Generate a random WebSocket key
     pub fn generate_key() -> String {

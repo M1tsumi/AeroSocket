@@ -40,13 +40,12 @@ pub mod tls_transport;
 pub mod prelude;
 
 // Re-export key types for convenience
-pub use config::{ServerConfig, TlsConfig, CompressionConfig, BackpressureConfig};
-pub use connection::{Connection, ConnectionHandle, ConnectionState, ConnectionMetadata};
+pub use config::{BackpressureConfig, CompressionConfig, ServerConfig, TlsConfig};
+pub use connection::{Connection, ConnectionHandle, ConnectionMetadata, ConnectionState};
 pub use error::{
-    ServerError, ConfigError, ConnectionError, HandshakeError, 
-    ProtocolError, TransportError, HandlerError, ManagerError,
-    ErrorContext, ContextError, ContextResult
+    ConfigError, ConnectionError, ContextError, ContextResult, ErrorContext, HandlerError,
+    HandshakeError, ManagerError, ProtocolError, ServerError, TransportError,
 };
-pub use handler::{Handler, BoxedHandler, DefaultHandler, EchoHandler};
-pub use manager::{ConnectionManager, ManagerStats, ConnectionHealth, CloseReason};
+pub use handler::{BoxedHandler, DefaultHandler, EchoHandler, Handler};
+pub use manager::{CloseReason, ConnectionHealth, ConnectionManager, ManagerStats};
 pub use server::{Server, ServerBuilder};

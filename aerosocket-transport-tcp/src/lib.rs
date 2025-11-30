@@ -9,10 +9,10 @@
 pub mod tcp;
 
 // Re-export TCP transport types
-pub use tcp::{TcpTransport, TcpStream};
+pub use tcp::{TcpStream, TcpTransport};
 
 /// Prelude module
 pub mod prelude {
-    pub use crate::tcp::{TcpTransport, TcpStream};
+    pub use crate::tcp::{TcpStream, TcpTransport};
     pub use aerosocket_core::transport::{Transport, TransportStream};
 }

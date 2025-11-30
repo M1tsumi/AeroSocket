@@ -3,7 +3,7 @@
 //! This module re-exports commonly used types and traits to make them
 //! easily accessible for users of the library.
 
-pub use crate::error::{Error, Result, CloseCode};
+pub use crate::error::{CloseCode, Error, Result};
 pub use crate::frame::{Frame, FrameKind};
 pub use crate::message::{Message, MessageKind};
 pub use crate::protocol::Opcode;

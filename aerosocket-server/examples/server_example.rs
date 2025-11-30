@@ -13,9 +13,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     println!("WebSocket server listening on ws://127.0.0.1:8080");
-    
+
     // Start the server
     server.serve().await?;
-    
+
     Ok(())
 }

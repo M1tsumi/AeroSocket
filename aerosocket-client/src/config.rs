@@ -2,9 +2,9 @@
 //!
 //! This module provides configuration options for WebSocket clients.
 
-use std::time::Duration;
-use aerosocket_core::{Error};
 use aerosocket_core::error::ConfigError;
+use aerosocket_core::Error;
+use std::time::Duration;
 
 /// Client configuration
 #[derive(Debug, Clone)]
@@ -52,19 +52,27 @@ impl ClientConfig {
     /// Validate the configuration
     pub fn validate(&self) -> aerosocket_core::Result<()> {
         if self.max_frame_size == 0 {
-            return Err(Error::Config(ConfigError::Validation("max_frame_size must be greater than 0".to_string())));
+            return Err(Error::Config(ConfigError::Validation(
+                "max_frame_size must be greater than 0".to_string(),
+            )));
         }
 
         if self.max_message_size == 0 {
-            return Err(Error::Config(ConfigError::Validation("max_message_size must be greater than 0".to_string())));
+            return Err(Error::Config(ConfigError::Validation(
+                "max_message_size must be greater than 0".to_string(),
+            )));
         }
 
         if self.max_message_size < self.max_frame_size {
-            return Err(Error::Config(ConfigError::Validation("max_message_size must be greater than or equal to max_frame_size".to_string())));
+            return Err(Error::Config(ConfigError::Validation(
+                "max_message_size must be greater than or equal to max_frame_size".to_string(),
+            )));
         }
 
         if self.handshake_timeout.is_zero() {
-            return Err(Error::Config(ConfigError::Validation("handshake_timeout must be greater than 0".to_string())));
+            return Err(Error::Config(ConfigError::Validation(
+                "handshake_timeout must be greater than 0".to_string(),
+            )));
         }
 
         Ok(())
@@ -223,6 +231,9 @@ mod tests {
         assert_eq!(config.protocols.len(), 1);
         assert_eq!(config.protocols[0], "chat");
         assert_eq!(config.headers.len(), 1);
-        assert_eq!(config.headers[0], ("X-Custom".to_string(), "value".to_string()));
+        assert_eq!(
+            config.headers[0],
+            ("X-Custom".to_string(), "value".to_string())
+        );
     }
 }

@@ -2,7 +2,7 @@
 //!
 //! This module provides configuration options for the WebSocket server.
 
-use aerosocket_core::error::{Error, ConfigError};
+use aerosocket_core::error::{ConfigError, Error};
 use std::time::Duration;
 
 /// Server configuration
@@ -72,19 +72,27 @@ impl ServerConfig {
     /// Validate the configuration
     pub fn validate(&self) -> aerosocket_core::Result<()> {
         if self.max_connections == 0 {
-            return Err(Error::Config(ConfigError::Validation("max_connections must be greater than 0".to_string())));
+            return Err(Error::Config(ConfigError::Validation(
+                "max_connections must be greater than 0".to_string(),
+            )));
         }
 
         if self.max_frame_size == 0 {
-            return Err(Error::Config(ConfigError::Validation("max_frame_size must be greater than 0".to_string())));
+            return Err(Error::Config(ConfigError::Validation(
+                "max_frame_size must be greater than 0".to_string(),
+            )));
         }
 
         if self.max_message_size == 0 {
-            return Err(Error::Config(ConfigError::Validation("max_message_size must be greater than 0".to_string())));
+            return Err(Error::Config(ConfigError::Validation(
+                "max_message_size must be greater than 0".to_string(),
+            )));
         }
 
         if self.max_message_size < self.max_frame_size {
-            return Err(Error::Config(ConfigError::Validation("max_message_size must be greater than or equal to max_frame_size".to_string())));
+            return Err(Error::Config(ConfigError::Validation(
+                "max_message_size must be greater than or equal to max_frame_size".to_string(),
+            )));
         }
 
         Ok(())
@@ -144,9 +152,9 @@ impl Default for BackpressureConfig {
             enabled: true,
             max_requests_per_minute: 60,
             strategy: BackpressureStrategy::Buffer,
-            buffer_size: 64 * 1024, // 64KB
+            buffer_size: 64 * 1024,     // 64KB
             high_water_mark: 48 * 1024, // 48KB
-            low_water_mark: 16 * 1024, // 16KB
+            low_water_mark: 16 * 1024,  // 16KB
         }
     }
 }

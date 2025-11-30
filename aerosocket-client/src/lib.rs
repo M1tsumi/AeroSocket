@@ -39,5 +39,5 @@ pub mod prelude;
 
 // Re-export key types for convenience
 pub use client::{Client, ClientBuilder};
-pub use config::{ClientConfig, TlsConfig, CompressionConfig};
+pub use config::{ClientConfig, CompressionConfig, TlsConfig};
 pub use connection::ClientConnection;

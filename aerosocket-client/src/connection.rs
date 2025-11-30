@@ -2,8 +2,8 @@
 //!
 //! This module provides connection management for WebSocket clients.
 
-use aerosocket_core::{Message, Result};
 use aerosocket_core::prelude::Bytes;
+use aerosocket_core::{Message, Result};
 use std::net::SocketAddr;
 
 /// Represents a WebSocket client connection
@@ -208,7 +208,9 @@ impl ClientConnectionHandle {
 
     /// Try to lock the connection
     pub fn try_lock(&self) -> aerosocket_core::Result<std::sync::MutexGuard<'_, ClientConnection>> {
-        self.connection.try_lock().map_err(|e| aerosocket_core::Error::Other(format!("Poison error: {}", e)))
+        self.connection
+            .try_lock()
+            .map_err(|e| aerosocket_core::Error::Other(format!("Poison error: {}", e)))
     }
 }
 
@@ -252,7 +254,7 @@ mod tests {
         let mut conn = ClientConnection::new(remote);
 
         assert_eq!(conn.state(), ConnectionState::Connecting);
-        
+
         conn.set_connected();
         assert_eq!(conn.state(), ConnectionState::Connected);
         assert!(conn.is_connected());

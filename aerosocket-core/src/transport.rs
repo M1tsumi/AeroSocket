@@ -187,9 +187,9 @@ pub mod mock {
 
         /// Accept a connection (blocking for testing)
         pub fn accept(&self) -> Result<MockStream> {
-            self.receiver.recv().ok_or_else(|| {
-                Error::Connection("Mock transport closed".to_string())
-            })
+            self.receiver
+                .recv()
+                .ok_or_else(|| Error::Connection("Mock transport closed".to_string()))
         }
 
         /// Get local address
@@ -268,13 +268,16 @@ mod tests {
             sender.send(stream).unwrap();
 
             let accepted = transport.accept().unwrap();
-            assert_eq!(accepted.remote_addr().unwrap().to_string(), "127.0.0.1:12345");
+            assert_eq!(
+                accepted.remote_addr().unwrap().to_string(),
+                "127.0.0.1:12345"
+            );
         }
 
         #[test]
         fn test_mock_stream() {
             let mut stream = MockStream::new(Vec::new());
-            
+
             let written = stream.write(b"hello").unwrap();
             assert_eq!(written, 5);
 

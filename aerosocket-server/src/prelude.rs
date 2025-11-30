@@ -4,12 +4,12 @@
 //! from the aerosocket-server crate for ergonomic imports.
 
 // Server types
-pub use crate::server::{Server, ServerBuilder};
-pub use crate::connection::{Connection, ConnectionHandle, ConnectionState, ConnectionMetadata};
 pub use crate::config::{
-    ServerConfig, CompressionConfig, BackpressureConfig, BackpressureStrategy, TlsConfig,
+    BackpressureConfig, BackpressureStrategy, CompressionConfig, ServerConfig, TlsConfig,
 };
-pub use crate::handler::{Handler, BoxedHandler, DefaultHandler, EchoHandler, from_fn};
+pub use crate::connection::{Connection, ConnectionHandle, ConnectionMetadata, ConnectionState};
+pub use crate::handler::{from_fn, BoxedHandler, DefaultHandler, EchoHandler, Handler};
+pub use crate::server::{Server, ServerBuilder};
 
 // Re-export core types
 pub use aerosocket_core::prelude::*;

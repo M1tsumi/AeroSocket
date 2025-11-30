@@ -367,23 +367,23 @@ pub struct ContextError {
 impl fmt::Display for ContextError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.error)?;
-        
+
         if let Some(id) = self.context.connection_id {
             write!(f, " (connection: {})", id)?;
         }
-        
+
         if let Some(addr) = self.context.remote_addr {
             write!(f, " (remote: {})", addr)?;
         }
-        
+
         if let Some(op) = &self.context.operation {
             write!(f, " (operation: {})", op)?;
         }
-        
+
         if !self.context.context.is_empty() {
             write!(f, " (context: {:?})", self.context.context)?;
         }
-        
+
         Ok(())
     }
 }
@@ -398,20 +398,16 @@ impl std::error::Error for ContextError {
 #[cfg(feature = "logging")]
 pub mod logging {
     use super::*;
-    use tracing::{error, warn, info, debug, trace, instrument, Level};
+    use tracing::{debug, error, info, instrument, trace, warn, Level};
 
     /// Initialize logging with default configuration
     pub fn init_default() {
-        tracing_subscriber::fmt()
-            .with_max_level(Level::INFO)
-            .init();
+        tracing_subscriber::fmt().with_max_level(Level::INFO).init();
     }
 
     /// Initialize logging with custom level
     pub fn init_with_level(level: Level) {
-        tracing_subscriber::fmt()
-            .with_max_level(level)
-            .init();
+        tracing_subscriber::fmt().with_max_level(level).init();
     }
 
     /// Log server startup

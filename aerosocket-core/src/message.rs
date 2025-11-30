@@ -3,7 +3,7 @@
 //! This module provides high-level message types and handling for WebSocket messages,
 //! including support for text, binary, ping, pong, and close messages.
 
-use crate::error::{Error, Result, ProtocolError, CloseCode};
+use crate::error::{CloseCode, Error, ProtocolError, Result};
 use crate::frame::{Frame, FrameKind};
 use crate::protocol::Opcode;
 use bytes::{Bytes, BytesMut};
@@ -63,7 +63,10 @@ impl Message {
 
     /// Check if this is a control message
     pub fn is_control(&self) -> bool {
-        matches!(self, Message::Ping(_) | Message::Pong(_) | Message::Close(_))
+        matches!(
+            self,
+            Message::Ping(_) | Message::Pong(_) | Message::Close(_)
+        )
     }
 
     /// Check if this is a data message
@@ -331,7 +334,14 @@ impl CloseMessage {
 
     /// Convert to frame
     pub fn to_frame(&self) -> Frame {
-        Frame::close(self.code, if self.reason.is_empty() { None } else { Some(&self.reason) })
+        Frame::close(
+            self.code,
+            if self.reason.is_empty() {
+                None
+            } else {
+                Some(&self.reason)
+            },
+        )
     }
 }
 
@@ -435,8 +445,8 @@ impl MessageAssembler {
 
         match opcode {
             Opcode::Text => {
-                let text = String::from_utf8(self.buffer.to_vec())
-                    .map_err(|_| Error::InvalidUtf8)?;
+                let text =
+                    String::from_utf8(self.buffer.to_vec()).map_err(|_| Error::InvalidUtf8)?;
                 Ok(Message::text(text))
             }
             Opcode::Binary => Ok(Message::binary(self.buffer.clone().freeze())),

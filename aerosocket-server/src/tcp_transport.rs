@@ -2,7 +2,10 @@
 //!
 //! This module provides TCP transport functionality.
 
-use aerosocket_core::{Result, transport::{Transport, TransportStream}};
+use aerosocket_core::{
+    transport::{Transport, TransportStream},
+    Result,
+};
 use async_trait::async_trait;
 use std::net::SocketAddr;
 use tokio::net::{TcpListener, TcpStream as TokioTcpStream};
@@ -20,10 +23,9 @@ impl TcpTransport {
         let listener = tokio::net::TcpListener::bind(addr)
             .await
             .map_err(aerosocket_core::Error::Io)?;
-        
-        let local_addr = listener.local_addr()
-            .map_err(aerosocket_core::Error::Io)?;
-        
+
+        let local_addr = listener.local_addr().map_err(aerosocket_core::Error::Io)?;
+
         Ok(Self {
             listener: Some(listener),
             local_addr,
@@ -52,12 +54,15 @@ impl Transport for TcpTransport {
     async fn accept(&self) -> Result<Self::Stream> {
         match &self.listener {
             Some(listener) => {
-                let (stream, _addr) = listener.accept()
+                let (stream, _addr) = listener
+                    .accept()
                     .await
                     .map_err(aerosocket_core::Error::Io)?;
                 Ok(TcpStream::from_tokio(stream))
             }
-            None => Err(aerosocket_core::Error::Other("Transport not bound".to_string())),
+            None => Err(aerosocket_core::Error::Other(
+                "Transport not bound".to_string(),
+            )),
         }
     }
 
@@ -81,9 +86,10 @@ pub struct TcpStream {
 impl TcpStream {
     /// Create a new TCP stream from a tokio TCP stream
     pub fn from_tokio(stream: TokioTcpStream) -> Self {
-        let remote_addr = stream.peer_addr()
+        let remote_addr = stream
+            .peer_addr()
             .unwrap_or_else(|_| "0.0.0.0:0".parse().unwrap());
-        
+
         Self {
             stream: Some(stream),
             remote_addr,
@@ -111,12 +117,12 @@ impl TransportStream for TcpStream {
         match &mut self.stream {
             Some(stream) => {
                 use tokio::io::AsyncReadExt;
-                let n = stream.read(buf)
-                    .await
-                    .map_err(aerosocket_core::Error::Io)?;
+                let n = stream.read(buf).await.map_err(aerosocket_core::Error::Io)?;
                 Ok(n)
             }
-            None => Err(aerosocket_core::Error::Other("Stream not connected".to_string())),
+            None => Err(aerosocket_core::Error::Other(
+                "Stream not connected".to_string(),
+            )),
         }
     }
 
@@ -124,12 +130,15 @@ impl TransportStream for TcpStream {
         match &mut self.stream {
             Some(stream) => {
                 use tokio::io::AsyncWriteExt;
-                let n = stream.write(buf)
+                let n = stream
+                    .write(buf)
                     .await
                     .map_err(aerosocket_core::Error::Io)?;
                 Ok(n)
             }
-            None => Err(aerosocket_core::Error::Other("Stream not connected".to_string())),
+            None => Err(aerosocket_core::Error::Other(
+                "Stream not connected".to_string(),
+            )),
         }
     }
 
@@ -137,12 +146,15 @@ impl TransportStream for TcpStream {
         match &mut self.stream {
             Some(stream) => {
                 use tokio::io::AsyncWriteExt;
-                stream.write_all(buf)
+                stream
+                    .write_all(buf)
                     .await
                     .map_err(aerosocket_core::Error::Io)?;
                 Ok(())
             }
-            None => Err(aerosocket_core::Error::Other("Stream not connected".to_string())),
+            None => Err(aerosocket_core::Error::Other(
+                "Stream not connected".to_string(),
+            )),
         }
     }
 
@@ -150,19 +162,20 @@ impl TransportStream for TcpStream {
         match &mut self.stream {
             Some(stream) => {
                 use tokio::io::AsyncWriteExt;
-                stream.flush()
-                    .await
-                    .map_err(aerosocket_core::Error::Io)?;
+                stream.flush().await.map_err(aerosocket_core::Error::Io)?;
                 Ok(())
             }
-            None => Err(aerosocket_core::Error::Other("Stream not connected".to_string())),
+            None => Err(aerosocket_core::Error::Other(
+                "Stream not connected".to_string(),
+            )),
         }
     }
 
     async fn close(&mut self) -> Result<()> {
         if let Some(mut stream) = self.stream.take() {
             use tokio::io::AsyncWriteExt;
-            stream.shutdown()
+            stream
+                .shutdown()
                 .await
                 .map_err(aerosocket_core::Error::Io)?;
         }
@@ -175,11 +188,10 @@ impl TransportStream for TcpStream {
 
     fn local_addr(&self) -> Result<std::net::SocketAddr> {
         match &self.stream {
-            Some(stream) => {
-                stream.local_addr()
-                    .map_err(aerosocket_core::Error::Io)
-            }
-            None => Err(aerosocket_core::Error::Other("Stream not connected".to_string())),
+            Some(stream) => stream.local_addr().map_err(aerosocket_core::Error::Io),
+            None => Err(aerosocket_core::Error::Other(
+                "Stream not connected".to_string(),
+            )),
         }
     }
 }
