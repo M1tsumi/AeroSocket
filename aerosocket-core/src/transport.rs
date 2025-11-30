@@ -13,7 +13,7 @@ use std::task::{Context, Poll};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 #[cfg(feature = "async-std-runtime")]
-use async_std::io::{Read as AsyncRead, Write as AsyncWrite};
+use async_std::io::{Read as AsyncStdRead, Write as AsyncStdWrite};
 
 /// Transport trait for abstracting different transport types
 #[async_trait::async_trait]

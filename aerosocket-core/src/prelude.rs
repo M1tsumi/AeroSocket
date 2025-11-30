@@ -19,7 +19,7 @@ pub use thiserror::Error as ThisError;
 pub use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 #[cfg(feature = "async-std-runtime")]
-pub use async_std::io::{Read as AsyncRead, Write as AsyncWrite};
+pub use async_std::io::{Read as AsyncStdRead, Write as AsyncStdWrite};
 
 #[cfg(feature = "serde")]
 pub use serde::{Deserialize, Serialize};

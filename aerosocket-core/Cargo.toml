@@ -27,21 +27,22 @@ rkyv = ["dep:rkyv"]
 [dependencies]
 # Core dependencies
 bytes = { workspace = true }
-thiserror = { workspace = true }
 futures-util = { workspace = true }
 http = { workspace = true }
 httparse = { workspace = true }
 base64 = { workspace = true }
 rand = { workspace = true }
+getrandom = { workspace = true }
 sha1 = { workspace = true }
 async-trait = { workspace = true }
+thiserror = { workspace = true }
 
 # Optional runtime dependencies
 tokio = { workspace = true, optional = true, features = ["io-util", "net", "time"] }
 async-std = { workspace = true, optional = true }
 
-# Optional serialization dependencies
-serde = { workspace = true, optional = true }
+# Optional serialization
+serde = { workspace = true, optional = true, features = ["derive"] }
 rkyv = { workspace = true, optional = true }
 
 [dev-dependencies]

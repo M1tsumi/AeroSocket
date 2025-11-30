@@ -38,6 +38,7 @@ http = "1.0"
 httparse = "1.8"
 base64 = "0.21"
 rand = "0.8"
+getrandom = { version = "0.2", features = ["js"] }
 sha1 = "0.10"
 async-trait = "0.1"
 
@@ -47,7 +48,7 @@ rkyv = { version = "0.7" }
 tokio-rustls = "0.24"
 
 # WASM dependencies
-web-sys = { version = "0.3", features = ["MessageEvent", "ErrorEvent", "CloseEvent", "BinaryType", "Blob", "ArrayBuffer"] }
+web-sys = { version = "0.3", features = ["MessageEvent", "ErrorEvent", "CloseEvent", "BinaryType", "Blob"] }
 wasm-bindgen = { version = "0.2" }
 js-sys = { version = "0.3" }
 
