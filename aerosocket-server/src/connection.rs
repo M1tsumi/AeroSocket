@@ -230,6 +230,22 @@ impl Connection {
             // Serialize frame to bytes
             let frame_bytes = frame.to_bytes();
 
+            #[cfg(feature = "metrics")]
+            {
+                metrics::counter!(
+                    "aerosocket_server_messages_sent_total",
+                    1u64
+                );
+                metrics::counter!(
+                    "aerosocket_server_bytes_sent_total",
+                    frame_bytes.len() as u64
+                );
+                metrics::histogram!(
+                    "aerosocket_server_frame_size_bytes",
+                    frame_bytes.len() as f64
+                );
+            }
+
             // Send frame
             stream.write_all(&frame_bytes).await?;
             stream.flush().await?;
@@ -400,6 +416,22 @@ impl Connection {
             // Update metadata
             self.metadata.messages_received += 1;
             self.metadata.bytes_received += message_buffer.len() as u64;
+
+            #[cfg(feature = "metrics")]
+            {
+                metrics::counter!(
+                    "aerosocket_server_messages_received_total",
+                    1u64
+                );
+                metrics::counter!(
+                    "aerosocket_server_bytes_received_total",
+                    message_buffer.len() as u64
+                );
+                metrics::histogram!(
+                    "aerosocket_server_message_size_bytes",
+                    message_buffer.len() as f64
+                );
+            }
 
             Ok(Some(message))
         } else {

@@ -23,7 +23,7 @@ tokio-runtime = ["tokio", "aerosocket-core/tokio-runtime"]
 server = ["dep:aerosocket-server"]
 client = ["dep:aerosocket-client"]
 transport-tcp = ["dep:aerosocket-transport-tcp"]
-transport-tls = ["dep:aerosocket-transport-tls"]
+transport-tls = ["dep:aerosocket-transport-tls", "aerosocket-server/tls-transport"]
 wasm = ["dep:aerosocket-wasm"]
 
 # Serialization features
@@ -42,12 +42,12 @@ full = [
 ]
 
 [dependencies]
-aerosocket-core = { path = "../aerosocket-core", version = "0.1.0" }
-aerosocket-server = { path = "../aerosocket-server", version = "0.1.0", optional = true }
-aerosocket-client = { path = "../aerosocket-client", version = "0.1.0", optional = true }
-aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.1.0", optional = true }
-aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.1.0", optional = true }
-aerosocket-wasm = { path = "../aerosocket-wasm", version = "0.1.0", optional = true }
+aerosocket-core = { path = "../aerosocket-core", version = "0.2.0" }
+aerosocket-server = { path = "../aerosocket-server", version = "0.2.0", optional = true }
+aerosocket-client = { path = "../aerosocket-client", version = "0.2.0", optional = true }
+aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.2.0", optional = true }
+aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.2.0", optional = true }
+aerosocket-wasm = { path = "../aerosocket-wasm", version = "0.2.0", optional = true }
 
 # Optional runtime dependencies
 tokio = { workspace = true, optional = true }
@@ -55,7 +55,14 @@ tokio = { workspace = true, optional = true }
 [dev-dependencies]
 tokio = { workspace = true }
 tokio-test = { workspace = true }
+rcgen = "0.12"
+tempfile = { workspace = true }
+tokio-rustls = { workspace = true }
 tracing-test = { workspace = true }
+
+[[example]]
+name = "echo_client"
+path = "../examples/echo_client.rs"
 
 [package.metadata.docs.rs]
 all-features = true

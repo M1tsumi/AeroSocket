@@ -21,7 +21,7 @@ tokio-runtime = ["aerosocket-core/tokio-runtime"]
 
 [dependencies]
 # Core dependencies
-aerosocket-core = { path = "../aerosocket-core", version = "0.1.0" }
+aerosocket-core = { path = "../aerosocket-core", version = "0.2.0" }
 bytes = { workspace = true }
 futures-util = { workspace = true }
 async-trait = { workspace = true }

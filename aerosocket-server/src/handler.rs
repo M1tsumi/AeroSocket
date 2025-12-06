@@ -5,6 +5,10 @@
 use aerosocket_core::{Message, Result};
 use std::future::Future;
 use std::pin::Pin;
+#[cfg(feature = "wasm-handlers")]
+use std::path::PathBuf;
+#[cfg(feature = "wasm-handlers")]
+use wasmtime::{Engine, Instance, Module, Store};
 
 /// Trait for handling WebSocket connections
 pub trait Handler: Send + Sync + 'static {
@@ -196,6 +200,134 @@ where
     Fut: Future<Output = Result<()>> + Send + 'static,
 {
     FnHandler::new(f)
+}
+
+#[cfg(feature = "wasm-handlers")]
+#[derive(Clone)]
+pub struct WasmHandler {
+    engine: Engine,
+    module: Module,
+    module_path: PathBuf,
+}
+
+#[cfg(feature = "wasm-handlers")]
+impl WasmHandler {
+    pub fn from_file(path: impl Into<PathBuf>) -> aerosocket_core::Result<Self> {
+        let path_buf = path.into();
+        let engine = Engine::default();
+        let module = Module::from_file(&engine, &path_buf).map_err(|e| {
+            aerosocket_core::Error::Other(format!("Failed to load WASM module: {}", e))
+        })?;
+
+        Ok(Self {
+            engine,
+            module,
+            module_path: path_buf,
+        })
+    }
+}
+
+#[cfg(feature = "wasm-handlers")]
+impl Handler for WasmHandler {
+    fn handle<'a>(
+        &'a self,
+        connection: crate::connection::ConnectionHandle,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>> {
+        Box::pin(async move {
+            let mut conn = connection.try_lock().await.map_err(|_| {
+                aerosocket_core::Error::Other("Failed to lock connection".to_string())
+            })?;
+
+            let mut store = Store::new(&self.engine, ());
+            let instance = Instance::new(&mut store, &self.module, &[]).map_err(|e| {
+                aerosocket_core::Error::Other(format!("Failed to instantiate WASM module: {}", e))
+            })?;
+
+            let memory = instance
+                .get_memory(&mut store, "memory")
+                .ok_or_else(|| aerosocket_core::Error::Other("WASM module missing `memory` export".to_string()))?;
+
+            let func = instance
+                .get_typed_func::<(i32, i32), i32>(&mut store, "on_message")
+                .map_err(|e| {
+                    aerosocket_core::Error::Other(format!(
+                        "Failed to get WASM function `on_message`: {}",
+                        e
+                    ))
+                })?;
+
+            let capacity = memory.data_size(&store) as usize;
+
+            loop {
+                if let Some(msg) = conn.next().await? {
+                    match msg {
+                        Message::Text(text) => {
+                            let bytes = text.as_bytes();
+                            if bytes.len() > capacity {
+                                return Err(aerosocket_core::Error::Other(
+                                    "WASM memory too small for incoming message".to_string(),
+                                ));
+                            }
+
+                            memory
+                                .write(&mut store, 0, bytes)
+                                .map_err(|e| {
+                                    aerosocket_core::Error::Other(format!(
+                                        "Failed to write to WASM memory: {}",
+                                        e
+                                    ))
+                                })?;
+
+                            let out_len = func
+                                .call(&mut store, (0, bytes.len() as i32))
+                                .map_err(|e| {
+                                    aerosocket_core::Error::Other(format!(
+                                        "WASM `on_message` call failed: {}",
+                                        e
+                                    ))
+                                })?;
+
+                            if out_len > 0 {
+                                let mut out = vec![0u8; out_len as usize];
+                                memory
+                                    .read(&mut store, 0, &mut out)
+                                    .map_err(|e| {
+                                        aerosocket_core::Error::Other(format!(
+                                            "Failed to read from WASM memory: {}",
+                                            e
+                                        ))
+                                    })?;
+
+                                let out_text = String::from_utf8_lossy(&out).to_string();
+                                conn.send_text(&out_text).await?;
+                            }
+                        }
+                        Message::Binary(data) => {
+                            conn.send_binary(data.as_bytes().to_vec()).await?;
+                        }
+                        Message::Ping(_) => {
+                            conn.pong(None).await?;
+                        }
+                        Message::Close(close_msg) => {
+                            let code = close_msg.code();
+                            let reason = close_msg.reason();
+                            conn.close(code, Some(reason)).await?;
+                            break;
+                        }
+                        Message::Pong(_) => {}
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            Ok(())
+        })
+    }
+
+    fn clone_box(&self) -> Box<dyn Handler> {
+        Box::new(self.clone())
+    }
 }
 
 #[cfg(test)]

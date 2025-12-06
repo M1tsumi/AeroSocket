@@ -2,8 +2,23 @@
 //!
 //! This module provides client functionality for WebSocket connections.
 
-use aerosocket_core::{Message, Result};
+use aerosocket_core::{Error, Message, Result};
+use aerosocket_core::handshake::{
+    create_client_handshake, parse_server_handshake, request_to_string, validate_server_handshake,
+    HandshakeConfig,
+};
+use aerosocket_core::protocol::constants::{HEADER_SEC_WEBSOCKET_KEY, MAX_HEADER_SIZE};
+use aerosocket_core::transport::TransportStream;
+#[cfg(feature = "transport-tcp")]
+use aerosocket_transport_tcp::TcpStream;
+#[cfg(feature = "transport-tls")]
+use aerosocket_transport_tls::{TlsStream, TlsTransport};
+use crate::config::ClientConfig as ClientOptions;
 use std::net::SocketAddr;
+use std::time::Instant;
+use tokio::time::timeout;
+#[cfg(feature = "transport-tls")]
+use std::sync::Arc;
 
 /// WebSocket client
 #[derive(Debug)]
@@ -11,7 +26,7 @@ pub struct Client {
     /// Server address
     addr: SocketAddr,
     /// Client configuration
-    config: ClientConfig,
+    config: ClientOptions,
 }
 
 impl Client {
@@ -19,20 +34,215 @@ impl Client {
     pub fn new(addr: SocketAddr) -> Self {
         Self {
             addr,
-            config: ClientConfig::default(),
+            config: ClientOptions::default(),
         }
     }
 
     /// Set client configuration
-    pub fn with_config(mut self, config: ClientConfig) -> Self {
+    pub fn with_config(mut self, config: ClientOptions) -> Self {
         self.config = config;
         self
     }
 
     /// Connect to the WebSocket server
-    pub async fn connect(self) -> Result<ClientConnection> {
-        // TODO: Implement actual WebSocket handshake and connection
-        Ok(ClientConnection::new(self.addr))
+    #[cfg(any(feature = "transport-tcp", feature = "transport-tls"))]
+    #[cfg_attr(feature = "logging", tracing::instrument(skip(self)))]
+    pub async fn connect(self) -> Result<crate::connection::ClientConnection> {
+        let addr = self.addr;
+        let config = self.config.clone();
+        let handshake_timeout = config.handshake_timeout;
+
+        let fut = async move {
+            #[cfg(feature = "metrics")]
+            let handshake_start = Instant::now();
+
+            // Build handshake config from client settings
+            let mut handshake_config = HandshakeConfig::default();
+            handshake_config.protocols = config.protocols.clone();
+            if let Some(origin) = &config.origin {
+                handshake_config.origin = Some(origin.clone());
+            }
+            for (name, value) in &config.headers {
+                handshake_config
+                    .extra_headers
+                    .insert(name.clone(), value.clone());
+            }
+
+            // Decide between TLS and TCP based on TLS configuration
+            if let Some(tls_cfg) = &config.tls {
+                #[cfg(feature = "transport-tls")]
+                {
+                    let server_name = tls_cfg
+                        .server_name
+                        .as_deref()
+                        .unwrap_or("localhost");
+
+                    handshake_config.host = Some(format!("{}:{}", server_name, addr.port()));
+                    let uri = format!("wss://{}:{}", server_name, addr.port());
+                    let request = create_client_handshake(&uri, &handshake_config)?;
+
+                    let client_key = request
+                        .headers
+                        .get(HEADER_SEC_WEBSOCKET_KEY)
+                        .cloned()
+                        .ok_or_else(|| {
+                            Error::Other(
+                                "Missing sec-websocket-key in client handshake".to_string(),
+                            )
+                        })?;
+
+                    let request_string = request_to_string(&request);
+
+                    let tls_config = crate::config::build_rustls_client_config(tls_cfg)?;
+                    let mut stream = TlsStream::connect(addr, Arc::new(tls_config), server_name)
+                        .await?;
+
+                    stream.write_all(request_string.as_bytes()).await?;
+                    stream.flush().await?;
+
+                    let mut buffer = Vec::new();
+                    let mut temp = [0u8; 1024];
+
+                    loop {
+                        let n = stream.read(&mut temp).await?;
+                        if n == 0 {
+                            break;
+                        }
+                        buffer.extend_from_slice(&temp[..n]);
+                        if buffer.len() > MAX_HEADER_SIZE {
+                            return Err(Error::Other("Server handshake too large".to_string()));
+                        }
+                        if buffer.windows(4).any(|w| w == b"\r\n\r\n") {
+                            break;
+                        }
+                    }
+
+                    let raw_response = String::from_utf8_lossy(&buffer).to_string();
+                    let response = parse_server_handshake(&raw_response)?;
+                    validate_server_handshake(&response, &client_key)?;
+
+                    let remote_addr = stream.remote_addr()?;
+                    let mut connection = crate::connection::ClientConnection::with_stream(
+                        remote_addr,
+                        Box::new(stream) as Box<dyn TransportStream>,
+                    );
+                    connection.set_connected();
+
+                    #[cfg(feature = "metrics")]
+                    {
+                        let elapsed = handshake_start.elapsed().as_secs_f64();
+                        metrics::histogram!(
+                            "aerosocket_client_handshake_duration_seconds",
+                            elapsed
+                        );
+                        metrics::counter!(
+                            "aerosocket_client_connections_opened_total",
+                            1u64
+                        );
+                    }
+
+                    Ok(connection)
+                }
+
+                #[cfg(not(feature = "transport-tls"))]
+                {
+                    let _ = tls_cfg;
+                    Err(Error::Other(
+                        "TLS configuration provided but transport-tls feature is not enabled for aerosocket-client"
+                            .to_string(),
+                    ))
+                }
+            } else {
+                #[cfg(feature = "transport-tcp")]
+                {
+                    let uri = format!("ws://{}", addr);
+                    let request = create_client_handshake(&uri, &handshake_config)?;
+
+                    let client_key = request
+                        .headers
+                        .get(HEADER_SEC_WEBSOCKET_KEY)
+                        .cloned()
+                        .ok_or_else(|| {
+                            Error::Other(
+                                "Missing sec-websocket-key in client handshake".to_string(),
+                            )
+                        })?;
+
+                    let request_string = request_to_string(&request);
+                    let mut stream = TcpStream::connect(addr).await?;
+
+                    stream.write_all(request_string.as_bytes()).await?;
+                    stream.flush().await?;
+
+                    let mut buffer = Vec::new();
+                    let mut temp = [0u8; 1024];
+
+                    loop {
+                        let n = stream.read(&mut temp).await?;
+                        if n == 0 {
+                            break;
+                        }
+                        buffer.extend_from_slice(&temp[..n]);
+                        if buffer.len() > MAX_HEADER_SIZE {
+                            return Err(Error::Other("Server handshake too large".to_string()));
+                        }
+                        if buffer.windows(4).any(|w| w == b"\r\n\r\n") {
+                            break;
+                        }
+                    }
+
+                    let raw_response = String::from_utf8_lossy(&buffer).to_string();
+                    let response = parse_server_handshake(&raw_response)?;
+                    validate_server_handshake(&response, &client_key)?;
+
+                    let remote_addr = stream.remote_addr()?;
+                    let mut connection = crate::connection::ClientConnection::with_stream(
+                        remote_addr,
+                        Box::new(stream) as Box<dyn TransportStream>,
+                    );
+                    connection.set_connected();
+
+                    #[cfg(feature = "metrics")]
+                    {
+                        let elapsed = handshake_start.elapsed().as_secs_f64();
+                        metrics::histogram!(
+                            "aerosocket_client_handshake_duration_seconds",
+                            elapsed
+                        );
+                        metrics::counter!(
+                            "aerosocket_client_connections_opened_total",
+                            1u64
+                        );
+                    }
+
+                    Ok(connection)
+                }
+
+                #[cfg(not(feature = "transport-tcp"))]
+                {
+                    Err(Error::Other(
+                        "No transport feature enabled (transport-tcp or transport-tls) for aerosocket-client"
+                            .to_string(),
+                    ))
+                }
+            }
+        };
+
+        match timeout(handshake_timeout, fut).await {
+            Ok(result) => result,
+            Err(_) => Err(Error::Timeout(aerosocket_core::error::TimeoutError::Handshake {
+                timeout: handshake_timeout,
+            })),
+        }
+    }
+
+    /// Connect to the WebSocket server (requires a transport feature)
+    #[cfg(not(any(feature = "transport-tcp", feature = "transport-tls")))]
+    pub async fn connect(self) -> Result<crate::connection::ClientConnection> {
+        Err(Error::Other(
+            "No transport feature enabled (transport-tcp or transport-tls) for aerosocket-client"
+                .to_string(),
+        ))
     }
 }
 
@@ -80,35 +290,11 @@ impl ClientConnection {
     }
 }
 
-/// Client configuration
-#[derive(Debug, Clone)]
-pub struct ClientConfig {
-    /// Maximum frame size
-    pub max_frame_size: usize,
-    /// Maximum message size
-    pub max_message_size: usize,
-    /// Handshake timeout
-    pub handshake_timeout: std::time::Duration,
-    /// Enable compression
-    pub compression_enabled: bool,
-}
-
-impl Default for ClientConfig {
-    fn default() -> Self {
-        Self {
-            max_frame_size: 1024 * 1024,        // 1MB
-            max_message_size: 16 * 1024 * 1024, // 16MB
-            handshake_timeout: std::time::Duration::from_secs(30),
-            compression_enabled: false,
-        }
-    }
-}
-
 /// Client builder
 #[derive(Debug)]
 pub struct ClientBuilder {
     addr: SocketAddr,
-    config: ClientConfig,
+    config: ClientOptions,
 }
 
 impl ClientBuilder {
@@ -116,7 +302,7 @@ impl ClientBuilder {
     pub fn new(addr: SocketAddr) -> Self {
         Self {
             addr,
-            config: ClientConfig::default(),
+            config: ClientOptions::default(),
         }
     }
 
@@ -140,7 +326,7 @@ impl ClientBuilder {
 
     /// Enable/disable compression
     pub fn compression(mut self, enabled: bool) -> Self {
-        self.config.compression_enabled = enabled;
+        self.config.compression.enabled = enabled;
         self
     }
 

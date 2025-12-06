@@ -23,22 +23,39 @@ tokio-runtime = ["aerosocket-core/tokio-runtime"]
 transport-tcp = ["aerosocket-transport-tcp"]
 transport-tls = ["aerosocket-transport-tls"]
 
+# Metrics features
+metrics = ["dep:metrics"]
+
+# Logging features
+logging = ["dep:tracing"]
+
 # Serialization features
 serde = ["aerosocket-core/serde"]
 
 [dependencies]
 # Core dependencies
-aerosocket-core = { path = "../aerosocket-core", version = "0.1.0" }
+aerosocket-core = { path = "../aerosocket-core", version = "0.2.0" }
 bytes = { workspace = true }
 futures-util = { workspace = true }
 thiserror = { workspace = true }
+
+# TLS config building
+rustls = { workspace = true }
+webpki-roots = "0.25"
+rustls-pemfile = "1.0"
+
+# Optional metrics dependency
+metrics = { workspace = true, optional = true }
+
+# Optional logging/tracing dependency
+tracing = { version = "0.1", optional = true }
 
 # Runtime dependencies
 tokio = { workspace = true, features = ["io-util", "net", "time"] }
 
 # Optional transport dependencies
-aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.1.0", optional = true }
-aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.1.0", optional = true }
+aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.2.0", optional = true }
+aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.2.0", optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

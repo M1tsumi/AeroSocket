@@ -2,38 +2,32 @@
   <img src="assets/banner.svg" alt="AeroSocket Banner" width="800" height="200">
 </div>
 
-# 🚀 AeroSocket
+# AeroSocket
 
 [![Crates.io](https://img.shields.io/crates/v/aerosocket.svg)](https://crates.io/crates/aerosocket)
 [![Documentation](https://docs.rs/aerosocket/badge.svg)](https://docs.rs/aerosocket)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
 [![Discord](https://img.shields.io/discord/6nS2KqxQtj?label=discord)](https://discord.gg/6nS2KqxQtj)
 
-> **Ultra-fast, zero-copy WebSocket library for Rust built for enterprise-scale applications**
+A fast, zero-copy WebSocket library for Rust.
 
-AeroSocket is a high-performance WebSocket client and server library that delivers **exceptional throughput** and **minimal latency** for real-time applications. Built with a focus on **zero-copy operations**, **enterprise stability**, and **developer ergonomics**, AeroSocket powers the next generation of scalable web applications.
-
----
-
-## ✨ Why AeroSocket?
-
-🔥 **Blazing Fast**: Zero-copy message paths and optimized frame parsing achieve **millions of messages per second**
-
-🛡️ **Enterprise Ready**: Production-grade security, comprehensive testing, and semantic versioning
-
-🎯 **Ergonomic API**: Intuitive builder patterns and sensible defaults make development a breeze
-
-🔧 **Highly Configurable**: Pluggable transports, serialization, and extensions for any use case
-
-📊 **Observable**: Built-in metrics, tracing, and OpenTelemetry integration for production monitoring
-
-🌐 **Cross-Platform**: Native performance on Linux, macOS, Windows, and WASM support
+We built AeroSocket because we needed something that could handle millions of concurrent connections without falling over. Most existing libraries either sacrificed performance for ergonomics or were a pain to actually use. We wanted both.
 
 ---
 
-## 🚀 Quick Start
+## What makes it different?
 
-### Server
+**It's fast.** Like, really fast. Zero-copy message handling means we're not wasting cycles shuffling bytes around. On our benchmarks we're hitting 2.5M messages per second on modest hardware.
+
+**It doesn't get in your way.** The API is designed to feel natural. Builder patterns where they make sense, sensible defaults so you're not drowning in configuration.
+
+**It's built for production.** Rate limiting, TLS, graceful shutdown, proper error handling—the stuff you actually need when you're running this at scale.
+
+---
+
+## Getting started
+
+Here's a basic echo server:
 
 ```rust
 use aerosocket::prelude::*;
@@ -43,8 +37,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let server = aerosocket::Server::builder()
         .bind("0.0.0.0:8080")
         .max_connections(10_000)
-        .with_rate_limiting(60, 10) // 60 requests/min, 10 connections per IP
-        .with_tls("cert.pem", "key.pem")?
         .build()?;
 
     server.serve(|mut conn| async move {
@@ -63,56 +55,87 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Client
+And a client:
 
 ```rust
 use aerosocket::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = aerosocket::Client::connect("wss://echo.websocket.org")
-        .with_header("Authorization", "Bearer token")
-        .connect()
-        .await?;
+    // Connect to a local echo server over TCP
+    let addr: SocketAddr = "127.0.0.1:8080".parse()?;
+    let config = ClientConfig::default();
+    let client = Client::new(addr).with_config(config);
+    let mut conn = client.connect().await?;
 
-    client.send_text("Hello, AeroSocket!").await?;
+    conn.send_text("Hello!").await?;
 
-    while let Some(msg) = client.next().await? {
-        println!("Received: {:?}", msg);
-        break;
+    if let Some(msg) = conn.next().await? {
+        println!("Got: {:?}", msg);
     }
 
     Ok(())
 }
 ```
 
-**Add to your Cargo.toml:**
+TLS client (wss) with a custom CA and SNI:
+
+```rust
+use aerosocket::prelude::*;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let addr: SocketAddr = "127.0.0.1:8443".parse()?;
+
+    let tls = TlsConfig {
+        verify: true,
+        ca_file: Some("ca.pem".into()),
+        cert_file: None,
+        key_file: None,
+        server_name: Some("localhost".into()),
+        min_version: None,
+        max_version: None,
+    };
+
+    let config = ClientConfig::default().tls(tls);
+    let client = Client::new(addr).with_config(config);
+    let mut conn = client.connect().await?;
+
+    conn.send_text("Hello over TLS!").await?;
+    if let Some(msg) = conn.next().await? {
+        println!("Got: {:?}", msg);
+    }
+
+    Ok(())
+}
+```
+
+Add this to your `Cargo.toml`:
+
 ```toml
 [dependencies]
-aerosocket = { version = "0.1", features = ["full"] }
+aerosocket = { version = "0.2", features = ["full"] }
 tokio = { version = "1.0", features = ["full"] }
 ```
 
 ---
 
-## 📈 Performance
+## Performance
 
-AeroSocket delivers industry-leading performance through careful optimization and zero-copy design:
+We ran these on an AWS c6i.large with Rust 1.75 and 10k concurrent connections:
 
 | Metric | AeroSocket | tokio-tungstenite | fastwebsockets |
 |--------|------------|-------------------|----------------|
-| **Throughput (small msgs)** | **2.5M msg/s** | 1.2M msg/s | 1.8M msg/s |
-| **Latency P99** | **< 50μs** | 120μs | 80μs |
-| **Memory/CPU** | **40% less** | baseline | 25% less |
-| **Zero-copy support** | ✅ | ❌ | ✅ |
+| Throughput (small msgs) | 2.5M msg/s | 1.2M msg/s | 1.8M msg/s |
+| Latency P99 | < 50μs | 120μs | 80μs |
+| Memory usage | 40% less | baseline | 25% less |
+| Zero-copy | Yes | No | Yes |
 
-*Benchmarked on AWS c6i.large, Rust 1.75, 10k concurrent connections*
+Your mileage may vary, but these numbers have held up pretty well across different workloads.
 
 ---
 
-## 🏗️ Architecture
-
-AeroSocket's modular architecture enables maximum flexibility and performance:
+## How it works
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -131,281 +154,243 @@ AeroSocket's modular architecture enables maximum flexibility and performance:
                        └──────────────┘
 ```
 
-### Core Components
-
-- **Zero-Copy Engine**: Eliminates unnecessary memory allocations
-- **Modular Transport**: Pluggable TCP, TLS, and QUIC support
-- **Protocol Layer**: Full RFC6455 compliance with extensions
-- **Connection Manager**: Efficient lifecycle and resource management
-- **Observability Stack**: Built-in metrics and distributed tracing
+The zero-copy engine is the secret sauce. Instead of copying message payloads at every layer, we pass around references and only allocate when absolutely necessary. This matters a lot when you're pushing millions of messages.
 
 ---
 
-## 🎯 Use Cases
+## Who's using this?
 
-AeroSocket excels in demanding real-time scenarios:
+We've seen it work well for:
 
-### 💬 **Chat & Collaboration**
-- Slack-like team messaging platforms
-- Real-time collaborative editing (Google Docs style)
-- Live streaming applications
+- **Chat apps** — Slack-style messaging, collaborative editors, that kind of thing
+- **Trading platforms** — Real-time market data where latency matters
+- **Game servers** — Multiplayer backends, leaderboards, matchmaking
+- **IoT** — Sensor networks, monitoring dashboards, alerting systems
 
-### 📊 **Financial Trading**
-- Real-time market data feeds
-- High-frequency trading dashboards
-- Risk monitoring systems
-
-### 🎮 **Gaming**
-- Multiplayer game servers
-- Real-time leaderboards
-- Matchmaking systems
-
-### 🏭 **IoT & Monitoring**
-- Industrial sensor networks
-- Real-time dashboards
-- Alert systems
+Basically anywhere you need to move a lot of data to a lot of clients quickly.
 
 ---
 
-## 🎯 Features
+## What's included
 
-### ✅ **Production-Ready Features**
-- **🔒 TLS/SSL Support**: Complete TLS 1.3 implementation with secure defaults
-- **🛡️ Rate Limiting**: Per-IP request and connection limits for DoS protection
-- **📊 Structured Logging**: Production logging with tracing integration
-- **⚡ Zero-Copy**: Maximum performance with minimal allocations
-- **🔄 Graceful Shutdown**: Proper resource cleanup and connection termination
-- **🌐 TCP Transport**: High-performance TCP transport implementation
-- **⚙️ Configuration**: Comprehensive server and client configuration options
-- **🔧 Backpressure**: Automatic flow control to prevent resource exhaustion
+**Working right now:**
+- Full RFC6455 WebSocket implementation
+- TCP and TLS transports
+- Rate limiting (per-IP request and connection limits)
+- Structured logging via tracing
+- Graceful shutdown
+- Backpressure handling
 
-### 🚧 **Advanced Features (In Progress)**
-- **🔐 Authentication**: Built-in authentication and authorization framework
-- **🌐 HTTP/2 Transport**: Next-generation transport protocol support
-- **📈 Metrics**: Prometheus metrics and observability integration
-- **🏥 Health Checks**: Built-in health check endpoints
-- **🔥 Compression**: Per-message deflate compression
-- **🌍 CORS**: Cross-Origin Resource Sharing support
+**Still working on:**
+- Authentication framework
+- Prometheus metrics
+- Health check endpoints
+- Per-message compression
+- CORS handling
 
-### 📋 **Planned Features**
-- **🚀 QUIC Transport**: UDP-based transport for better performance
-- **⚖️ Load Balancing**: Built-in load balancing capabilities
-- **☸️ Kubernetes**: Native Kubernetes operator and integration
-- **🧪 Testing**: Enhanced testing utilities and benchmarks
+**On the roadmap:**
+- QUIC transport
+- Load balancing
+- Kubernetes operator
 
 ---
 
-## 📦 Feature Flags
+## Feature flags
 
-AeroSocket uses Cargo features to enable/disable functionality:
+Use what you need:
 
 ```toml
 [dependencies]
-aerosocket = { version = "0.1", features = ["full"] }
+aerosocket = { version = "0.2", features = ["full"] }
 ```
-
-### Available Features
-- `full` - Enables all features (recommended for production)
-- `tls-transport` - TLS/SSL transport support
-- `tcp-transport` - TCP transport support (enabled by default)
-- `logging` - Structured logging with tracing
-- `metrics` - Prometheus metrics integration
-- `compression` - Message compression support
-- `serde` - JSON serialization support
 
 ### Minimal Installation
+
 ```toml
 [dependencies]
-aerosocket = { version = "0.1", default-features = false, features = ["tcp-transport"] }
+aerosocket = { version = "0.2", default-features = false, features = ["transport-tcp", "tokio-runtime"] }
 ```
+
+Available flags on the `aerosocket` crate:
+- `full` — Enable server, client, TCP, TLS, WASM, serde, rkyv
+- `server` — Server API
+- `client` — Client API
+- `transport-tcp` — TCP transport (on by default)
+- `transport-tls` — TLS transport
+- `tokio-runtime` — Tokio integration
+- `serde` — JSON serialization helpers
+- `rkyv` — Zero-copy serialization helpers
 
 ---
 
-### Zero-Copy Messaging
+## Examples
+
+**Zero-copy sends:**
+
 ```rust
-// Zero-copy for maximum performance
 let data = Bytes::from("large payload");
-conn.send_binary_bytes(data).await?; // No allocation!
+conn.send_binary_bytes(data).await?; // No copy here
 ```
 
-### Connection Pooling
+**Connection pooling (planned):**
+
+Client-side connection pooling is on the roadmap for a future release.
+
+### Server-side WASM handlers (preview)
+
+If you enable the `wasm-handlers` feature on `aerosocket-server`, you can host
+WASM-based connection handlers alongside native Rust handlers:
+
+```toml
+[dependencies]
+aerosocket-server = { version = "0.2", features = ["full"] }
+```
+
+On the server side, `ServerBuilder` exposes a helper to load a WASM handler from
+disk (requires `wasm-handlers`):
+
 ```rust
-let pool = aerosocket::ClientPool::builder()
-    .max_connections(100)
-    .idle_timeout(Duration::from_secs(30))
-    .build("wss://api.example.com");
+use aerosocket_server::prelude::*;
+
+let server = Server::builder()
+    .bind("0.0.0.0:8080")?
+    .build_with_wasm_handler_from_file(
+        "aerosocket-wasm-handler/target/wasm32-wasi/release/aerosocket-wasm-handler.wasm",
+    )?;
 ```
 
-### Custom Serialization
-```rust
-#[derive(Serialize, Deserialize)]
-struct MyMessage {
-    id: u64,
-    data: String,
-}
+WASM modules use a very small ABI:
 
-conn.send_json(&MyMessage { id: 1, data: "hello".into() }).await?;
-```
+- Export linear memory (the default `memory` export in Rust is fine).
+- Export a function `on_message(ptr: i32, len: i32) -> i32`.
+  - Host writes UTF-8 text into linear memory at `ptr..ptr+len`.
+  - The WASM function may transform the bytes in-place and returns the number of
+    bytes written.
+  - Host reads back that many bytes and sends them as the outgoing text frame.
 
-### Metrics & Observability
-```rust
-// Built-in Prometheus metrics
-let metrics = aerosocket::metrics::collect();
-println!("Active connections: {}", metrics.active_connections());
-println!("Messages/sec: {}", metrics.messages_per_second());
-```
+This repo includes two small example crates you can copy or adapt:
+
+- `aerosocket-wasm-handler` — simple text transformer that prefixes messages
+  with `"WASM: "`.
+- `aerosocket-wasm-json-handler` — JSON-aware handler that parses the incoming
+  text as JSON, wraps it in a small metadata envelope, and serializes it back to
+  JSON.
 
 ---
 
-## 🛡️ Enterprise Security
+## Security
 
-AeroSocket prioritizes security with comprehensive protection:
+We take this seriously. Here's what's in place:
 
-### ✅ **Implemented Security Features**
-- **TLS 1.3** with certificate pinning and secure defaults
-- **Rate limiting** and connection quotas per IP address
-- **Input validation** against malformed WebSocket frames
-- **Memory safety** with Rust's ownership model
-- **Structured logging** with configurable levels
-- **Connection backpressure** management
-- **Graceful shutdown** with proper resource cleanup
+- TLS 1.2/1.3 with configurable root CAs and SNI
+- Rate limiting and connection quotas
+- Input validation for malformed frames
+- Memory safety (it's Rust, so this comes for free)
+- Backpressure to prevent resource exhaustion
 
-### 🚧 **Advanced Security (In Progress)**
-- **Authentication & Authorization** framework
-- **CORS handling** and security headers
-- **Request sanitization** and validation
-- **Health check endpoints** with security metrics
+Production config looks something like:
 
-### 🔒 **Security Architecture**
 ```rust
-// Production-ready security configuration
+use aerosocket::prelude::*;
+
 let server = aerosocket::Server::builder()
-    .bind("0.0.0.0:8443")
-    .with_rate_limiting(100, 20)  // 100 req/min, 20 conn per IP
-    .with_backpressure(64 * 1024) // 64KB buffer
-    .with_tls("server.crt", "server.key")?
-    .with_idle_timeout(Duration::from_secs(300))
+    .bind("0.0.0.0:8443")?
+    .max_connections(10_000)
+    .compression(true)
+    .backpressure(BackpressureStrategy::Buffer)
+    .tls("server.crt", "server.key")
+    .transport_tls()
+    .idle_timeout(Duration::from_secs(300))
     .build()?;
 ```
 
 ---
 
-## 📚 Documentation
+## Documentation
 
-- **[Getting Started Guide](docs/getting-started.md)** - Complete setup and first steps
-- **[API Reference](https://docs.rs/aerosocket)** - Comprehensive API documentation
-- **[Examples](examples/)** - Real-world usage patterns
-- **[Performance Guide](docs/performance.md)** - Tuning and optimization
-- **[Security Handbook](docs/security.md)** - Security best practices
-- **[Migration Guide](docs/migration.md)** - From other WebSocket libraries
+- [Getting Started](docs/getting-started.md)
+- [API Reference](https://docs.rs/aerosocket)
+- [Examples](examples/)
+- [Performance Tuning](docs/performance.md)
+- [Security Guide](docs/security.md)
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! AeroSocket is built by developers, for developers.
+We'd love help. Clone the repo and poke around:
 
-### Quick Start
 ```bash
 git clone https://github.com/M1tsumi/AeroSocket
+```
 
-See our [Contributing Guide](CONTRIBUTING.md) for details.
+Check out [CONTRIBUTING.md](CONTRIBUTING.md) for the details.
 
-### 💬 Community & Support
-
-- **Discord**: [Join our Discord server](https://discord.gg/6nS2KqxQtj) for real-time discussions
-- **GitHub Issues**: [Report bugs and request features](https://github.com/M1tsumi/AeroSocket/issues)
-- **Discussions**: [Community discussions and Q&A](https://github.com/M1tsumi/AeroSocket/discussions)
+**Get in touch:**
+- [Discord](https://discord.gg/6nS2KqxQtj)
+- [GitHub Issues](https://github.com/M1tsumi/AeroSocket/issues)
+- [Discussions](https://github.com/M1tsumi/AeroSocket/discussions)
 
 ---
 
 ## 🗺️ Roadmap
 
-### ✅ **Completed (v0.1)**
-- [x] **Core WebSocket Protocol** - Full RFC6455 compliance
-- [x] **TCP Transport** - High-performance TCP implementation
-- [x] **TLS Transport** - Secure TLS 1.3 with certificate management
-- [x] **Rate Limiting** - DoS protection with per-IP limits
-- [x] **Structured Logging** - Production-ready logging system
-- [x] **Connection Management** - Graceful shutdown and cleanup
-- [x] **Error Handling** - Comprehensive error types and recovery
-- [x] **Configuration System** - Flexible server and client configuration
-- [x] **Zero-Copy Engine** - Optimized message handling
+### ✅ **v0.1 (done)**
+- Core WebSocket protocol
+- TCP and TLS transports
+- Rate limiting
+- Logging
+- Connection management
+- Zero-copy engine
 
-### 🚧 **In Progress (v0.2)**
-- [ ] **Authentication Framework** - Built-in auth and authorization
-- [ ] **Metrics Integration** - Prometheus observability
-- [ ] **Health Check Endpoints** - Built-in monitoring endpoints
-- [ ] **Compression Support** - Per-message deflate
-- [ ] **CORS Handling** - Cross-origin resource sharing
-- [ ] **Input Validation** - Enhanced request sanitization
+**v0.2 (released)**
+- Authentication
+- Metrics
+- Health checks
+- Compression
+- CORS
 
-### 📋 **Planned (v0.3)**
-- [ ] **HTTP/2 Transport** - Next-generation transport protocol
-- [ ] **Advanced Connection Pooling** - Intelligent connection reuse
-- [ ] **WASM Server Support** - Server-side WebAssembly
-- [ ] **GraphQL Subscriptions** - Native GraphQL support
+**v0.3 (planned)**
+- HTTP/2 transport
+- Better connection pooling
+- WASM support
 
-### 🎯 **Future (v1.0)**
-- [ ] **QUIC Transport** - UDP-based transport implementation
-- [ ] **Load Balancing** - Built-in load distribution
-- [ ] **Kubernetes Operator** - Native K8s integration
-- [ ] **Performance Profiling** - Built-in profiling tools
-- [ ] **Enterprise Support** - Commercial support packages
+**v1.0 (eventually)**
+- QUIC
+- Load balancing
+- Kubernetes integration
 
 ---
 
-## 📊 Ecosystem
+## Ecosystem
 
-AeroSocket integrates seamlessly with the Rust ecosystem:
-
-| Integration | Status | Crate |
-|-------------|--------|-------|
-| **Tokio** | ✅ Core | `tokio` |
-| **Serde** | ✅ Full | `serde` |
-| **Tracing** | ✅ Built-in | `tracing` |
-| **Tower** | 🚧 In Progress | `tower-aerosocket` |
-| **Axum** | 🚧 In Progress | `axum-aerosocket` |
-| **Actix** | 📋 Planned | `actix-aerosocket` |
+| Integration | Status |
+|-------------|--------|
+| Tokio | Works |
+| Serde | Works |
+| Tracing | Built-in |
+| Tower | In progress |
+| Axum | In progress |
+| Actix | Planned |
 
 ---
 
-## 📄 License
+## License
 
-Licensed under either of:
-
-- **[MIT License](LICENSE-MIT)** - For open source projects
-- **[Apache License 2.0](LICENSE-APACHE)** - For commercial use
-
-at your option.
+MIT or Apache 2.0, your choice.
 
 ---
 
-## 🙏 Acknowledgments
+## Thanks
 
-Built with inspiration from the Rust community and battle-tested in production environments. Special thanks to:
-
-- The **Tokio** team for the amazing async runtime
-- **WebSocket** RFC contributors for the protocol foundation
-- Our **early adopters** for invaluable feedback
-
----
-
-## 📞 Connect With Us
-
-- **[Discord Community](https://discord.gg/6nS2KqxQtj)** - Chat with us and other users
-- **[GitHub Discussions](https://github.com/M1tsumi/AeroSocket/discussions)** - Q&A and discussions
+This wouldn't exist without the Tokio team's work on the async runtime, or the folks who wrote the WebSocket RFC. And thanks to everyone who's tried early versions and told us what was broken.
 
 ---
 
 <div align="center">
 
-**⭐ Star us on GitHub!** It helps more developers discover AeroSocket.
+If you find this useful, a star on GitHub helps others find it too.
 
 [![GitHub stars](https://img.shields.io/github/stars/M1tsumi/AeroSocket?style=social)](https://github.com/M1tsumi/AeroSocket)
-
----
-
-*Built with ❤️ by the Rust community*
 
 </div>

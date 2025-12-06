@@ -5,6 +5,15 @@
 use aerosocket_core::error::{ConfigError, Error};
 use std::time::Duration;
 
+#[cfg(feature = "tls-transport")]
+use rustls::{Certificate as RustlsCert, PrivateKey as RustlsKey, ServerConfig as RustlsServerConfig};
+#[cfg(feature = "tls-transport")]
+use rustls_pemfile::{certs, pkcs8_private_keys, rsa_private_keys};
+#[cfg(feature = "tls-transport")]
+use std::fs::File;
+#[cfg(feature = "tls-transport")]
+use std::io::BufReader;
+
 /// Server configuration
 #[derive(Debug, Clone)]
 pub struct ServerConfig {
@@ -216,6 +225,81 @@ impl TlsConfig {
         self.ca_file = Some(file);
         self
     }
+}
+
+#[cfg(feature = "tls-transport")]
+fn load_certs(path: &str) -> aerosocket_core::Result<Vec<RustlsCert>> {
+    let file = File::open(path).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to open certificate file {}: {}",
+            path, e
+        )))
+    })?;
+    let mut reader = BufReader::new(file);
+    let cert_vec = certs(&mut reader).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to parse certificate file {}: {}",
+            path, e
+        )))
+    })?;
+    Ok(cert_vec.into_iter().map(RustlsCert).collect())
+}
+
+#[cfg(feature = "tls-transport")]
+fn load_private_key(path: &str) -> aerosocket_core::Result<RustlsKey> {
+    let file = File::open(path).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to open private key file {}: {}",
+            path, e
+        )))
+    })?;
+    let mut reader = BufReader::new(file);
+
+    if let Ok(keys) = pkcs8_private_keys(&mut reader) {
+        if let Some(key) = keys.into_iter().next() {
+            return Ok(RustlsKey(key));
+        }
+    }
+
+    let file = File::open(path).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to reopen private key file {}: {}",
+            path, e
+        )))
+    })?;
+    let mut reader = BufReader::new(file);
+    let keys = rsa_private_keys(&mut reader).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to parse private key file {}: {}",
+            path, e
+        )))
+    })?;
+
+    if let Some(key) = keys.into_iter().next() {
+        Ok(RustlsKey(key))
+    } else {
+        Err(Error::Config(ConfigError::Validation(format!(
+            "No private keys found in {}",
+            path
+        ))))
+    }
+}
+
+#[cfg(feature = "tls-transport")]
+pub fn build_rustls_server_config(tls: &TlsConfig) -> aerosocket_core::Result<RustlsServerConfig> {
+    let certs = load_certs(&tls.cert_file)?;
+    let key = load_private_key(&tls.key_file)?;
+
+    RustlsServerConfig::builder()
+        .with_safe_defaults()
+        .with_no_client_auth()
+        .with_single_cert(certs, key)
+        .map_err(|e| {
+            Error::Config(ConfigError::Validation(format!(
+                "Invalid TLS certificate/key: {}",
+                e
+            )))
+        })
 }
 
 #[cfg(test)]

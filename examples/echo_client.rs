@@ -11,9 +11,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
     // Create and connect the client
-    let mut client = Client::connect("ws://127.0.0.1:8080")
-        .connect()
-        .await?;
+    let addr: SocketAddr = "127.0.0.1:8080".parse()?;
+    let config = ClientConfig::default();
+    let client = Client::new(addr).with_config(config);
+    let mut client = client.connect().await?;
 
     println!("🔗 Connected to echo server");
 

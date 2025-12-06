@@ -6,6 +6,19 @@ use aerosocket_core::error::ConfigError;
 use aerosocket_core::Error;
 use std::time::Duration;
 
+#[cfg(feature = "transport-tls")]
+use rustls::{Certificate, ClientConfig as RustlsClientConfig, PrivateKey, ProtocolVersion, RootCertStore, OwnedTrustAnchor};
+#[cfg(feature = "transport-tls")]
+use std::fs::File;
+#[cfg(feature = "transport-tls")]
+use std::io::BufReader;
+#[cfg(feature = "transport-tls")]
+use std::sync::Arc;
+#[cfg(feature = "transport-tls")]
+use webpki_roots::TLS_SERVER_ROOTS;
+#[cfg(feature = "transport-tls")]
+use rustls_pemfile::{certs, pkcs8_private_keys, rsa_private_keys};
+
 /// Client configuration
 #[derive(Debug, Clone)]
 pub struct ClientConfig {
@@ -193,6 +206,177 @@ pub enum TlsVersion {
     V1_2,
     /// TLS 1.3
     V1_3,
+}
+
+#[cfg(feature = "transport-tls")]
+fn load_certs(path: &str) -> aerosocket_core::Result<Vec<Certificate>> {
+    let file = File::open(path).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to open certificate file {}: {}",
+            path, e
+        )))
+    })?;
+    let mut reader = BufReader::new(file);
+    let cert_vec = certs(&mut reader).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to parse certificate file {}: {}",
+            path, e
+        )))
+    })?;
+    Ok(cert_vec.into_iter().map(Certificate).collect())
+}
+
+#[cfg(feature = "transport-tls")]
+fn load_private_key(path: &str) -> aerosocket_core::Result<PrivateKey> {
+    let file = File::open(path).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to open private key file {}: {}",
+            path, e
+        )))
+    })?;
+    let mut reader = BufReader::new(file);
+
+    // Try PKCS8 first
+    if let Ok(keys) = pkcs8_private_keys(&mut reader) {
+        if let Some(key) = keys.into_iter().next() {
+            return Ok(PrivateKey(key));
+        }
+    }
+
+    // Rewind and try RSA
+    let file = File::open(path).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to reopen private key file {}: {}",
+            path, e
+        )))
+    })?;
+    let mut reader = BufReader::new(file);
+    let keys = rsa_private_keys(&mut reader).map_err(|e| {
+        Error::Config(ConfigError::Validation(format!(
+            "Failed to parse private key file {}: {}",
+            path, e
+        )))
+    })?;
+
+    if let Some(key) = keys.into_iter().next() {
+        Ok(PrivateKey(key))
+    } else {
+        Err(Error::Config(ConfigError::Validation(format!(
+            "No private keys found in {}",
+            path
+        ))))
+    }
+}
+
+#[cfg(feature = "transport-tls")]
+fn map_tls_version(v: TlsVersion) -> ProtocolVersion {
+    match v {
+        TlsVersion::V1_0 => ProtocolVersion::TLSv1_0,
+        TlsVersion::V1_1 => ProtocolVersion::TLSv1_1,
+        TlsVersion::V1_2 => ProtocolVersion::TLSv1_2,
+        TlsVersion::V1_3 => ProtocolVersion::TLSv1_3,
+    }
+}
+
+#[cfg(feature = "transport-tls")]
+struct NoCertificateVerification;
+
+#[cfg(feature = "transport-tls")]
+impl rustls::client::ServerCertVerifier for NoCertificateVerification {
+    fn verify_server_cert(
+        &self,
+        _end_entity: &Certificate,
+        _intermediates: &[Certificate],
+        _server_name: &rustls::ServerName,
+        _scts: &mut dyn Iterator<Item = &[u8]>,
+        _ocsp_response: &[u8],
+        _now: std::time::SystemTime,
+    ) -> std::result::Result<rustls::client::ServerCertVerified, rustls::Error> {
+        Ok(rustls::client::ServerCertVerified::assertion())
+    }
+}
+
+/// Build a rustls ClientConfig from this TlsConfig
+#[cfg(feature = "transport-tls")]
+pub fn build_rustls_client_config(tls: &TlsConfig) -> aerosocket_core::Result<RustlsClientConfig> {
+    // Root store: either custom CA file or system/webpki roots
+    let mut root_store = RootCertStore::empty();
+
+    if let Some(ca_path) = &tls.ca_file {
+        let certs = load_certs(ca_path)?;
+        for cert in certs {
+            root_store
+                .add(&cert)
+                .map_err(|e| Error::Config(ConfigError::Validation(format!(
+                    "Failed to add CA certificate from {}: {:?}",
+                    ca_path, e
+                ))))?;
+        }
+    } else {
+        root_store.add_trust_anchors(TLS_SERVER_ROOTS.iter().map(|ta| {
+            OwnedTrustAnchor::from_subject_spki_name_constraints(
+                ta.subject,
+                ta.spki,
+                ta.name_constraints,
+            )
+        }));
+    }
+
+    let builder = RustlsClientConfig::builder()
+        .with_safe_defaults()
+        .with_root_certificates(root_store);
+
+    let mut config = if let (Some(cert_path), Some(key_path)) = (&tls.cert_file, &tls.key_file) {
+        let certs = load_certs(cert_path)?;
+        let key = load_private_key(key_path)?;
+        builder
+            .with_single_cert(certs, key)
+            .map_err(|e| Error::Config(ConfigError::Validation(format!(
+                "Invalid client certificate/key: {}",
+                e
+            ))))?
+    } else {
+        builder.with_no_client_auth()
+    };
+
+    // Apply TLS version bounds if provided
+    if tls.min_version.is_some() || tls.max_version.is_some() {
+        let min = tls.min_version.unwrap_or(TlsVersion::V1_2);
+        let max = tls.max_version.unwrap_or(TlsVersion::V1_3);
+
+        let all_versions = [
+            ProtocolVersion::TLSv1_0,
+            ProtocolVersion::TLSv1_1,
+            ProtocolVersion::TLSv1_2,
+            ProtocolVersion::TLSv1_3,
+        ];
+
+        let min_v = map_tls_version(min);
+        let max_v = map_tls_version(max);
+
+        let selected: Vec<ProtocolVersion> = all_versions
+            .iter()
+            .cloned()
+            .filter(|v| *v as u16 >= min_v as u16 && *v as u16 <= max_v as u16)
+            .collect();
+
+        if selected.is_empty() {
+            return Err(Error::Config(ConfigError::Validation(
+                "No TLS protocol versions enabled by min_version/max_version".to_string(),
+            )));
+        }
+
+        config.versions = selected;
+    }
+
+    // Apply verify flag: when false, disable certificate verification
+    if !tls.verify {
+        config
+            .dangerous()
+            .set_certificate_verifier(Arc::new(NoCertificateVerification));
+    }
+
+    Ok(config)
 }
 
 #[cfg(test)]

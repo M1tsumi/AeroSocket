@@ -2,12 +2,14 @@
 //!
 //! This module provides connection management for WebSocket clients.
 
-use aerosocket_core::prelude::Bytes;
+use aerosocket_core::frame::Frame;
+use aerosocket_core::protocol::Opcode;
+use aerosocket_core::transport::TransportStream;
 use aerosocket_core::{Message, Result};
+use bytes::{Bytes, BytesMut};
 use std::net::SocketAddr;
 
 /// Represents a WebSocket client connection
-#[derive(Debug)]
 pub struct ClientConnection {
     /// Server address
     remote_addr: SocketAddr,
@@ -15,6 +17,7 @@ pub struct ClientConnection {
     state: ConnectionState,
     /// Connection metadata
     metadata: ConnectionMetadata,
+    stream: Option<Box<dyn TransportStream>>,
 }
 
 /// Connection state
@@ -67,6 +70,26 @@ impl ClientConnection {
                 bytes_sent: 0,
                 bytes_received: 0,
             },
+            stream: None,
+        }
+    }
+
+    pub fn with_stream(remote_addr: SocketAddr, stream: Box<dyn TransportStream>) -> Self {
+        let now = std::time::Instant::now();
+        Self {
+            remote_addr,
+            state: ConnectionState::Connected,
+            metadata: ConnectionMetadata {
+                subprotocol: None,
+                extensions: Vec::new(),
+                established_at: now,
+                last_activity_at: now,
+                messages_sent: 0,
+                messages_received: 0,
+                bytes_sent: 0,
+                bytes_received: 0,
+            },
+            stream: Some(stream),
         }
     }
 
@@ -85,20 +108,58 @@ impl ClientConnection {
         &self.metadata
     }
 
+    fn update_activity(&mut self) {
+        let now = std::time::Instant::now();
+        self.metadata.last_activity_at = now;
+    }
+
     /// Send a message
+    #[cfg_attr(feature = "logging", tracing::instrument(skip(self, message)))]
     pub async fn send(&mut self, message: Message) -> Result<()> {
-        // TODO: Implement actual message sending
-        self.metadata.messages_sent += 1;
-        let message_len = match &message {
-            Message::Text(text) => text.len(),
-            Message::Binary(data) => data.len(),
-            Message::Ping(data) => data.len(),
-            Message::Pong(data) => data.len(),
-            Message::Close(close_msg) => close_msg.len(),
-        };
-        self.metadata.bytes_sent += message_len as u64;
-        self.metadata.last_activity_at = std::time::Instant::now();
-        Ok(())
+        self.update_activity();
+
+        if let Some(stream) = &mut self.stream {
+            let frame = match message {
+                Message::Text(text) => Frame::text(text.as_bytes().to_vec()),
+                Message::Binary(data) => Frame::binary(data.as_bytes().to_vec()),
+                Message::Ping(data) => Frame::ping(data.as_bytes().to_vec()),
+                Message::Pong(data) => Frame::pong(data.as_bytes().to_vec()),
+                Message::Close(close_msg) => {
+                    Frame::close(close_msg.code(), Some(close_msg.reason()))
+                }
+            };
+
+            let frame_bytes = frame.to_bytes();
+
+            #[cfg(feature = "metrics")]
+            {
+                metrics::counter!(
+                    "aerosocket_client_messages_sent_total",
+                    1u64
+                );
+                metrics::counter!(
+                    "aerosocket_client_bytes_sent_total",
+                    frame_bytes.len() as u64
+                );
+                metrics::histogram!(
+                    "aerosocket_client_frame_size_bytes",
+                    frame_bytes.len() as f64
+                );
+            }
+
+            stream.write_all(&frame_bytes).await?;
+            stream.flush().await?;
+
+            self.metadata.messages_sent += 1;
+            self.metadata.bytes_sent += frame_bytes.len() as u64;
+            self.metadata.last_activity_at = std::time::Instant::now();
+
+            Ok(())
+        } else {
+            Err(aerosocket_core::Error::Other(
+                "Connection not established".to_string(),
+            ))
+        }
     }
 
     /// Send a text message
@@ -126,14 +187,158 @@ impl ClientConnection {
     }
 
     /// Receive the next message
+    #[cfg_attr(feature = "logging", tracing::instrument(skip(self)))]
     pub async fn next(&mut self) -> Result<Option<Message>> {
-        // TODO: Implement actual message receiving
-        Ok(None)
+        self.update_activity();
+
+        if let Some(stream) = &mut self.stream {
+            let mut message_buffer = Vec::new();
+            let mut final_frame = false;
+            let mut opcode = None;
+
+            while !final_frame {
+                let mut frame_buffer = BytesMut::new();
+
+                loop {
+                    let mut temp_buf = [0u8; 2];
+                    let n = stream.read(&mut temp_buf).await?;
+                    if n == 0 {
+                        self.state = ConnectionState::Closed;
+                        return Ok(None);
+                    }
+                    frame_buffer.extend_from_slice(&temp_buf[..n]);
+
+                    if frame_buffer.len() >= 2 {
+                        break;
+                    }
+                }
+
+                match Frame::parse(&mut frame_buffer) {
+                    Ok(frame) => {
+                        match frame.opcode {
+                            Opcode::Ping => {
+                                let ping_data = frame.payload.to_vec();
+                                stream.write_all(&Frame::pong(ping_data).to_bytes()).await?;
+                                stream.flush().await?;
+                                continue;
+                            }
+                            Opcode::Pong => {
+                                continue;
+                            }
+                            Opcode::Close => {
+                                let close_code = if frame.payload.len() >= 2 {
+                                    let code_bytes = &frame.payload[..2];
+                                    u16::from_be_bytes([code_bytes[0], code_bytes[1]])
+                                } else {
+                                    1000
+                                };
+
+                                let close_reason = if frame.payload.len() > 2 {
+                                    String::from_utf8_lossy(&frame.payload[2..]).to_string()
+                                } else {
+                                    String::new()
+                                };
+
+                                self.state = ConnectionState::Closing;
+                                return Ok(Some(Message::close(
+                                    Some(close_code),
+                                    Some(close_reason),
+                                )));
+                            }
+                            Opcode::Continuation | Opcode::Text | Opcode::Binary => {
+                                if opcode.is_none() {
+                                    opcode = Some(frame.opcode);
+                                }
+
+                                message_buffer.extend_from_slice(&frame.payload);
+                                final_frame = frame.fin;
+
+                                if !final_frame && frame.opcode != Opcode::Continuation {
+                                    return Err(aerosocket_core::Error::Other(
+                                        "Expected continuation frame".to_string(),
+                                    ));
+                                }
+                            }
+                            _ => {
+                                return Err(aerosocket_core::Error::Other(
+                                    "Unsupported opcode".to_string(),
+                                ));
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        let mut temp_buf = [0u8; 1024];
+                        match stream.read(&mut temp_buf).await {
+                            Ok(0) => {
+                                self.state = ConnectionState::Closed;
+                                return Ok(None);
+                            }
+                            Ok(n) => {
+                                let _ = e;
+                                frame_buffer.extend_from_slice(&temp_buf[..n]);
+                            }
+                            Err(err) => return Err(err),
+                        }
+                        continue;
+                    }
+                }
+            }
+
+            let message = match opcode.unwrap_or(Opcode::Text) {
+                Opcode::Text => {
+                    let text = String::from_utf8_lossy(&message_buffer).to_string();
+                    Message::text(text)
+                }
+                Opcode::Binary => {
+                    let data = Bytes::from(message_buffer.clone());
+                    Message::binary(data)
+                }
+                _ => {
+                    return Err(aerosocket_core::Error::Other(
+                        "Invalid message opcode".to_string(),
+                    ));
+                }
+            };
+
+            self.metadata.messages_received += 1;
+            self.metadata.bytes_received += message_buffer.len() as u64;
+
+            #[cfg(feature = "metrics")]
+            {
+                metrics::counter!(
+                    "aerosocket_client_messages_received_total",
+                    1u64
+                );
+                metrics::counter!(
+                    "aerosocket_client_bytes_received_total",
+                    message_buffer.len() as u64
+                );
+                metrics::histogram!(
+                    "aerosocket_client_message_size_bytes",
+                    message_buffer.len() as f64
+                );
+            }
+
+            Ok(Some(message))
+        } else {
+            Err(aerosocket_core::Error::Other(
+                "Connection not established".to_string(),
+            ))
+        }
     }
 
     /// Close the connection
+    #[cfg_attr(feature = "logging", tracing::instrument(skip(self, reason)))]
     pub async fn close(&mut self, code: Option<u16>, reason: Option<&str>) -> Result<()> {
         self.state = ConnectionState::Closing;
+
+        #[cfg(feature = "metrics")]
+        {
+            metrics::counter!(
+                "aerosocket_client_connections_closed_total",
+                1u64
+            );
+        }
         let message = Message::close(code, reason.map(|s| s.to_string()));
         self.send(message).await?;
         self.state = ConnectionState::Closed;
@@ -179,7 +384,6 @@ impl ClientConnection {
 }
 
 /// Connection handle for managing connections
-#[derive(Debug)]
 pub struct ClientConnectionHandle {
     /// Connection ID
     id: u64,

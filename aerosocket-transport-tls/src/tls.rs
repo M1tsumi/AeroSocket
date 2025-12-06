@@ -206,13 +206,17 @@ impl TlsStream {
     }
 
     /// Create a new TLS stream by connecting to a remote address
-    pub async fn connect(addr: SocketAddr, config: Arc<ClientConfig>) -> Result<Self> {
+    pub async fn connect(
+        addr: SocketAddr,
+        config: Arc<ClientConfig>,
+        server_name: &str,
+    ) -> Result<Self> {
         let tcp_stream = tokio::net::TcpStream::connect(addr)
             .await
             .map_err(aerosocket_core::Error::Io)?;
 
         let connector = TlsConnector::from(config);
-        let domain = rustls::ServerName::try_from("localhost")
+        let domain = rustls::ServerName::try_from(server_name)
             .map_err(|e| aerosocket_core::Error::Other(format!("Invalid domain name: {}", e)))?;
 
         let tls_stream = connector
