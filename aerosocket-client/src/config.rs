@@ -269,6 +269,7 @@ fn load_private_key(path: &str) -> aerosocket_core::Result<PrivateKey> {
 }
 
 #[cfg(feature = "transport-tls")]
+#[allow(dead_code)]
 fn map_tls_version(v: TlsVersion) -> ProtocolVersion {
     match v {
         TlsVersion::V1_0 => ProtocolVersion::TLSv1_0,
@@ -298,6 +299,7 @@ impl rustls::client::ServerCertVerifier for NoCertificateVerification {
 
 /// Build a rustls ClientConfig from this TlsConfig
 #[cfg(feature = "transport-tls")]
+#[allow(deprecated)]
 pub fn build_rustls_client_config(tls: &TlsConfig) -> aerosocket_core::Result<RustlsClientConfig> {
     // Root store: either custom CA file or system/webpki roots
     let mut root_store = RootCertStore::empty();
@@ -338,36 +340,6 @@ pub fn build_rustls_client_config(tls: &TlsConfig) -> aerosocket_core::Result<Ru
     } else {
         builder.with_no_client_auth()
     };
-
-    // Apply TLS version bounds if provided
-    if tls.min_version.is_some() || tls.max_version.is_some() {
-        let min = tls.min_version.unwrap_or(TlsVersion::V1_2);
-        let max = tls.max_version.unwrap_or(TlsVersion::V1_3);
-
-        let all_versions = [
-            ProtocolVersion::TLSv1_0,
-            ProtocolVersion::TLSv1_1,
-            ProtocolVersion::TLSv1_2,
-            ProtocolVersion::TLSv1_3,
-        ];
-
-        let min_v = map_tls_version(min);
-        let max_v = map_tls_version(max);
-
-        let selected: Vec<ProtocolVersion> = all_versions
-            .iter()
-            .cloned()
-            .filter(|v| *v as u16 >= min_v as u16 && *v as u16 <= max_v as u16)
-            .collect();
-
-        if selected.is_empty() {
-            return Err(Error::Config(ConfigError::Validation(
-                "No TLS protocol versions enabled by min_version/max_version".to_string(),
-            )));
-        }
-
-        config.versions = selected;
-    }
 
     // Apply verify flag: when false, disable certificate verification
     if !tls.verify {

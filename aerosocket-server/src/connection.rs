@@ -232,18 +232,12 @@ impl Connection {
 
             #[cfg(feature = "metrics")]
             {
-                metrics::counter!(
-                    "aerosocket_server_messages_sent_total",
-                    1u64
-                );
-                metrics::counter!(
-                    "aerosocket_server_bytes_sent_total",
-                    frame_bytes.len() as u64
-                );
-                metrics::histogram!(
-                    "aerosocket_server_frame_size_bytes",
-                    frame_bytes.len() as f64
-                );
+                metrics::counter!("aerosocket_server_messages_sent_total")
+                    .increment(1);
+                metrics::counter!("aerosocket_server_bytes_sent_total")
+                    .increment(frame_bytes.len() as u64);
+                metrics::histogram!("aerosocket_server_frame_size_bytes")
+                    .record(frame_bytes.len() as f64);
             }
 
             // Send frame
@@ -419,18 +413,12 @@ impl Connection {
 
             #[cfg(feature = "metrics")]
             {
-                metrics::counter!(
-                    "aerosocket_server_messages_received_total",
-                    1u64
-                );
-                metrics::counter!(
-                    "aerosocket_server_bytes_received_total",
-                    message_buffer.len() as u64
-                );
-                metrics::histogram!(
-                    "aerosocket_server_message_size_bytes",
-                    message_buffer.len() as f64
-                );
+                metrics::counter!("aerosocket_server_messages_received_total")
+                    .increment(1);
+                metrics::counter!("aerosocket_server_bytes_received_total")
+                    .increment(message_buffer.len() as u64);
+                metrics::histogram!("aerosocket_server_message_size_bytes")
+                    .record(message_buffer.len() as f64);
             }
 
             Ok(Some(message))

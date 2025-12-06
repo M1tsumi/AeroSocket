@@ -12,7 +12,7 @@ use aerosocket_core::transport::TransportStream;
 #[cfg(feature = "transport-tcp")]
 use aerosocket_transport_tcp::TcpStream;
 #[cfg(feature = "transport-tls")]
-use aerosocket_transport_tls::{TlsStream, TlsTransport};
+use aerosocket_transport_tls::TlsStream;
 use crate::config::ClientConfig as ClientOptions;
 use std::net::SocketAddr;
 use std::time::Instant;
@@ -131,14 +131,10 @@ impl Client {
                     #[cfg(feature = "metrics")]
                     {
                         let elapsed = handshake_start.elapsed().as_secs_f64();
-                        metrics::histogram!(
-                            "aerosocket_client_handshake_duration_seconds",
-                            elapsed
-                        );
-                        metrics::counter!(
-                            "aerosocket_client_connections_opened_total",
-                            1u64
-                        );
+                        metrics::histogram!("aerosocket_client_handshake_duration_seconds")
+                            .record(elapsed);
+                        metrics::counter!("aerosocket_client_connections_opened_total")
+                            .increment(1);
                     }
 
                     Ok(connection)
@@ -205,14 +201,10 @@ impl Client {
                     #[cfg(feature = "metrics")]
                     {
                         let elapsed = handshake_start.elapsed().as_secs_f64();
-                        metrics::histogram!(
-                            "aerosocket_client_handshake_duration_seconds",
-                            elapsed
-                        );
-                        metrics::counter!(
-                            "aerosocket_client_connections_opened_total",
-                            1u64
-                        );
+                        metrics::histogram!("aerosocket_client_handshake_duration_seconds")
+                            .record(elapsed);
+                        metrics::counter!("aerosocket_client_connections_opened_total")
+                            .increment(1);
                     }
 
                     Ok(connection)

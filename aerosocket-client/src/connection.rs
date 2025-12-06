@@ -7,6 +7,7 @@ use aerosocket_core::protocol::Opcode;
 use aerosocket_core::transport::TransportStream;
 use aerosocket_core::{Message, Result};
 use bytes::{Bytes, BytesMut};
+use std::fmt;
 use std::net::SocketAddr;
 
 /// Represents a WebSocket client connection
@@ -74,6 +75,7 @@ impl ClientConnection {
         }
     }
 
+    #[allow(missing_docs)]
     pub fn with_stream(remote_addr: SocketAddr, stream: Box<dyn TransportStream>) -> Self {
         let now = std::time::Instant::now();
         Self {
@@ -133,18 +135,12 @@ impl ClientConnection {
 
             #[cfg(feature = "metrics")]
             {
-                metrics::counter!(
-                    "aerosocket_client_messages_sent_total",
-                    1u64
-                );
-                metrics::counter!(
-                    "aerosocket_client_bytes_sent_total",
-                    frame_bytes.len() as u64
-                );
-                metrics::histogram!(
-                    "aerosocket_client_frame_size_bytes",
-                    frame_bytes.len() as f64
-                );
+                metrics::counter!("aerosocket_client_messages_sent_total")
+                    .increment(1);
+                metrics::counter!("aerosocket_client_bytes_sent_total")
+                    .increment(frame_bytes.len() as u64);
+                metrics::histogram!("aerosocket_client_frame_size_bytes")
+                    .record(frame_bytes.len() as f64);
             }
 
             stream.write_all(&frame_bytes).await?;
@@ -305,18 +301,12 @@ impl ClientConnection {
 
             #[cfg(feature = "metrics")]
             {
-                metrics::counter!(
-                    "aerosocket_client_messages_received_total",
-                    1u64
-                );
-                metrics::counter!(
-                    "aerosocket_client_bytes_received_total",
-                    message_buffer.len() as u64
-                );
-                metrics::histogram!(
-                    "aerosocket_client_message_size_bytes",
-                    message_buffer.len() as f64
-                );
+                metrics::counter!("aerosocket_client_messages_received_total")
+                    .increment(1);
+                metrics::counter!("aerosocket_client_bytes_received_total")
+                    .increment(message_buffer.len() as u64);
+                metrics::histogram!("aerosocket_client_message_size_bytes")
+                    .record(message_buffer.len() as f64);
             }
 
             Ok(Some(message))
@@ -334,10 +324,8 @@ impl ClientConnection {
 
         #[cfg(feature = "metrics")]
         {
-            metrics::counter!(
-                "aerosocket_client_connections_closed_total",
-                1u64
-            );
+            metrics::counter!("aerosocket_client_connections_closed_total")
+                .increment(1);
         }
         let message = Message::close(code, reason.map(|s| s.to_string()));
         self.send(message).await?;
@@ -424,6 +412,24 @@ impl Clone for ClientConnectionHandle {
             id: self.id,
             connection: self.connection.clone(),
         }
+    }
+}
+
+impl fmt::Debug for ClientConnection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ClientConnection")
+            .field("remote_addr", &self.remote_addr)
+            .field("state", &self.state)
+            .field("metadata", &self.metadata)
+            .finish()
+    }
+}
+
+impl fmt::Debug for ClientConnectionHandle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ClientConnectionHandle")
+            .field("id", &self.id)
+            .finish()
     }
 }
 

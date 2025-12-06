@@ -411,12 +411,11 @@ impl Server {
         #[cfg(feature = "metrics")]
         {
             let active = connection_manager.connection_count().await as f64;
-            metrics::gauge!("aerosocket_server_active_connections", active);
-            metrics::counter!("aerosocket_server_connections_opened_total", 1u64);
-            metrics::counter!(
-                "aerosocket_server_endpoint_connections_opened_total",
-                1u64
-            );
+            metrics::gauge!("aerosocket_server_active_connections").set(active);
+            metrics::counter!("aerosocket_server_connections_opened_total")
+                .increment(1);
+            metrics::counter!("aerosocket_server_endpoint_connections_opened_total")
+                .increment(1);
         }
 
         let connection_handle = connection_manager
@@ -437,8 +436,9 @@ impl Server {
         #[cfg(feature = "metrics")]
         {
             let active = connection_manager.connection_count().await as f64;
-            metrics::gauge!("aerosocket_server_active_connections", active);
-            metrics::counter!("aerosocket_server_connections_closed_total", 1u64);
+            metrics::gauge!("aerosocket_server_active_connections").set(active);
+            metrics::counter!("aerosocket_server_connections_closed_total")
+                .increment(1);
         }
 
         Ok(())
@@ -468,12 +468,11 @@ impl Server {
         #[cfg(feature = "metrics")]
         {
             let active = connection_manager.connection_count().await as f64;
-            metrics::gauge!("aerosocket_server_active_connections", active);
-            metrics::counter!("aerosocket_server_connections_opened_total", 1u64);
-            metrics::counter!(
-                "aerosocket_server_endpoint_connections_opened_total",
-                1u64
-            );
+            metrics::gauge!("aerosocket_server_active_connections").set(active);
+            metrics::counter!("aerosocket_server_connections_opened_total")
+                .increment(1);
+            metrics::counter!("aerosocket_server_endpoint_connections_opened_total")
+                .increment(1);
         }
 
         // Get connection handle
@@ -498,8 +497,9 @@ impl Server {
         #[cfg(feature = "metrics")]
         {
             let active = connection_manager.connection_count().await as f64;
-            metrics::gauge!("aerosocket_server_active_connections", active);
-            metrics::counter!("aerosocket_server_connections_closed_total", 1u64);
+            metrics::gauge!("aerosocket_server_active_connections").set(active);
+            metrics::counter!("aerosocket_server_connections_closed_total")
+                .increment(1);
         }
 
         Ok(())
@@ -544,10 +544,8 @@ impl Server {
         #[cfg(feature = "metrics")]
         {
             let elapsed = start.elapsed().as_secs_f64();
-            metrics::histogram!(
-                "aerosocket_server_handshake_duration_seconds",
-                elapsed
-            );
+            metrics::histogram!("aerosocket_server_handshake_duration_seconds")
+                .record(elapsed);
         }
 
         // Get addresses
@@ -637,10 +635,8 @@ impl Server {
         #[cfg(feature = "metrics")]
         {
             let elapsed = start.elapsed().as_secs_f64();
-            metrics::histogram!(
-                "aerosocket_server_handshake_duration_seconds",
-                elapsed
-            );
+            metrics::histogram!("aerosocket_server_handshake_duration_seconds")
+                .record(elapsed);
         }
 
         // Get addresses

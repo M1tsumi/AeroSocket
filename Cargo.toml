@@ -30,7 +30,7 @@ description = "Ultra-fast, zero-copy WebSocket library for enterprise-scale appl
 # Core dependencies
 tokio = { version = "1.35", features = ["full"] }
 bytes = "1.5"
-rustls = "0.21"
+rustls = { version = "0.21", features = ["dangerous_configuration"] }
 tracing = "0.1"
 metrics = "0.22"
 thiserror = "1.0"
