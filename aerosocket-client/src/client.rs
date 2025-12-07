@@ -2,21 +2,28 @@
 //!
 //! This module provides client functionality for WebSocket connections.
 
-use aerosocket_core::{Error, Message, Result};
-use aerosocket_core::handshake::{
-    create_client_handshake, parse_server_handshake, request_to_string, validate_server_handshake,
-    HandshakeConfig,
+use std::net::SocketAddr;
+use std::time::Instant;
+
+use tokio::time::timeout;
+
+use aerosocket_core::{
+    handshake::{
+        create_client_handshake, parse_server_handshake, request_to_string, validate_server_handshake,
+        HandshakeConfig,
+    },
+    protocol::constants::{HEADER_SEC_WEBSOCKET_KEY, MAX_HEADER_SIZE},
+    transport::TransportStream,
+    Error, Message, Result,
 };
-use aerosocket_core::protocol::constants::{HEADER_SEC_WEBSOCKET_KEY, MAX_HEADER_SIZE};
-use aerosocket_core::transport::TransportStream;
+
 #[cfg(feature = "transport-tcp")]
 use aerosocket_transport_tcp::TcpStream;
 #[cfg(feature = "transport-tls")]
 use aerosocket_transport_tls::TlsStream;
+
 use crate::config::ClientConfig as ClientOptions;
-use std::net::SocketAddr;
-use std::time::Instant;
-use tokio::time::timeout;
+
 #[cfg(feature = "transport-tls")]
 use std::sync::Arc;
 
