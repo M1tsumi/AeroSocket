@@ -5,6 +5,12 @@
 
 use aerosocket::prelude::*;
 
+#[cfg(feature = "client")]
+use aerosocket::client::{Client, ClientConfig};
+#[cfg(feature = "client")]
+use std::net::SocketAddr;
+
+#[cfg(feature = "client")]
 #[tokio::main]
 async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     // Initialize logging
@@ -72,4 +78,9 @@ async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     println!("🔌 Connection closed");
 
     Ok(())
+}
+
+#[cfg(not(feature = "client"))]
+fn main() {
+    println!("Enable the 'client' feature to run this example");
 }
