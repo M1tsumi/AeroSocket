@@ -20,11 +20,13 @@ default = ["tokio-runtime", "transport-tcp"]
 tokio-runtime = ["tokio", "aerosocket-core/tokio-runtime"]
 
 # Component features
-server = ["dep:aerosocket-server"]
-client = ["dep:aerosocket-client"]
-transport-tcp = ["dep:aerosocket-transport-tcp"]
-transport-tls = ["dep:aerosocket-transport-tls", "aerosocket-server/tls-transport"]
-wasm = ["dep:aerosocket-wasm"]
+# Use the dependency names directly so that implicit features like
+# `aerosocket-server` exist alongside the more ergonomic `server` alias.
+server = ["aerosocket-server"]
+client = ["aerosocket-client"]
+transport-tcp = ["aerosocket-transport-tcp"]
+transport-tls = ["aerosocket-transport-tls", "aerosocket-server/tls-transport"]
+wasm = ["aerosocket-wasm"]
 
 # Serialization features
 serde = ["aerosocket-core/serde"]
