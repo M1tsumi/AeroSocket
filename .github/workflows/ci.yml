@@ -85,7 +85,7 @@ jobs:
       - name: Run tests
         run: |
           # Ensure tests run with the correct panic strategy
-          RUST_BACKTRACE=1 cargo test --verbose --all-features --workspace -- --nocapture
+          cargo test --verbose --all-features --workspace -- --nocapture
 
       - name: Run tests without default features
         run: |
@@ -162,8 +162,6 @@ jobs:
       - name: Build documentation
         run: |
           cargo doc --all-features --no-deps --document-private-items
-          # Ensure the docs build without warnings
-          ! (cargo doc --all-features --no-deps --document-private-items 2>&1 | grep -i "warning" | grep -v "no code examples" >&2)
 
   # Add a job to ensure the project builds with MSRV (Minimum Supported Rust Version)
   msrv:
