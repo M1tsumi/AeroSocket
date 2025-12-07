@@ -47,6 +47,7 @@ impl Client {
     /// Connect to the WebSocket server
     #[cfg(any(feature = "transport-tcp", feature = "transport-tls"))]
     #[cfg_attr(feature = "logging", tracing::instrument(skip(self)))]
+    #[allow(clippy::field_reassign_with_default)]
     pub async fn connect(self) -> Result<crate::connection::ClientConnection> {
         let addr = self.addr;
         let config = self.config.clone();
@@ -331,6 +332,7 @@ impl ClientBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config::ClientConfig;
 
     #[test]
     fn test_client_creation() {
@@ -342,8 +344,8 @@ mod tests {
     #[test]
     fn test_client_config() {
         let config = ClientConfig::default();
-        assert_eq!(config.max_frame_size, 1024 * 1024);
-        assert_eq!(config.max_message_size, 16 * 1024 * 1024);
+        assert_eq!(config.max_frame_size, 16 * 1024 * 1024);
+        assert_eq!(config.max_message_size, 64 * 1024 * 1024);
     }
 
     #[test]
@@ -356,6 +358,6 @@ mod tests {
 
         assert_eq!(client.addr, addr);
         assert_eq!(client.config.max_frame_size, 2048);
-        assert!(client.config.compression_enabled);
+        assert!(client.config.compression.enabled);
     }
 }

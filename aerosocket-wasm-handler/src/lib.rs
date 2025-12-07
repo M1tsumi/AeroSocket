@@ -19,10 +19,7 @@ pub extern "C" fn on_message(ptr: i32, len: i32) -> i32 {
     let buf = unsafe { slice::from_raw_parts_mut(ptr as *mut u8, len) };
 
     // Interpret input as UTF-8 text (fallback to empty on error).
-    let input = match str::from_utf8(buf) {
-        Ok(s) => s,
-        Err(_) => "",
-    };
+    let input = str::from_utf8(buf).unwrap_or_default();
 
     // Simple transformation: prefix the message.
     let response = format!("WASM: {}", input);

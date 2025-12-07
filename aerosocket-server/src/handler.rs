@@ -256,68 +256,64 @@ impl Handler for WasmHandler {
                     ))
                 })?;
 
-            let capacity = memory.data_size(&store) as usize;
+            let capacity = memory.data_size(&store);
 
-            loop {
-                if let Some(msg) = conn.next().await? {
-                    match msg {
-                        Message::Text(text) => {
-                            let bytes = text.as_bytes();
-                            if bytes.len() > capacity {
-                                return Err(aerosocket_core::Error::Other(
-                                    "WASM memory too small for incoming message".to_string(),
-                                ));
-                            }
+            while let Some(msg) = conn.next().await? {
+                match msg {
+                    Message::Text(text) => {
+                        let bytes = text.as_bytes();
+                        if bytes.len() > capacity {
+                            return Err(aerosocket_core::Error::Other(
+                                "WASM memory too small for incoming message".to_string(),
+                            ));
+                        }
 
+                        memory
+                            .write(&mut store, 0, bytes)
+                            .map_err(|e| {
+                                aerosocket_core::Error::Other(format!(
+                                    "Failed to write to WASM memory: {}",
+                                    e
+                                ))
+                            })?;
+
+                        let out_len = func
+                            .call(&mut store, (0, bytes.len() as i32))
+                            .map_err(|e| {
+                                aerosocket_core::Error::Other(format!(
+                                    "WASM `on_message` call failed: {}",
+                                    e
+                                ))
+                            })?;
+
+                        if out_len > 0 {
+                            let mut out = vec![0u8; out_len as usize];
                             memory
-                                .write(&mut store, 0, bytes)
+                                .read(&mut store, 0, &mut out)
                                 .map_err(|e| {
                                     aerosocket_core::Error::Other(format!(
-                                        "Failed to write to WASM memory: {}",
+                                        "Failed to read from WASM memory: {}",
                                         e
                                     ))
                                 })?;
 
-                            let out_len = func
-                                .call(&mut store, (0, bytes.len() as i32))
-                                .map_err(|e| {
-                                    aerosocket_core::Error::Other(format!(
-                                        "WASM `on_message` call failed: {}",
-                                        e
-                                    ))
-                                })?;
-
-                            if out_len > 0 {
-                                let mut out = vec![0u8; out_len as usize];
-                                memory
-                                    .read(&mut store, 0, &mut out)
-                                    .map_err(|e| {
-                                        aerosocket_core::Error::Other(format!(
-                                            "Failed to read from WASM memory: {}",
-                                            e
-                                        ))
-                                    })?;
-
-                                let out_text = String::from_utf8_lossy(&out).to_string();
-                                conn.send_text(&out_text).await?;
-                            }
+                            let out_text = String::from_utf8_lossy(&out).to_string();
+                            conn.send_text(&out_text).await?;
                         }
-                        Message::Binary(data) => {
-                            conn.send_binary(data.as_bytes().to_vec()).await?;
-                        }
-                        Message::Ping(_) => {
-                            conn.pong(None).await?;
-                        }
-                        Message::Close(close_msg) => {
-                            let code = close_msg.code();
-                            let reason = close_msg.reason();
-                            conn.close(code, Some(reason)).await?;
-                            break;
-                        }
-                        Message::Pong(_) => {}
                     }
-                } else {
-                    break;
+                    Message::Binary(data) => {
+                        conn.send_binary(data.as_bytes().to_vec()).await?;
+                    }
+                    Message::Ping(_) => {
+                        conn.pong(None).await?;
+                    }
+                    Message::Close(close_msg) => {
+                        let code = close_msg.code();
+                        let reason = close_msg.reason();
+                        conn.close(code, Some(reason)).await?;
+                        break;
+                    }
+                    Message::Pong(_) => {}
                 }
             }
 

@@ -5,9 +5,10 @@ use std::time::Duration;
 #[cfg(all(feature = "server", feature = "client", feature = "transport-tcp", feature = "tokio-runtime"))]
 mod tests {
     use super::*;
+    use aerosocket::Error;
 
     #[tokio::test]
-    async fn ws_echo_roundtrip() -> Result<(), Box<dyn std::error::Error>> {
+    async fn ws_echo_roundtrip() -> Result<()> {
         // Start an echo server on a local port
         let addr: SocketAddr = "127.0.0.1:19090".parse().unwrap();
 
@@ -46,7 +47,7 @@ mod tests {
         conn.send_text("hello").await?;
         match conn.next().await? {
             Some(Message::Text(reply)) => {
-                assert_eq!(reply, "hello");
+                assert_eq!(reply.as_str(), "hello");
             }
             other => panic!("expected text reply, got {:?}", other),
         }
@@ -69,7 +70,7 @@ mod tls_tests {
     };
     use aerosocket_core::frame::Frame;
     use bytes::BytesMut;
-    use rcgen::{CertificateParams, Certificate, IsCa, BasicConstraints};
+    use rcgen::{CertificateParams, Certificate, DistinguishedName, DnType, IsCa, BasicConstraints};
     use rustls::{Certificate as RustlsCert, PrivateKey as RustlsKey, ServerConfig as RustlsServerConfig};
     use std::sync::Arc;
     use tokio::net::TcpListener;
@@ -78,21 +79,27 @@ mod tls_tests {
     use tempfile::NamedTempFile;
 
     #[tokio::test]
-    async fn wss_echo_roundtrip() -> Result<(), Box<dyn std::error::Error>> {
+    async fn wss_echo_roundtrip() -> Result<()> {
         // Generate a self-signed CA and server certificate for localhost
         let mut ca_params = CertificateParams::default();
         ca_params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
-        ca_params.distinguished_name.push_common_name("test-ca");
-        let ca_cert = Certificate::from_params(ca_params)?;
+        let mut ca_dn = DistinguishedName::new();
+        ca_dn.push(DnType::CommonName, "test-ca");
+        ca_params.distinguished_name = ca_dn;
+        let ca_cert = Certificate::from_params(ca_params).map_err(|e| Error::Other(e.to_string()))?;
 
         let mut server_params = CertificateParams::new(vec!["localhost".to_string()]);
-        server_params.distinguished_name.push_common_name("localhost");
+        let mut server_dn = DistinguishedName::new();
+        server_dn.push(DnType::CommonName, "localhost");
+        server_params.distinguished_name = server_dn;
         server_params.alg = &rcgen::PKCS_ECDSA_P256_SHA256;
         server_params.is_ca = IsCa::NoCa;
         // Sign server cert with CA
-        let server_cert = Certificate::from_params(server_params)?;
-        let server_der = server_cert.serialize_der_with_signer(&ca_cert)?;
-        let ca_pem = ca_cert.serialize_pem()?;
+        let server_cert = Certificate::from_params(server_params).map_err(|e| Error::Other(e.to_string()))?;
+        let server_der = server_cert
+            .serialize_der_with_signer(&ca_cert)
+            .map_err(|e| Error::Other(e.to_string()))?;
+        let ca_pem = ca_cert.serialize_pem().map_err(|e| Error::Other(e.to_string()))?;
         let server_key_der = server_cert.serialize_private_key_der();
 
         let rustls_server_cert = RustlsCert(server_der);
@@ -230,7 +237,7 @@ mod tls_tests {
         conn.send_text("hello over tls").await?;
         match conn.next().await? {
             Some(Message::Text(reply)) => {
-                assert_eq!(reply, "hello over tls");
+                assert_eq!(reply.as_str(), "hello over tls");
             }
             other => panic!("expected text reply over tls, got {:?}", other),
         }
