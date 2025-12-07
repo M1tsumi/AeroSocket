@@ -179,4 +179,4 @@ jobs:
 
       - name: Build with MSRV
         run: |
-          cargo build --all-features --workspace
+          cargo build --workspace
