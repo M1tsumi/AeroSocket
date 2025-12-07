@@ -80,8 +80,6 @@ jobs:
 
       - name: Build all packages
         run: |
-          # Force consistent panic strategy
-          cargo rustc -- -C panic=unwind
           cargo build --verbose --all-features --workspace
 
       - name: Check panic strategy consistency
