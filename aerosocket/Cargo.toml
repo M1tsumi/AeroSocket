@@ -44,7 +44,10 @@ full = [
 [dependencies]
 aerosocket-core = { path = "../aerosocket-core", version = "0.2.0" }
 aerosocket-server = { path = "../aerosocket-server", version = "0.2.0", optional = true }
-aerosocket-client = { path = "../aerosocket-client", version = "0.2.0", optional = true }
+# When using the top-level aerosocket crate as a client, always enable the
+# aerosocket-client crate's TCP and TLS transport features so that
+# aerosocket::prelude clients have a working transport in tests and examples.
+aerosocket-client = { path = "../aerosocket-client", version = "0.2.0", optional = true, features = ["transport-tcp", "transport-tls"] }
 aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.2.0", optional = true }
 aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.2.0", optional = true }
 aerosocket-wasm = { path = "../aerosocket-wasm", version = "0.2.0", optional = true }
@@ -59,6 +62,7 @@ rcgen = "0.12"
 tempfile = { workspace = true }
 tokio-rustls = { workspace = true }
 tracing-test = { workspace = true }
+tracing-subscriber = "0.3"
 
 [[example]]
 name = "echo_client"

@@ -6,7 +6,7 @@
 use aerosocket::prelude::*;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     // Initialize logging
     tracing_subscriber::fmt::init();
 
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(msg) = client.next().await? {
         match msg {
             Message::Text(text) => {
-                println!("📨 Received: {}", text);
+                println!("📨 Received: {}", text.as_str());
             }
             _ => {
                 println!("📨 Received unexpected message type");
@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Send a binary message
-    let binary_data = b"Binary payload";
+    let binary_data: &[u8] = b"Binary payload";
     client.send_binary(binary_data).await?;
     println!("📤 Sent binary: {} bytes", binary_data.len());
 
@@ -58,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Wait for pong response
     if let Some(msg) = client.next().await? {
         match msg {
-            Message::Pong => {
+            Message::Pong(_) => {
                 println!("📨 Received pong");
             }
             _ => {
