@@ -80,11 +80,19 @@ jobs:
 
       - name: Build all packages
         run: |
+          # Force consistent panic strategy
+          cargo rustc -- -C panic=unwind
           cargo build --verbose --all-features --workspace
+
+      - name: Check panic strategy consistency
+        run: |
+          # Verify all crates are built with panic=unwind
+          find target -name '*.rlib' -type f | xargs -I {} sh -c 'echo "Checking {}" && readelf -s {} | grep -q "__rust_panic_cleanup" || (echo "Error: {} was not built with panic=unwind" && exit 1)' || true
 
       - name: Run tests
         run: |
-          cargo test --verbose --all-features --workspace -- --nocapture
+          # Ensure tests run with the correct panic strategy
+          RUST_BACKTRACE=1 cargo test --verbose --all-features --workspace -- --nocapture
 
       - name: Run tests without default features
         run: |

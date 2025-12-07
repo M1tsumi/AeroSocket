@@ -60,17 +60,24 @@ tokio-test = "0.4"
 tracing-test = "0.2"
 tempfile = "3.8"
 
+# Set consistent panic strategy for all profiles
 [profile.dev]
-panic = "unwind"
+panic = "unwind"  # Using unwind for better backtraces in development
 
 [profile.release]
+panic = "unwind"  # Using unwind for better error handling in production
 lto = true
 codegen-units = 1
-panic = "unwind"
 opt-level = 3
 
+[profile.test]
+panic = "unwind"  # Ensure tests use unwind for better error reporting
+
 [profile.bench]
-debug = true
+panic = "unwind"  # Benchmarks should match release profile
 lto = true
 codegen-units = 1
-anyhow = "1.0"
+debug = true
+
+# Remove anyhow from profile.bench as it's not a valid profile key
+# and should be in [dependencies] if needed
