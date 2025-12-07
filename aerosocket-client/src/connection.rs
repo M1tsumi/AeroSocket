@@ -247,13 +247,14 @@ impl ClientConnection {
                                     opcode = Some(frame.opcode);
                                 } else if frame.opcode != Opcode::Continuation {
                                     return Err(aerosocket_core::Error::Protocol(
-                                        "Expected continuation frame".to_string(),
+                                        aerosocket_core::error::ProtocolError::InvalidFrame(
+                                            "Expected continuation frame".to_string(),
+                                        ),
                                     ));
                                 }
 
                                 message_buffer.extend_from_slice(&frame.payload);
                                 final_frame = frame.fin;
-                                }
                             }
                             _ => {
                                 return Err(aerosocket_core::Error::Other(
