@@ -174,7 +174,7 @@ jobs:
       - name: Install MSRV
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.71.0  # Match your MSRV from Cargo.toml
+          toolchain: 1.76.0  # Match your MSRV from Cargo.toml
           components: rustfmt, clippy
 
       - name: Build with MSRV
