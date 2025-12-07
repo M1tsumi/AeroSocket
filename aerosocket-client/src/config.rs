@@ -7,7 +7,12 @@ use aerosocket_core::Error;
 use std::time::Duration;
 
 #[cfg(feature = "transport-tls")]
-use rustls::{Certificate, ClientConfig as RustlsClientConfig, PrivateKey, ProtocolVersion, RootCertStore, OwnedTrustAnchor};
+use rustls::{
+    Certificate, ClientConfig as RustlsClientConfig, OwnedTrustAnchor, PrivateKey, ProtocolVersion,
+    RootCertStore,
+};
+#[cfg(feature = "transport-tls")]
+use rustls_pemfile::{certs, pkcs8_private_keys, rsa_private_keys};
 #[cfg(feature = "transport-tls")]
 use std::fs::File;
 #[cfg(feature = "transport-tls")]
@@ -16,8 +21,6 @@ use std::io::BufReader;
 use std::sync::Arc;
 #[cfg(feature = "transport-tls")]
 use webpki_roots::TLS_SERVER_ROOTS;
-#[cfg(feature = "transport-tls")]
-use rustls_pemfile::{certs, pkcs8_private_keys, rsa_private_keys};
 
 /// Client configuration
 #[derive(Debug, Clone)]
@@ -307,12 +310,12 @@ pub fn build_rustls_client_config(tls: &TlsConfig) -> aerosocket_core::Result<Ru
     if let Some(ca_path) = &tls.ca_file {
         let certs = load_certs(ca_path)?;
         for cert in certs {
-            root_store
-                .add(&cert)
-                .map_err(|e| Error::Config(ConfigError::Validation(format!(
+            root_store.add(&cert).map_err(|e| {
+                Error::Config(ConfigError::Validation(format!(
                     "Failed to add CA certificate from {}: {:?}",
                     ca_path, e
-                ))))?;
+                )))
+            })?;
         }
     } else {
         root_store.add_trust_anchors(TLS_SERVER_ROOTS.iter().map(|ta| {
@@ -331,12 +334,12 @@ pub fn build_rustls_client_config(tls: &TlsConfig) -> aerosocket_core::Result<Ru
     let mut config = if let (Some(cert_path), Some(key_path)) = (&tls.cert_file, &tls.key_file) {
         let certs = load_certs(cert_path)?;
         let key = load_private_key(key_path)?;
-        builder
-            .with_single_cert(certs, key)
-            .map_err(|e| Error::Config(ConfigError::Validation(format!(
+        builder.with_single_cert(certs, key).map_err(|e| {
+            Error::Config(ConfigError::Validation(format!(
                 "Invalid client certificate/key: {}",
                 e
-            ))))?
+            )))
+        })?
     } else {
         builder.with_no_client_auth()
     };

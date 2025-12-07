@@ -9,8 +9,8 @@ use tokio::time::timeout;
 
 use aerosocket_core::{
     handshake::{
-        create_client_handshake, parse_server_handshake, request_to_string, validate_server_handshake,
-        HandshakeConfig,
+        create_client_handshake, parse_server_handshake, request_to_string,
+        validate_server_handshake, HandshakeConfig,
     },
     protocol::constants::{HEADER_SEC_WEBSOCKET_KEY, MAX_HEADER_SIZE},
     transport::TransportStream,
@@ -80,10 +80,7 @@ impl Client {
             if let Some(tls_cfg) = &config.tls {
                 #[cfg(feature = "transport-tls")]
                 {
-                    let server_name = tls_cfg
-                        .server_name
-                        .as_deref()
-                        .unwrap_or("localhost");
+                    let server_name = tls_cfg.server_name.as_deref().unwrap_or("localhost");
 
                     handshake_config.host = Some(format!("{}:{}", server_name, addr.port()));
                     let uri = format!("wss://{}:{}", server_name, addr.port());
@@ -102,8 +99,8 @@ impl Client {
                     let request_string = request_to_string(&request);
 
                     let tls_config = crate::config::build_rustls_client_config(tls_cfg)?;
-                    let mut stream = TlsStream::connect(addr, Arc::new(tls_config), server_name)
-                        .await?;
+                    let mut stream =
+                        TlsStream::connect(addr, Arc::new(tls_config), server_name).await?;
 
                     stream.write_all(request_string.as_bytes()).await?;
                     stream.flush().await?;
@@ -230,9 +227,11 @@ impl Client {
 
         match timeout(handshake_timeout, fut).await {
             Ok(result) => result,
-            Err(_) => Err(Error::Timeout(aerosocket_core::error::TimeoutError::Handshake {
-                timeout: handshake_timeout,
-            })),
+            Err(_) => Err(Error::Timeout(
+                aerosocket_core::error::TimeoutError::Handshake {
+                    timeout: handshake_timeout,
+                },
+            )),
         }
     }
 

@@ -412,10 +412,8 @@ impl Server {
         {
             let active = connection_manager.connection_count().await as f64;
             metrics::gauge!("aerosocket_server_active_connections").set(active);
-            metrics::counter!("aerosocket_server_connections_opened_total")
-                .increment(1);
-            metrics::counter!("aerosocket_server_endpoint_connections_opened_total")
-                .increment(1);
+            metrics::counter!("aerosocket_server_connections_opened_total").increment(1);
+            metrics::counter!("aerosocket_server_endpoint_connections_opened_total").increment(1);
         }
 
         let connection_handle = connection_manager
@@ -437,8 +435,7 @@ impl Server {
         {
             let active = connection_manager.connection_count().await as f64;
             metrics::gauge!("aerosocket_server_active_connections").set(active);
-            metrics::counter!("aerosocket_server_connections_closed_total")
-                .increment(1);
+            metrics::counter!("aerosocket_server_connections_closed_total").increment(1);
         }
 
         Ok(())
@@ -469,10 +466,8 @@ impl Server {
         {
             let active = connection_manager.connection_count().await as f64;
             metrics::gauge!("aerosocket_server_active_connections").set(active);
-            metrics::counter!("aerosocket_server_connections_opened_total")
-                .increment(1);
-            metrics::counter!("aerosocket_server_endpoint_connections_opened_total")
-                .increment(1);
+            metrics::counter!("aerosocket_server_connections_opened_total").increment(1);
+            metrics::counter!("aerosocket_server_endpoint_connections_opened_total").increment(1);
         }
 
         // Get connection handle
@@ -498,8 +493,7 @@ impl Server {
         {
             let active = connection_manager.connection_count().await as f64;
             metrics::gauge!("aerosocket_server_active_connections").set(active);
-            metrics::counter!("aerosocket_server_connections_closed_total")
-                .increment(1);
+            metrics::counter!("aerosocket_server_connections_closed_total").increment(1);
         }
 
         Ok(())
@@ -544,8 +538,7 @@ impl Server {
         #[cfg(feature = "metrics")]
         {
             let elapsed = start.elapsed().as_secs_f64();
-            metrics::histogram!("aerosocket_server_handshake_duration_seconds")
-                .record(elapsed);
+            metrics::histogram!("aerosocket_server_handshake_duration_seconds").record(elapsed);
         }
 
         // Get addresses
@@ -635,8 +628,7 @@ impl Server {
         #[cfg(feature = "metrics")]
         {
             let elapsed = start.elapsed().as_secs_f64();
-            metrics::histogram!("aerosocket_server_handshake_duration_seconds")
-                .record(elapsed);
+            metrics::histogram!("aerosocket_server_handshake_duration_seconds").record(elapsed);
         }
 
         // Get addresses
@@ -771,7 +763,10 @@ impl ServerBuilder {
     /// Configure TLS using certificate and key files (requires `tls-transport` feature)
     #[cfg(feature = "tls-transport")]
     pub fn tls(mut self, cert_file: impl Into<String>, key_file: impl Into<String>) -> Self {
-        self.config.tls = Some(crate::config::TlsConfig::new(cert_file.into(), key_file.into()));
+        self.config.tls = Some(crate::config::TlsConfig::new(
+            cert_file.into(),
+            key_file.into(),
+        ));
         self
     }
 

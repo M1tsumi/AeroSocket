@@ -2,7 +2,12 @@ use aerosocket::prelude::*;
 use std::net::SocketAddr;
 use std::time::Duration;
 
-#[cfg(all(feature = "server", feature = "client", feature = "transport-tcp", feature = "tokio-runtime"))]
+#[cfg(all(
+    feature = "server",
+    feature = "client",
+    feature = "transport-tcp",
+    feature = "tokio-runtime"
+))]
 mod tests {
     use super::*;
 
@@ -46,26 +51,34 @@ mod tests {
     }
 }
 
-#[cfg(all(feature = "client", feature = "transport-tls", feature = "tokio-runtime"))]
+#[cfg(all(
+    feature = "client",
+    feature = "transport-tls",
+    feature = "tokio-runtime"
+))]
 mod tls_tests {
     use super::*;
-    use aerosocket_core::handshake::{
-        create_server_handshake, parse_client_handshake, response_to_string, validate_client_handshake,
-        HandshakeConfig,
-    };
-    use aerosocket_core::frame::Frame;
-    use aerosocket_core::prelude::BytesMut;
-    use aerosocket_client::TlsConfig;
     use aerosocket::Error;
-    use rcgen::{CertificateParams, Certificate, DistinguishedName, DnType, IsCa, BasicConstraints};
+    use aerosocket_client::TlsConfig;
+    use aerosocket_core::frame::Frame;
+    use aerosocket_core::handshake::{
+        create_server_handshake, parse_client_handshake, response_to_string,
+        validate_client_handshake, HandshakeConfig,
+    };
+    use aerosocket_core::prelude::BytesMut;
+    use rcgen::{
+        BasicConstraints, Certificate, CertificateParams, DistinguishedName, DnType, IsCa,
+    };
     use std::sync::Arc;
+    use tempfile::NamedTempFile;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::TcpListener;
     use tokio_rustls::{
-        rustls::{Certificate as RustlsCert, PrivateKey as RustlsKey, ServerConfig as RustlsServerConfig},
+        rustls::{
+            Certificate as RustlsCert, PrivateKey as RustlsKey, ServerConfig as RustlsServerConfig,
+        },
         TlsAcceptor,
     };
-    use tokio::io::{AsyncReadExt, AsyncWriteExt};
-    use tempfile::NamedTempFile;
 
     #[tokio::test]
     #[ignore]
@@ -76,7 +89,8 @@ mod tls_tests {
         let mut ca_dn = DistinguishedName::new();
         ca_dn.push(DnType::CommonName, "test-ca");
         ca_params.distinguished_name = ca_dn;
-        let ca_cert = Certificate::from_params(ca_params).map_err(|e| Error::Other(e.to_string()))?;
+        let ca_cert =
+            Certificate::from_params(ca_params).map_err(|e| Error::Other(e.to_string()))?;
 
         let mut server_params = CertificateParams::new(vec!["localhost".to_string()]);
         let mut server_dn = DistinguishedName::new();
@@ -85,11 +99,14 @@ mod tls_tests {
         server_params.alg = &rcgen::PKCS_ECDSA_P256_SHA256;
         server_params.is_ca = IsCa::NoCa;
         // Sign server cert with CA
-        let server_cert = Certificate::from_params(server_params).map_err(|e| Error::Other(e.to_string()))?;
+        let server_cert =
+            Certificate::from_params(server_params).map_err(|e| Error::Other(e.to_string()))?;
         let server_der = server_cert
             .serialize_der_with_signer(&ca_cert)
             .map_err(|e| Error::Other(e.to_string()))?;
-        let ca_pem = ca_cert.serialize_pem().map_err(|e| Error::Other(e.to_string()))?;
+        let ca_pem = ca_cert
+            .serialize_pem()
+            .map_err(|e| Error::Other(e.to_string()))?;
         let server_key_der = server_cert.serialize_private_key_der();
 
         let rustls_server_cert = RustlsCert(server_der);
@@ -183,9 +200,12 @@ mod tls_tests {
                                     match Frame::parse(&mut frame_buf) {
                                         Ok(frame) => {
                                             // Echo text frames back to the client
-                                            if let aerosocket_core::protocol::Opcode::Text = frame.opcode {
+                                            if let aerosocket_core::protocol::Opcode::Text =
+                                                frame.opcode
+                                            {
                                                 let reply = Frame::text(frame.payload.to_vec());
-                                                let _ = tls_stream.write_all(&reply.to_bytes()).await;
+                                                let _ =
+                                                    tls_stream.write_all(&reply.to_bytes()).await;
                                                 let _ = tls_stream.flush().await;
                                             }
                                             return;
@@ -235,8 +255,7 @@ mod tls_tests {
             other => panic!("expected text reply over tls, got {:?}", other),
         }
 
-        conn.close(Some(1000), Some("done"))
-            .await?;
+        conn.close(Some(1000), Some("done")).await?;
 
         server_task.abort();
 

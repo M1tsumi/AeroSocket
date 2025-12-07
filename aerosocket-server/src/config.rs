@@ -6,7 +6,9 @@ use aerosocket_core::error::{ConfigError, Error};
 use std::time::Duration;
 
 #[cfg(feature = "tls-transport")]
-use rustls::{Certificate as RustlsCert, PrivateKey as RustlsKey, ServerConfig as RustlsServerConfig};
+use rustls::{
+    Certificate as RustlsCert, PrivateKey as RustlsKey, ServerConfig as RustlsServerConfig,
+};
 #[cfg(feature = "tls-transport")]
 use rustls_pemfile::{certs, pkcs8_private_keys, rsa_private_keys};
 #[cfg(feature = "tls-transport")]

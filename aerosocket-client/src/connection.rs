@@ -135,8 +135,7 @@ impl ClientConnection {
 
             #[cfg(feature = "metrics")]
             {
-                metrics::counter!("aerosocket_client_messages_sent_total")
-                    .increment(1);
+                metrics::counter!("aerosocket_client_messages_sent_total").increment(1);
                 metrics::counter!("aerosocket_client_bytes_sent_total")
                     .increment(frame_bytes.len() as u64);
                 metrics::histogram!("aerosocket_client_frame_size_bytes")
@@ -302,8 +301,7 @@ impl ClientConnection {
 
             #[cfg(feature = "metrics")]
             {
-                metrics::counter!("aerosocket_client_messages_received_total")
-                    .increment(1);
+                metrics::counter!("aerosocket_client_messages_received_total").increment(1);
                 metrics::counter!("aerosocket_client_bytes_received_total")
                     .increment(message_buffer.len() as u64);
                 metrics::histogram!("aerosocket_client_message_size_bytes")
@@ -325,8 +323,7 @@ impl ClientConnection {
 
         #[cfg(feature = "metrics")]
         {
-            metrics::counter!("aerosocket_client_connections_closed_total")
-                .increment(1);
+            metrics::counter!("aerosocket_client_connections_closed_total").increment(1);
         }
         let message = Message::close(code, reason.map(|s| s.to_string()));
         self.send(message).await?;

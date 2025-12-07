@@ -232,8 +232,7 @@ impl Connection {
 
             #[cfg(feature = "metrics")]
             {
-                metrics::counter!("aerosocket_server_messages_sent_total")
-                    .increment(1);
+                metrics::counter!("aerosocket_server_messages_sent_total").increment(1);
                 metrics::counter!("aerosocket_server_bytes_sent_total")
                     .increment(frame_bytes.len() as u64);
                 metrics::histogram!("aerosocket_server_frame_size_bytes")
@@ -413,8 +412,7 @@ impl Connection {
 
             #[cfg(feature = "metrics")]
             {
-                metrics::counter!("aerosocket_server_messages_received_total")
-                    .increment(1);
+                metrics::counter!("aerosocket_server_messages_received_total").increment(1);
                 metrics::counter!("aerosocket_server_bytes_received_total")
                     .increment(message_buffer.len() as u64);
                 metrics::histogram!("aerosocket_server_message_size_bytes")
