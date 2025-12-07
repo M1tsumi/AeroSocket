@@ -82,11 +82,6 @@ jobs:
         run: |
           cargo build --verbose --all-features --workspace
 
-      - name: Check panic strategy consistency
-        run: |
-          # Verify all crates are built with panic=unwind
-          find target -name '*.rlib' -type f | xargs -I {} sh -c 'echo "Checking {}" && readelf -s {} | grep -q "__rust_panic_cleanup" || (echo "Error: {} was not built with panic=unwind" && exit 1)' || true
-
       - name: Run tests
         run: |
           # Ensure tests run with the correct panic strategy
