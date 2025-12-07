@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "aerosocket-core",
-    "aerosocket-client", 
+    "aerosocket-client",
     "aerosocket-server",
     "aerosocket-transport-tcp",
     "aerosocket-transport-tls",
@@ -50,8 +50,8 @@ tokio-rustls = "0.24"
 
 # WASM dependencies
 web-sys = { version = "0.3", features = ["MessageEvent", "ErrorEvent", "CloseEvent", "BinaryType", "Blob"] }
-wasm-bindgen = { version = "0.2" }
-js-sys = { version = "0.3" }
+wasm-bindgen = "0.2"
+js-sys = "0.3"
 
 # Development dependencies
 criterion = { version = "0.5", features = ["html_reports"] }
@@ -60,19 +60,17 @@ tokio-test = "0.4"
 tracing-test = "0.2"
 tempfile = "3.8"
 
+[profile.dev]
+panic = "unwind"
+
 [profile.release]
 lto = true
 codegen-units = 1
-panic = "abort"
+panic = "unwind"
 opt-level = 3
 
 [profile.bench]
 debug = true
 lto = true
 codegen-units = 1
-
-[workspace.metadata.release]
-pre-release-replacements = [
-  {file="README.md", search="aerosocket = \".*\"", replace="aerosocket = \"{{version}}\""},
-  {file="CHANGELOG.md", search="Unreleased", replace="{{version}}", prerelease = true},
-]
+anyhow = "1.0"
