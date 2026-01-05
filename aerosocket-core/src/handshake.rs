@@ -21,12 +21,12 @@ pub enum Auth {
         /// Username
         username: String,
         /// Password
-        password: String
+        password: String,
     },
     /// Bearer token authentication
     Bearer {
         /// Bearer token
-        token: String
+        token: String,
     },
 }
 

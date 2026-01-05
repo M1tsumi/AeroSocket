@@ -5,7 +5,9 @@
 
 pub use crate::client::{Client, ClientBuilder};
 pub use crate::config::{ClientConfig, CompressionConfig, TlsConfig};
-pub use crate::connection::{ClientConnection, ClientConnectionHandle, ConnectionMetadata, ConnectionState};
+pub use crate::connection::{
+    ClientConnection, ClientConnectionHandle, ConnectionMetadata, ConnectionState,
+};
 
 // Re-export core types for convenience
 pub use aerosocket_core::prelude::*;

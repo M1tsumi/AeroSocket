@@ -1,0 +1,434 @@
+2026-01-05T04:40:03.8658808Z Current runner version: '2.330.0'
+2026-01-05T04:40:03.8686423Z ##[group]Runner Image Provisioner
+2026-01-05T04:40:03.8687609Z Hosted Compute Agent
+2026-01-05T04:40:03.8688535Z Version: 20251211.462
+2026-01-05T04:40:03.8689449Z Commit: 6cbad8c2bb55d58165063d031ccabf57e2d2db61
+2026-01-05T04:40:03.8690633Z Build Date: 2025-12-11T16:28:49Z
+2026-01-05T04:40:03.8691696Z Worker ID: {819212d1-e7a1-4df1-8da5-2f2ed9330cb8}
+2026-01-05T04:40:03.8692684Z ##[endgroup]
+2026-01-05T04:40:03.8693314Z ##[group]Operating System
+2026-01-05T04:40:03.8694141Z Microsoft Windows Server 2025
+2026-01-05T04:40:03.8694918Z 10.0.26100
+2026-01-05T04:40:03.8695926Z Datacenter
+2026-01-05T04:40:03.8696752Z ##[endgroup]
+2026-01-05T04:40:03.8697422Z ##[group]Runner Image
+2026-01-05T04:40:03.8698224Z Image: windows-2025
+2026-01-05T04:40:03.8698895Z Version: 20251216.149.1
+2026-01-05T04:40:03.8700988Z Included Software: https://github.com/actions/runner-images/blob/win25/20251216.149/images/windows/Windows2025-Readme.md
+2026-01-05T04:40:03.8703314Z Image Release: https://github.com/actions/runner-images/releases/tag/win25%2F20251216.149
+2026-01-05T04:40:03.8704175Z ##[endgroup]
+2026-01-05T04:40:03.8705252Z ##[group]GITHUB_TOKEN Permissions
+2026-01-05T04:40:03.8707022Z Contents: read
+2026-01-05T04:40:03.8707515Z Metadata: read
+2026-01-05T04:40:03.8708023Z Packages: read
+2026-01-05T04:40:03.8708463Z ##[endgroup]
+2026-01-05T04:40:03.8710506Z Secret source: Actions
+2026-01-05T04:40:03.8711142Z Prepare workflow directory
+2026-01-05T04:40:03.9179172Z Prepare all required actions
+2026-01-05T04:40:03.9216883Z Getting action download info
+2026-01-05T04:40:04.1689418Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-01-05T04:40:04.3051377Z Download action repository 'dtolnay/rust-toolchain@master' (SHA:f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561)
+2026-01-05T04:40:04.5325522Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-01-05T04:40:04.8906824Z Complete job name: Test Suite (windows-latest, stable)
+2026-01-05T04:40:05.0956997Z ##[group]Run actions/checkout@v4
+2026-01-05T04:40:05.0958574Z with:
+2026-01-05T04:40:05.0959034Z   repository: M1tsumi/AeroSocket
+2026-01-05T04:40:05.0959784Z   token: ***
+2026-01-05T04:40:05.0960205Z   ssh-strict: true
+2026-01-05T04:40:05.0960644Z   ssh-user: git
+2026-01-05T04:40:05.0961087Z   persist-credentials: true
+2026-01-05T04:40:05.0961586Z   clean: true
+2026-01-05T04:40:05.0962024Z   sparse-checkout-cone-mode: true
+2026-01-05T04:40:05.0962561Z   fetch-depth: 1
+2026-01-05T04:40:05.0962980Z   fetch-tags: false
+2026-01-05T04:40:05.0963422Z   show-progress: true
+2026-01-05T04:40:05.0963863Z   lfs: false
+2026-01-05T04:40:05.0964267Z   submodules: false
+2026-01-05T04:40:05.0964708Z   set-safe-directory: true
+2026-01-05T04:40:05.0965458Z env:
+2026-01-05T04:40:05.0965806Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:05.0966232Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:05.0966652Z   RUST_BACKTRACE: full
+2026-01-05T04:40:05.0967057Z ##[endgroup]
+2026-01-05T04:40:05.2778219Z Syncing repository: M1tsumi/AeroSocket
+2026-01-05T04:40:05.2780062Z ##[group]Getting Git version info
+2026-01-05T04:40:05.2780724Z Working directory is 'D:\a\AeroSocket\AeroSocket'
+2026-01-05T04:40:05.3716574Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-01-05T04:40:06.1518541Z git version 2.52.0.windows.1
+2026-01-05T04:40:06.1573795Z ##[endgroup]
+2026-01-05T04:40:06.1596979Z Temporarily overriding HOME='D:\a\_temp\5f2f08e2-c344-4b46-86f5-5e83224a0b97' before making global git config changes
+2026-01-05T04:40:06.1599421Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-05T04:40:06.1610535Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\AeroSocket\AeroSocket
+2026-01-05T04:40:06.2745968Z Deleting the contents of 'D:\a\AeroSocket\AeroSocket'
+2026-01-05T04:40:06.2753235Z ##[group]Initializing the repository
+2026-01-05T04:40:06.2762735Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\AeroSocket\AeroSocket
+2026-01-05T04:40:06.4290956Z Initialized empty Git repository in D:/a/AeroSocket/AeroSocket/.git/
+2026-01-05T04:40:06.4337300Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/M1tsumi/AeroSocket
+2026-01-05T04:40:06.5199608Z ##[endgroup]
+2026-01-05T04:40:06.5200164Z ##[group]Disabling automatic garbage collection
+2026-01-05T04:40:06.5210870Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-01-05T04:40:06.5527859Z ##[endgroup]
+2026-01-05T04:40:06.5528313Z ##[group]Setting up auth
+2026-01-05T04:40:06.5542501Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-01-05T04:40:06.5856361Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-01-05T04:40:09.1986827Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-05T04:40:09.2284956Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-01-05T04:40:09.7592803Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-05T04:40:09.7905673Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-01-05T04:40:10.3800799Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-01-05T04:40:10.4159307Z ##[endgroup]
+2026-01-05T04:40:10.4160005Z ##[group]Fetching the repository
+2026-01-05T04:40:10.4177728Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +97d49e3440f42ad962cbb05434060b69a64cb490:refs/remotes/origin/main
+2026-01-05T04:40:12.2088663Z From https://github.com/M1tsumi/AeroSocket
+2026-01-05T04:40:12.2089216Z  * [new ref]         97d49e3440f42ad962cbb05434060b69a64cb490 -> origin/main
+2026-01-05T04:40:12.2551040Z ##[endgroup]
+2026-01-05T04:40:12.2551616Z ##[group]Determining the checkout info
+2026-01-05T04:40:12.2552664Z ##[endgroup]
+2026-01-05T04:40:12.2567411Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-01-05T04:40:12.3270550Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-01-05T04:40:12.3557245Z ##[group]Checking out the ref
+2026-01-05T04:40:12.3567745Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B main refs/remotes/origin/main
+2026-01-05T04:40:12.4897212Z branch 'main' set up to track 'origin/main'.
+2026-01-05T04:40:12.4905223Z Switched to a new branch 'main'
+2026-01-05T04:40:12.4944259Z ##[endgroup]
+2026-01-05T04:40:12.5466187Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-01-05T04:40:12.5777655Z 97d49e3440f42ad962cbb05434060b69a64cb490
+2026-01-05T04:40:12.6267046Z ##[group]Run dtolnay/rust-toolchain@master
+2026-01-05T04:40:12.6267393Z with:
+2026-01-05T04:40:12.6267549Z   toolchain: stable
+2026-01-05T04:40:12.6267742Z   components: rustfmt, clippy
+2026-01-05T04:40:12.6267966Z   target: wasm32-unknown-unknown
+2026-01-05T04:40:12.6268161Z env:
+2026-01-05T04:40:12.6268301Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:12.6268490Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:12.6268667Z   RUST_BACKTRACE: full
+2026-01-05T04:40:12.6268831Z ##[endgroup]
+2026-01-05T04:40:12.6489724Z ##[group]Run : parse toolchain version
+2026-01-05T04:40:12.6490096Z [36;1m: parse toolchain version[0m
+2026-01-05T04:40:12.6490334Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-01-05T04:40:12.6492136Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-01-05T04:40:12.6492623Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-01-05T04:40:12.6492878Z [36;1m  exit 1[0m
+2026-01-05T04:40:12.6493191Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-01-05T04:40:12.6493550Z [36;1m  if [[ Windows == macOS ]]; then[0m
+2026-01-05T04:40:12.6494012Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:12.6494423Z [36;1m  else[0m
+2026-01-05T04:40:12.6494749Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:12.6495121Z [36;1m  fi[0m
+2026-01-05T04:40:12.6495357Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-01-05T04:40:12.6495799Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:12.6496188Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-01-05T04:40:12.6496610Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:12.6497002Z [36;1melse[0m
+2026-01-05T04:40:12.6497198Z [36;1m  echo "toolchain=$toolchain" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:12.6497495Z [36;1mfi[0m
+2026-01-05T04:40:12.6517194Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:12.6517557Z env:
+2026-01-05T04:40:12.6517726Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:12.6517924Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:12.6518115Z   RUST_BACKTRACE: full
+2026-01-05T04:40:12.6518285Z   toolchain: stable
+2026-01-05T04:40:12.6518452Z ##[endgroup]
+2026-01-05T04:40:12.7401489Z ##[group]Run : construct rustup command line
+2026-01-05T04:40:12.7401816Z [36;1m: construct rustup command line[0m
+2026-01-05T04:40:12.7402208Z [36;1mecho "targets=$(for t in ${targets//,/ }; do echo -n ' --target' $t; done)" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:12.7402768Z [36;1mecho "components=$(for c in ${components//,/ }; do echo -n ' --component' $c; done)" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:12.7403169Z [36;1mecho "downgrade=" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:12.7418945Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:12.7419306Z env:
+2026-01-05T04:40:12.7419473Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:12.7419673Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:12.7419866Z   RUST_BACKTRACE: full
+2026-01-05T04:40:12.7420047Z   targets: wasm32-unknown-unknown
+2026-01-05T04:40:12.7420270Z   components: rustfmt, clippy
+2026-01-05T04:40:12.7420463Z ##[endgroup]
+2026-01-05T04:40:12.8205912Z ##[group]Run : set $CARGO_HOME
+2026-01-05T04:40:12.8206160Z [36;1m: set $CARGO_HOME[0m
+2026-01-05T04:40:12.8206462Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$USERPROFILE\.cargo"} >> $GITHUB_ENV[0m
+2026-01-05T04:40:12.8222544Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:12.8222884Z env:
+2026-01-05T04:40:12.8224874Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:12.8225130Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:12.8225323Z   RUST_BACKTRACE: full
+2026-01-05T04:40:12.8225489Z ##[endgroup]
+2026-01-05T04:40:12.8844716Z ##[group]Run : install rustup if needed on windows
+2026-01-05T04:40:12.8845047Z [36;1m: install rustup if needed on windows[0m
+2026-01-05T04:40:12.8845311Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-01-05T04:40:12.8845979Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://win.rustup.rs/x86_64 --output 'D:\a\_temp\rustup-init.exe'[0m
+2026-01-05T04:40:12.8846703Z [36;1m  'D:\a\_temp\rustup-init.exe' --default-toolchain none --no-modify-path -y[0m
+2026-01-05T04:40:12.8847244Z [36;1m  echo "$CARGO_HOME\bin" >> $GITHUB_PATH[0m
+2026-01-05T04:40:12.8847474Z [36;1mfi[0m
+2026-01-05T04:40:12.8863206Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:12.8863568Z env:
+2026-01-05T04:40:12.8863723Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:12.8863922Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:12.8864105Z   RUST_BACKTRACE: full
+2026-01-05T04:40:12.8864300Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:12.8864525Z ##[endgroup]
+2026-01-05T04:40:12.9541459Z ##[group]Run rustup toolchain install stable --target wasm32-unknown-unknown --component rustfmt --component clippy --profile minimal --no-self-update
+2026-01-05T04:40:12.9542412Z [36;1mrustup toolchain install stable --target wasm32-unknown-unknown --component rustfmt --component clippy --profile minimal --no-self-update[0m
+2026-01-05T04:40:12.9559509Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:12.9559873Z env:
+2026-01-05T04:40:12.9560040Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:12.9560241Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:12.9560430Z   RUST_BACKTRACE: full
+2026-01-05T04:40:12.9560639Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:12.9560884Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-01-05T04:40:12.9561075Z ##[endgroup]
+2026-01-05T04:40:19.5264059Z info: syncing channel updates for 'stable-x86_64-pc-windows-msvc'
+2026-01-05T04:40:20.5230518Z info: latest update on 2025-12-11, rust version 1.92.0 (ded5c06cf 2025-12-08)
+2026-01-05T04:40:20.5992182Z info: component 'clippy' for target 'x86_64-pc-windows-msvc' is up to date
+2026-01-05T04:40:20.5992692Z info: component 'rustfmt' for target 'x86_64-pc-windows-msvc' is up to date
+2026-01-05T04:40:20.5997433Z info: downloading component 'rust-std' for 'wasm32-unknown-unknown'
+2026-01-05T04:40:21.0341646Z info: installing component 'rust-std' for 'wasm32-unknown-unknown'
+2026-01-05T04:40:22.7536845Z 
+2026-01-05T04:40:22.7739344Z   stable-x86_64-pc-windows-msvc updated - rustc 1.92.0 (ded5c06cf 2025-12-08) (from rustc 1.92.0 (ded5c06cf 2025-12-08))
+2026-01-05T04:40:22.7739890Z 
+2026-01-05T04:40:22.7985665Z ##[group]Run rustup default stable
+2026-01-05T04:40:22.7985923Z [36;1mrustup default stable[0m
+2026-01-05T04:40:22.8000737Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:22.8001085Z env:
+2026-01-05T04:40:22.8001233Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:22.8001425Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:22.8001600Z   RUST_BACKTRACE: full
+2026-01-05T04:40:22.8001783Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:22.8002006Z ##[endgroup]
+2026-01-05T04:40:22.8796429Z info: using existing install for 'stable-x86_64-pc-windows-msvc'
+2026-01-05T04:40:22.9344686Z info: default toolchain set to 'stable-x86_64-pc-windows-msvc'
+2026-01-05T04:40:22.9345137Z 
+2026-01-05T04:40:22.9549433Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.92.0 (ded5c06cf 2025-12-08)
+2026-01-05T04:40:22.9549791Z 
+2026-01-05T04:40:23.0752611Z ##[group]Run : create cachekey
+2026-01-05T04:40:23.0752850Z [36;1m: create cachekey[0m
+2026-01-05T04:40:23.0754293Z [36;1mDATE=$(rustc +stable --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-01-05T04:40:23.0754895Z [36;1mHASH=$(rustc +stable --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-01-05T04:40:23.0755320Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-01-05T04:40:23.0770216Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:23.0770551Z env:
+2026-01-05T04:40:23.0770705Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:23.0770891Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:23.0771069Z   RUST_BACKTRACE: full
+2026-01-05T04:40:23.0771250Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:23.0771485Z ##[endgroup]
+2026-01-05T04:40:24.8846178Z ##[group]Run : disable incremental compilation
+2026-01-05T04:40:24.8846474Z [36;1m: disable incremental compilation[0m
+2026-01-05T04:40:24.8846745Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-01-05T04:40:24.8847041Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-01-05T04:40:24.8847268Z [36;1mfi[0m
+2026-01-05T04:40:24.8861218Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:24.8861551Z env:
+2026-01-05T04:40:24.8861699Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:24.8861892Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:24.8862071Z   RUST_BACKTRACE: full
+2026-01-05T04:40:24.8862263Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:24.8862485Z ##[endgroup]
+2026-01-05T04:40:24.9423752Z ##[group]Run : enable colors in Cargo output
+2026-01-05T04:40:24.9424036Z [36;1m: enable colors in Cargo output[0m
+2026-01-05T04:40:24.9424289Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-01-05T04:40:24.9424587Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-01-05T04:40:24.9425007Z [36;1mfi[0m
+2026-01-05T04:40:24.9440776Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:24.9441116Z env:
+2026-01-05T04:40:24.9441289Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:24.9441485Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:24.9441660Z   RUST_BACKTRACE: full
+2026-01-05T04:40:24.9441850Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:24.9442063Z   CARGO_INCREMENTAL: 0
+2026-01-05T04:40:24.9442224Z ##[endgroup]
+2026-01-05T04:40:25.0053460Z ##[group]Run : enable Cargo sparse registry
+2026-01-05T04:40:25.0053953Z [36;1m: enable Cargo sparse registry[0m
+2026-01-05T04:40:25.0054519Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-01-05T04:40:25.0055532Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-01-05T04:40:25.0056612Z [36;1m  if rustc +stable --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-01-05T04:40:25.0057405Z [36;1m    touch "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-01-05T04:40:25.0058133Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-01-05T04:40:25.0058880Z [36;1m  elif rustc +stable --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-01-05T04:40:25.0059667Z [36;1m    touch "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-01-05T04:40:25.0060395Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-01-05T04:40:25.0060915Z [36;1m  fi[0m
+2026-01-05T04:40:25.0061151Z [36;1mfi[0m
+2026-01-05T04:40:25.0084167Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:25.0084768Z env:
+2026-01-05T04:40:25.0085008Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:25.0085561Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:25.0085921Z   RUST_BACKTRACE: full
+2026-01-05T04:40:25.0086256Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:25.0086671Z   CARGO_INCREMENTAL: 0
+2026-01-05T04:40:25.0086962Z ##[endgroup]
+2026-01-05T04:40:25.2782913Z ##[group]Run : work around spurious network errors in curl 8.0
+2026-01-05T04:40:25.2783290Z [36;1m: work around spurious network errors in curl 8.0[0m
+2026-01-05T04:40:25.2783767Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-01-05T04:40:25.2784308Z [36;1mif rustc +stable --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-01-05T04:40:25.2784691Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-01-05T04:40:25.2784937Z [36;1mfi[0m
+2026-01-05T04:40:25.2803308Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:25.2803649Z env:
+2026-01-05T04:40:25.2803805Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:25.2804771Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:25.2804953Z   RUST_BACKTRACE: full
+2026-01-05T04:40:25.2805145Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:25.2805364Z   CARGO_INCREMENTAL: 0
+2026-01-05T04:40:25.2805551Z ##[endgroup]
+2026-01-05T04:40:25.4067318Z ##[group]Run rustc +stable --version --verbose
+2026-01-05T04:40:25.4067608Z [36;1mrustc +stable --version --verbose[0m
+2026-01-05T04:40:25.4082813Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-01-05T04:40:25.4083223Z env:
+2026-01-05T04:40:25.4083377Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:25.4083563Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:25.4083741Z   RUST_BACKTRACE: full
+2026-01-05T04:40:25.4083922Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:25.4084143Z   CARGO_INCREMENTAL: 0
+2026-01-05T04:40:25.4084298Z ##[endgroup]
+2026-01-05T04:40:25.5005027Z rustc 1.92.0 (ded5c06cf 2025-12-08)
+2026-01-05T04:40:25.5005475Z binary: rustc
+2026-01-05T04:40:25.5005842Z commit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234
+2026-01-05T04:40:25.5006331Z commit-date: 2025-12-08
+2026-01-05T04:40:25.5006645Z host: x86_64-pc-windows-msvc
+2026-01-05T04:40:25.5006956Z release: 1.92.0
+2026-01-05T04:40:25.5007907Z LLVM version: 21.1.3
+2026-01-05T04:40:25.6914476Z ##[group]Run actions/cache@v4
+2026-01-05T04:40:25.6914755Z with:
+2026-01-05T04:40:25.6914982Z   path: ~/.cargo/registry
+~/.cargo/git
+~/.cargo/bin
+
+2026-01-05T04:40:25.6915606Z   key: Windows-cargo-stable-
+2026-01-05T04:40:25.6916013Z   restore-keys: Windows-cargo-stable-
+Windows-
+
+2026-01-05T04:40:25.6916277Z   enableCrossOsArchive: false
+2026-01-05T04:40:25.6916493Z   fail-on-cache-miss: false
+2026-01-05T04:40:25.6916684Z   lookup-only: false
+2026-01-05T04:40:25.6916856Z   save-always: false
+2026-01-05T04:40:25.6916999Z env:
+2026-01-05T04:40:25.6917137Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:25.6917313Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:25.6917491Z   RUST_BACKTRACE: full
+2026-01-05T04:40:25.6917691Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:25.6917914Z   CARGO_INCREMENTAL: 0
+2026-01-05T04:40:25.6918075Z ##[endgroup]
+2026-01-05T04:40:26.2656327Z Cache hit for: Windows-cargo-stable-
+2026-01-05T04:40:27.3652199Z Received 130026825 of 130026825 (100.0%), 125.6 MBs/sec
+2026-01-05T04:40:27.3655515Z Cache Size: ~124 MB (130026825 B)
+2026-01-05T04:40:27.3686081Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/81dc63d9-a1c5-4fda-adc1-0e5c4992e9fb/cache.tzst -P -C D:/a/AeroSocket/AeroSocket --force-local --use-compress-program "zstd -d"
+2026-01-05T04:40:52.1895020Z Cache restored successfully
+2026-01-05T04:40:52.2175562Z Cache restored from key: Windows-cargo-stable-
+2026-01-05T04:40:52.4342497Z ##[group]Run actions/cache@v4
+2026-01-05T04:40:52.4342769Z with:
+2026-01-05T04:40:52.4342936Z   path: target
+2026-01-05T04:40:52.4343135Z   key: Windows-cargo-target-stable-
+2026-01-05T04:40:52.4343445Z   restore-keys: Windows-cargo-target-stable-
+Windows-
+
+2026-01-05T04:40:52.4343892Z   enableCrossOsArchive: false
+2026-01-05T04:40:52.4344237Z   fail-on-cache-miss: false
+2026-01-05T04:40:52.4344428Z   lookup-only: false
+2026-01-05T04:40:52.4344609Z   save-always: false
+2026-01-05T04:40:52.4344768Z env:
+2026-01-05T04:40:52.4344908Z   CARGO_TERM_COLOR: always
+2026-01-05T04:40:52.4345094Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:40:52.4345269Z   RUST_BACKTRACE: full
+2026-01-05T04:40:52.4345451Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:40:52.4345680Z   CARGO_INCREMENTAL: 0
+2026-01-05T04:40:52.4345862Z ##[endgroup]
+2026-01-05T04:40:52.9247723Z Cache hit for: Windows-cargo-target-stable-
+2026-01-05T04:40:54.0694668Z Received 121634816 of 378736893 (32.1%), 115.5 MBs/sec
+2026-01-05T04:40:55.0729198Z Received 243269632 of 378736893 (64.2%), 115.6 MBs/sec
+2026-01-05T04:40:56.0786606Z Received 356515840 of 378736893 (94.1%), 112.8 MBs/sec
+2026-01-05T04:40:56.8380388Z Received 378736893 of 378736893 (100.0%), 95.8 MBs/sec
+2026-01-05T04:40:56.8387051Z Cache Size: ~361 MB (378736893 B)
+2026-01-05T04:40:56.8490533Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/be403a20-b1a6-4760-bec2-6046a18be747/cache.tzst -P -C D:/a/AeroSocket/AeroSocket --force-local --use-compress-program "zstd -d"
+2026-01-05T04:41:00.6302024Z Cache restored successfully
+2026-01-05T04:41:00.6695656Z Cache restored from key: Windows-cargo-target-stable-
+2026-01-05T04:41:00.6996366Z ##[group]Run rustc --version
+2026-01-05T04:41:00.6996685Z [36;1mrustc --version[0m
+2026-01-05T04:41:00.6996895Z [36;1mcargo --version[0m
+2026-01-05T04:41:00.6997099Z [36;1mrustup show[0m
+2026-01-05T04:41:00.7567474Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-01-05T04:41:00.7567808Z env:
+2026-01-05T04:41:00.7567971Z   CARGO_TERM_COLOR: always
+2026-01-05T04:41:00.7568183Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:41:00.7568370Z   RUST_BACKTRACE: full
+2026-01-05T04:41:00.7568578Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:41:00.7568828Z   CARGO_INCREMENTAL: 0
+2026-01-05T04:41:00.7569029Z ##[endgroup]
+2026-01-05T04:41:11.6860931Z rustc 1.92.0 (ded5c06cf 2025-12-08)
+2026-01-05T04:41:13.2634034Z cargo 1.92.0 (344c4567c 2025-10-21)
+2026-01-05T04:41:13.3001463Z Default host: x86_64-pc-windows-msvc
+2026-01-05T04:41:13.3002192Z rustup home:  C:\Users\runneradmin\.rustup
+2026-01-05T04:41:13.3002534Z 
+2026-01-05T04:41:13.3851220Z installed toolchains
+2026-01-05T04:41:13.3851698Z --------------------
+2026-01-05T04:41:13.3852077Z stable-x86_64-pc-windows-msvc (active, default)
+2026-01-05T04:41:13.3852424Z 
+2026-01-05T04:41:13.3852521Z active toolchain
+2026-01-05T04:41:13.3852753Z ----------------
+2026-01-05T04:41:13.3853335Z name: stable-x86_64-pc-windows-msvc
+2026-01-05T04:41:13.3853757Z active because: it's the default toolchain
+2026-01-05T04:41:13.3854143Z installed targets:
+2026-01-05T04:41:13.3854417Z   i686-pc-windows-msvc
+2026-01-05T04:41:13.3854721Z   wasm32-unknown-unknown
+2026-01-05T04:41:13.3855016Z   x86_64-pc-windows-gnu
+2026-01-05T04:41:13.3855323Z   x86_64-pc-windows-msvc
+2026-01-05T04:41:14.4211323Z ##[group]Run cargo fmt --all -- --check
+2026-01-05T04:41:14.4211866Z [36;1mcargo fmt --all -- --check[0m
+2026-01-05T04:41:14.4283062Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-01-05T04:41:14.4283386Z env:
+2026-01-05T04:41:14.4283554Z   CARGO_TERM_COLOR: always
+2026-01-05T04:41:14.4283772Z   CARGO_TERM_VERBOSE: true
+2026-01-05T04:41:14.4283974Z   RUST_BACKTRACE: full
+2026-01-05T04:41:14.4284189Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-01-05T04:41:14.4284431Z   CARGO_INCREMENTAL: 0
+2026-01-05T04:41:14.4284615Z ##[endgroup]
+2026-01-05T04:41:18.8719996Z Diff in \\?\D:\a\AeroSocket\AeroSocket\aerosocket-client\src\prelude.rs:5:
+2026-01-05T04:41:18.8720754Z  
+2026-01-05T04:41:18.8727746Z  pub use crate::client::{Client, ClientBuilder};
+2026-01-05T04:41:18.8728183Z  pub use crate::config::{ClientConfig, CompressionConfig, TlsConfig};
+2026-01-05T04:41:18.8729319Z [31m-pub use crate::connection::{ClientConnection, ClientConnectionHandle, ConnectionMetadata, ConnectionState};
+2026-01-05T04:41:18.8729921Z [0m[32m+pub use crate::connection::{
+2026-01-05T04:41:18.8730394Z [0m[32m+    ClientConnection, ClientConnectionHandle, ConnectionMetadata, ConnectionState,
+2026-01-05T04:41:18.8730806Z [0m[32m+};
+2026-01-05T04:41:18.8730984Z [0m 
+2026-01-05T04:41:18.8731154Z  // Re-export core types for convenience
+2026-01-05T04:41:18.8731415Z  pub use aerosocket_core::prelude::*;
+2026-01-05T04:41:18.8930543Z Diff in \\?\D:\a\AeroSocket\AeroSocket\aerosocket-core\src\handshake.rs:21:
+2026-01-05T04:41:18.8931143Z          /// Username
+2026-01-05T04:41:18.8931441Z          username: String,
+2026-01-05T04:41:18.8931789Z          /// Password
+2026-01-05T04:41:18.8932307Z [31m-        password: String
+2026-01-05T04:41:18.8932761Z [0m[32m+        password: String,
+2026-01-05T04:41:18.8933176Z [0m     },
+2026-01-05T04:41:18.8934101Z      /// *** authentication
+2026-01-05T04:41:18.8934360Z      ***
+2026-01-05T04:41:18.8934954Z Diff in \\?\D:\a\AeroSocket\AeroSocket\aerosocket-core\src\handshake.rs:28:
+2026-01-05T04:41:18.8935311Z          /// ***
+2026-01-05T04:41:18.8935554Z [31m-        token: String
+2026-01-05T04:41:18.8935801Z [0m[32m+        token: String,
+2026-01-05T04:41:18.8936018Z [0m     },
+2026-01-05T04:41:18.8936162Z  }
+2026-01-05T04:41:18.8936290Z  
+2026-01-05T04:41:18.8936724Z Diff in \\?\D:\a\AeroSocket\AeroSocket\aerosocket-core\src\lib.rs:29:
+2026-01-05T04:41:18.8937597Z  // Re-export key types for convenience
+2026-01-05T04:41:18.8938089Z  pub use error::{Error, Result};
+2026-01-05T04:41:18.8938513Z  pub use frame::{Frame, FrameKind};
+2026-01-05T04:41:18.8939485Z [31m-pub use handshake::{HandshakeConfig, HandshakeRequest, HandshakeResponse, Auth};
+2026-01-05T04:41:18.8940653Z [0m[32m+pub use handshake::{Auth, HandshakeConfig, HandshakeRequest, HandshakeResponse};
+2026-01-05T04:41:18.8941553Z [0m pub use message::{Message, MessageKind};
+2026-01-05T04:41:18.8942039Z  pub use protocol::Opcode;
+2026-01-05T04:41:18.8942425Z  pub use transport::Transport;
+2026-01-05T04:41:19.2209652Z ##[error]Process completed with exit code 1.
+2026-01-05T04:41:19.2416445Z Post job cleanup.
+2026-01-05T04:41:19.4799946Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-01-05T04:41:19.5079252Z git version 2.52.0.windows.1
+2026-01-05T04:41:19.5157225Z Temporarily overriding HOME='D:\a\_temp\c6311507-80d7-4fea-b766-5646d2d23326' before making global git config changes
+2026-01-05T04:41:19.5158439Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-05T04:41:19.5169372Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\AeroSocket\AeroSocket
+2026-01-05T04:41:19.5487520Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-01-05T04:41:19.5802080Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-01-05T04:41:20.1649547Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-05T04:41:20.1972436Z http.https://github.com/.extraheader
+2026-01-05T04:41:20.2026960Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-01-05T04:41:20.2383160Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-01-05T04:41:20.8772937Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-05T04:41:20.9108338Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-01-05T04:41:21.5645593Z Cleaning up orphan processes
