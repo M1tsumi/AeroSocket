@@ -7,27 +7,20 @@
 [![Crates.io](https://img.shields.io/crates/v/aerosocket.svg)](https://crates.io/crates/aerosocket)
 [![Documentation](https://docs.rs/aerosocket/badge.svg)](https://docs.rs/aerosocket)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
-[![Discord](https://img.shields.io/discord/6nS2KqxQtj?label=discord)](https://discord.gg/6nS2KqxQtj)
 
 A fast, zero-copy WebSocket library for Rust.
 
-We built AeroSocket because we needed something that could handle millions of concurrent connections without falling over. Most existing libraries either sacrificed performance for ergonomics or were a pain to actually use. We wanted both.
+AeroSocket handles millions of concurrent connections efficiently. Existing libraries often trade performance for usability. AeroSocket provides both high performance and a clean API.
 
----
+## Key Features
 
-## What makes it different?
+- **High Performance**: Zero-copy message handling achieves 2.5M messages per second on modest hardware
+- **Clean API**: Natural builder patterns with sensible defaults
+- **Production Ready**: Rate limiting, TLS, graceful shutdown, and comprehensive error handling
 
-**It's fast.** Like, really fast. Zero-copy message handling means we're not wasting cycles shuffling bytes around. On our benchmarks we're hitting 2.5M messages per second on modest hardware.
+## Quick Start
 
-**It doesn't get in your way.** The API is designed to feel natural. Builder patterns where they make sense, sensible defaults so you're not drowning in configuration.
-
-**It's built for production.** Rate limiting, TLS, graceful shutdown, proper error handling—the stuff you actually need when you're running this at scale.
-
----
-
-## Getting started
-
-Here's a basic echo server:
+Basic echo server:
 
 ```rust
 use aerosocket::prelude::*;
@@ -114,15 +107,13 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-aerosocket = { version = "0.2", features = ["full"] }
+aerosocket = { version = "0.3", features = ["full"] }
 tokio = { version = "1.0", features = ["full"] }
 ```
 
----
-
 ## Performance
 
-We ran these on an AWS c6i.large with Rust 1.75 and 10k concurrent connections:
+Benchmarks on AWS c6i.large with Rust 1.75 and 10k concurrent connections:
 
 | Metric | AeroSocket | tokio-tungstenite | fastwebsockets |
 |--------|------------|-------------------|----------------|
@@ -131,11 +122,9 @@ We ran these on an AWS c6i.large with Rust 1.75 and 10k concurrent connections:
 | Memory usage | 40% less | baseline | 25% less |
 | Zero-copy | Yes | No | Yes |
 
-Your mileage may vary, but these numbers have held up pretty well across different workloads.
+Results may vary by workload and configuration.
 
----
-
-## How it works
+## Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -154,61 +143,52 @@ Your mileage may vary, but these numbers have held up pretty well across differe
                        └──────────────┘
 ```
 
-The zero-copy engine is the secret sauce. Instead of copying message payloads at every layer, we pass around references and only allocate when absolutely necessary. This matters a lot when you're pushing millions of messages.
+The zero-copy engine minimizes allocations by passing references instead of copying payloads. This is crucial for high-throughput messaging.
 
 ---
 
-## Who's using this?
+## Use Cases
 
-We've seen it work well for:
+AeroSocket is suitable for:
 
-- **Chat apps** — Slack-style messaging, collaborative editors, that kind of thing
-- **Trading platforms** — Real-time market data where latency matters
-- **Game servers** — Multiplayer backends, leaderboards, matchmaking
-- **IoT** — Sensor networks, monitoring dashboards, alerting systems
+- Chat applications and collaborative editors
+- Trading platforms requiring low-latency market data
+- Game servers for multiplayer backends
+- IoT systems with sensor networks and real-time monitoring
 
-Basically anywhere you need to move a lot of data to a lot of clients quickly.
+## Features
 
----
-
-## What's included
-
-**Working right now:**
-- Full RFC6455 WebSocket implementation
+**Implemented:**
+- Full RFC6455 WebSocket protocol
 - TCP and TLS transports
-- Rate limiting (per-IP request and connection limits)
-- Structured logging via tracing
+- Rate limiting and backpressure
+- Structured logging with tracing
 - Graceful shutdown
-- Backpressure handling
+- Client authentication (Basic/Bearer)
+- CORS origin validation
 
-**Still working on:**
-- Authentication framework
-- Prometheus metrics
-- Health check endpoints
+**In Development:**
 - Per-message compression
-- CORS handling
+- Prometheus metrics exporter
+- Health check endpoints
 
-**On the roadmap:**
+**Planned:**
 - QUIC transport
 - Load balancing
 - Kubernetes operator
 
----
-
-## Feature flags
-
-Use what you need:
+## Installation
 
 ```toml
 [dependencies]
-aerosocket = { version = "0.2", features = ["full"] }
+aerosocket = { version = "0.3", features = ["full"] }
 ```
 
-### Minimal Installation
+### Minimal Setup
 
 ```toml
 [dependencies]
-aerosocket = { version = "0.2", default-features = false, features = ["transport-tcp", "tokio-runtime"] }
+aerosocket = { version = "0.3", default-features = false, features = ["transport-tcp"] }
 ```
 
 Available flags on the `aerosocket` crate:
@@ -225,29 +205,23 @@ Available flags on the `aerosocket` crate:
 
 ## Examples
 
-**Zero-copy sends:**
+**Zero-copy operations:**
 
 ```rust
 let data = Bytes::from("large payload");
-conn.send_binary_bytes(data).await?; // No copy here
+conn.send_binary_bytes(data).await?; // No allocation
 ```
 
-**Connection pooling (planned):**
+### WASM Handlers (Preview)
 
-Client-side connection pooling is on the roadmap for a future release.
-
-### Server-side WASM handlers (preview)
-
-If you enable the `wasm-handlers` feature on `aerosocket-server`, you can host
-WASM-based connection handlers alongside native Rust handlers:
+Enable `wasm-handlers` feature on `aerosocket-server` to use WASM-based handlers:
 
 ```toml
 [dependencies]
-aerosocket-server = { version = "0.2", features = ["full"] }
+aerosocket-server = { version = "0.3", features = ["wasm-handlers"] }
 ```
 
-On the server side, `ServerBuilder` exposes a helper to load a WASM handler from
-disk (requires `wasm-handlers`):
+Load WASM handler from file:
 
 ```rust
 use aerosocket_server::prelude::*;
@@ -255,18 +229,14 @@ use aerosocket_server::prelude::*;
 let server = Server::builder()
     .bind("0.0.0.0:8080")?
     .build_with_wasm_handler_from_file(
-        "aerosocket-wasm-handler/target/wasm32-wasi/release/aerosocket-wasm-handler.wasm",
+        "handler.wasm",
     )?;
 ```
 
-WASM modules use a very small ABI:
-
-- Export linear memory (the default `memory` export in Rust is fine).
-- Export a function `on_message(ptr: i32, len: i32) -> i32`.
-  - Host writes UTF-8 text into linear memory at `ptr..ptr+len`.
-  - The WASM function may transform the bytes in-place and returns the number of
-    bytes written.
-  - Host reads back that many bytes and sends them as the outgoing text frame.
+WASM ABI:
+- Export linear memory
+- Export `on_message(ptr: i32, len: i32) -> i32`
+- Host writes UTF-8 to memory, WASM processes in-place, returns new length
 
 This repo includes two small example crates you can copy or adapt:
 
@@ -280,15 +250,15 @@ This repo includes two small example crates you can copy or adapt:
 
 ## Security
 
-We take this seriously. Here's what's in place:
+Security features include:
 
-- TLS 1.2/1.3 with configurable root CAs and SNI
+- TLS 1.2/1.3 with configurable certificates
 - Rate limiting and connection quotas
-- Input validation for malformed frames
-- Memory safety (it's Rust, so this comes for free)
+- Input validation for WebSocket frames
+- Memory safety through Rust
 - Backpressure to prevent resource exhaustion
 
-Production config looks something like:
+Example production configuration:
 
 ```rust
 use aerosocket::prelude::*;
@@ -296,7 +266,6 @@ use aerosocket::prelude::*;
 let server = aerosocket::Server::builder()
     .bind("0.0.0.0:8443")?
     .max_connections(10_000)
-    .compression(true)
     .backpressure(BackpressureStrategy::Buffer)
     .tls("server.crt", "server.key")
     .transport_tls()
@@ -304,93 +273,15 @@ let server = aerosocket::Server::builder()
     .build()?;
 ```
 
----
-
 ## Documentation
 
-- [Getting Started](docs/getting-started.md)
 - [API Reference](https://docs.rs/aerosocket)
 - [Examples](examples/)
-- [Performance Tuning](docs/performance.md)
-- [Security Guide](docs/security.md)
-
----
 
 ## Contributing
 
-We'd love help. Clone the repo and poke around:
-
-```bash
-git clone https://github.com/M1tsumi/AeroSocket
-```
-
-Check out [CONTRIBUTING.md](CONTRIBUTING.md) for the details.
-
-**Get in touch:**
-- [Discord](https://discord.gg/6nS2KqxQtj)
-- [GitHub Issues](https://github.com/M1tsumi/AeroSocket/issues)
-- [Discussions](https://github.com/M1tsumi/AeroSocket/discussions)
-
----
-
-## 🗺️ Roadmap
-
-### ✅ **v0.1 (done)**
-- Core WebSocket protocol
-- TCP and TLS transports
-- Rate limiting
-- Logging
-- Connection management
-- Zero-copy engine
-
-**v0.2 (released)**
-- Authentication
-- Metrics
-- Health checks
-- Compression
-- CORS
-
-**v0.3 (planned)**
-- HTTP/2 transport
-- Better connection pooling
-- WASM support
-
-**v1.0 (eventually)**
-- QUIC
-- Load balancing
-- Kubernetes integration
-
----
-
-## Ecosystem
-
-| Integration | Status |
-|-------------|--------|
-| Tokio | Works |
-| Serde | Works |
-| Tracing | Built-in |
-| Tower | In progress |
-| Axum | In progress |
-| Actix | Planned |
-
----
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## License
 
-MIT or Apache 2.0, your choice.
-
----
-
-## Thanks
-
-This wouldn't exist without the Tokio team's work on the async runtime, or the folks who wrote the WebSocket RFC. And thanks to everyone who's tried early versions and told us what was broken.
-
----
-
-<div align="center">
-
-If you find this useful, a star on GitHub helps others find it too.
-
-[![GitHub stars](https://img.shields.io/github/stars/M1tsumi/AeroSocket?style=social)](https://github.com/M1tsumi/AeroSocket)
-
-</div>
+MIT or Apache 2.0

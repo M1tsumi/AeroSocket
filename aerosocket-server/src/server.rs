@@ -519,8 +519,10 @@ impl Server {
         let handshake_config = HandshakeConfig {
             protocols: config.supported_protocols.clone(),
             extensions: config.supported_extensions.clone(),
-            origin: config.allowed_origin.clone(),
+            origin: None,
+            allowed_origins: config.allowed_origins.clone(),
             host: None,
+            auth: None,
             extra_headers: config.extra_headers.clone(),
         };
 
@@ -609,8 +611,10 @@ impl Server {
         let handshake_config = HandshakeConfig {
             protocols: config.supported_protocols.clone(),
             extensions: config.supported_extensions.clone(),
-            origin: config.allowed_origin.clone(),
+            origin: None,
+            allowed_origins: config.allowed_origins.clone(),
             host: None,
+            auth: None,
             extra_headers: config.extra_headers.clone(),
         };
 
@@ -774,6 +778,12 @@ impl ServerBuilder {
     #[cfg(feature = "tls-transport")]
     pub fn transport_tls(mut self) -> Self {
         self.config.transport_type = crate::config::TransportType::Tls;
+        self
+    }
+
+    /// Add an allowed origin for CORS (empty list means allow all)
+    pub fn allow_origin(mut self, origin: impl Into<String>) -> Self {
+        self.config.allowed_origins.push(origin.into());
         self
     }
 

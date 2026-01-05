@@ -75,6 +75,7 @@ impl Client {
                     .extra_headers
                     .insert(name.clone(), value.clone());
             }
+            handshake_config.auth = config.auth.clone();
 
             // Decide between TLS and TCP based on TLS configuration
             if let Some(tls_cfg) = &config.tls {
@@ -242,50 +243,6 @@ impl Client {
             "No transport feature enabled (transport-tcp or transport-tls) for aerosocket-client"
                 .to_string(),
         ))
-    }
-}
-
-/// Client connection
-#[derive(Debug)]
-pub struct ClientConnection {
-    /// Server address
-    #[allow(dead_code)]
-    remote_addr: SocketAddr,
-    /// Connection state
-    connected: bool,
-}
-
-impl ClientConnection {
-    /// Create a new client connection
-    pub fn new(addr: SocketAddr) -> Self {
-        Self {
-            remote_addr: addr,
-            connected: false,
-        }
-    }
-
-    /// Send a message
-    pub async fn send(&mut self, _message: Message) -> Result<()> {
-        // TODO: Implement actual message sending
-        Ok(())
-    }
-
-    /// Receive the next message
-    pub async fn next(&mut self) -> Result<Option<Message>> {
-        // TODO: Implement actual message receiving
-        Ok(None)
-    }
-
-    /// Close the connection
-    pub async fn close(&mut self, _code: Option<u16>, _reason: Option<&str>) -> Result<()> {
-        // TODO: Implement actual connection closing
-        self.connected = false;
-        Ok(())
-    }
-
-    /// Check if connected
-    pub fn is_connected(&self) -> bool {
-        self.connected
     }
 }
 

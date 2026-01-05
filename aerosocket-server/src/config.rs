@@ -43,8 +43,8 @@ pub struct ServerConfig {
     pub supported_protocols: Vec<String>,
     /// Supported WebSocket extensions
     pub supported_extensions: Vec<String>,
-    /// Allowed origin (for CORS)
-    pub allowed_origin: Option<String>,
+    /// Allowed origins for CORS (empty means allow all)
+    pub allowed_origins: Vec<String>,
     /// Extra headers to send in handshake response
     pub extra_headers: std::collections::HashMap<String, String>,
 }
@@ -73,7 +73,7 @@ impl Default for ServerConfig {
             transport_type: TransportType::Tcp,
             supported_protocols: vec![],
             supported_extensions: vec![],
-            allowed_origin: None,
+            allowed_origins: vec![],
             extra_headers: std::collections::HashMap::new(),
         }
     }

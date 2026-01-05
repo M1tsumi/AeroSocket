@@ -13,6 +13,23 @@ use base64::{engine::general_purpose, Engine as _};
 use sha1::{Digest, Sha1};
 use std::collections::HashMap;
 
+/// Authentication methods for WebSocket handshake
+#[derive(Debug, Clone)]
+pub enum Auth {
+    /// HTTP Basic authentication
+    Basic {
+        /// Username
+        username: String,
+        /// Password
+        password: String
+    },
+    /// Bearer token authentication
+    Bearer {
+        /// Bearer token
+        token: String
+    },
+}
+
 /// WebSocket handshake request information
 #[derive(Debug, Clone)]
 pub struct HandshakeRequest {
@@ -48,10 +65,14 @@ pub struct HandshakeConfig {
     pub protocols: Vec<String>,
     /// WebSocket extensions to offer/accept
     pub extensions: Vec<String>,
-    /// Origin to check against (server only)
+    /// Origin to send (client only)
     pub origin: Option<String>,
+    /// Allowed origins for CORS (server only, empty means allow all)
+    pub allowed_origins: Vec<String>,
     /// Host header value (client only)
     pub host: Option<String>,
+    /// Authentication
+    pub auth: Option<Auth>,
     /// Additional headers
     pub extra_headers: HashMap<String, String>,
 }
@@ -124,6 +145,18 @@ pub fn create_client_handshake(
             HEADER_SEC_WEBSOCKET_EXTENSIONS.to_string(),
             config.extensions.join(", "),
         );
+    }
+
+    // Add authentication header
+    if let Some(auth) = &config.auth {
+        let value = match auth {
+            Auth::Basic { username, password } => {
+                let credentials = format!("{}:{}", username, password);
+                format!("Basic {}", general_purpose::STANDARD.encode(credentials))
+            }
+            Auth::Bearer { token } => format!("Bearer {}", token),
+        };
+        headers.insert(AUTHORIZATION.to_string(), value);
     }
 
     // Add extra headers
@@ -264,11 +297,11 @@ pub fn validate_client_handshake(
     }
 
     // Check optional headers
-    if let Some(origin) = &config.origin {
+    if !config.allowed_origins.is_empty() {
         if let Some(client_origin) = request.headers.get(ORIGIN) {
-            if client_origin != origin {
+            if !config.allowed_origins.contains(client_origin) {
                 return Err(Error::Protocol(ProtocolError::InvalidOrigin {
-                    expected: origin.clone(),
+                    expected: config.allowed_origins.join(", "),
                     received: client_origin.clone(),
                 }));
             }

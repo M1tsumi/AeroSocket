@@ -24,7 +24,7 @@ wasm-bindgen = ["dep:wasm-bindgen", "dep:wasm-bindgen-futures", "dep:js-sys", "d
 
 [dependencies]
 # Core dependencies
-aerosocket-core = { path = "../aerosocket-core", version = "0.2.0", default-features = false }
+aerosocket-core = { path = "../aerosocket-core", version = "0.3.0", default-features = false }
 bytes = { workspace = true }
 
 # WASM dependencies

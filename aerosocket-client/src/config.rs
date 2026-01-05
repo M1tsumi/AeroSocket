@@ -45,6 +45,8 @@ pub struct ClientConfig {
     pub protocols: Vec<String>,
     /// Custom headers
     pub headers: Vec<(String, String)>,
+    /// Authentication
+    pub auth: Option<aerosocket_core::Auth>,
 }
 
 impl Default for ClientConfig {
@@ -60,6 +62,7 @@ impl Default for ClientConfig {
             origin: None,
             protocols: Vec::new(),
             headers: Vec::new(),
+            auth: None,
         }
     }
 }
@@ -139,6 +142,12 @@ impl ClientConfig {
     /// Add a custom header
     pub fn add_header(mut self, name: String, value: String) -> Self {
         self.headers.push((name, value));
+        self
+    }
+
+    /// Set authentication
+    pub fn auth(mut self, auth: aerosocket_core::Auth) -> Self {
+        self.auth = Some(auth);
         self
     }
 

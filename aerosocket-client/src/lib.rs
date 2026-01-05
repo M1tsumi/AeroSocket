@@ -12,10 +12,16 @@
 //! async fn main() -> aerosocket_core::Result<()> {
 //!     let addr: SocketAddr = "127.0.0.1:8080".parse()
 //!         .map_err(|e| aerosocket_core::Error::Io(std::io::Error::new(std::io::ErrorKind::InvalidInput, e)))?;
-//!     let mut client = aerosocket_client::ClientConnection::new(addr);
+//!     let client = aerosocket_client::Client::new(addr);
+//!     let mut conn = client.connect().await?;
 //!
-//!     // Note: This is a simplified example - actual connection logic would be implemented here
-//!     println!("Client created successfully for {}", addr);
+//!     // Send a message
+//!     conn.send_text("Hello!").await?;
+//!
+//!     // Receive messages
+//!     while let Some(msg) = conn.next().await? {
+//!         println!("Received: {:?}", msg);
+//!     }
 //!
 //!     Ok(())
 //! }

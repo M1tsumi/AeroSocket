@@ -5,6 +5,15 @@ All notable changes to AeroSocket will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-01-04
+
+### Added
+- **Authentication Support**: Added HTTP Basic and Bearer token authentication for WebSocket handshakes on the client side.
+- **Enhanced CORS Handling**: Improved server-side CORS support with configurable allowed origins list (empty list allows all origins).
+
+### Changed
+- **CORS Configuration**: Server configuration now supports multiple allowed origins instead of a single optional origin.
+
 ## [0.2.0] - 2025-12-06
 
 ### Breaking Changes
@@ -229,54 +238,3 @@ AeroSocket is a zero-copy WebSocket implementation designed for high performance
 
 ---
 
-## Roadmap
-
-### v0.2.0 (Released 2025-12-06)
-- HTTP/2 transport support (experimental)
-- Advanced connection pooling and connection management improvements
-- WASM server-side handler support (preview)
-- GraphQL subscriptions integration (experimental)
-- Frame parser and zero-copy performance improvements
-
-### v0.3.0 (Planned)
-- QUIC transport implementation
-- Built-in load balancing
-- Kubernetes operator
-- Performance profiling tools
-
-### v1.0.0 (Planned)
-- Full RFC compliance certification
-- Enterprise support packages
-- SLA guarantees
-- Commercial licensing options
-
----
-
-## Contributing to This Changelog
-
-When updating this changelog:
-
-1. Add your changes under the "Unreleased" section at the top
-2. Use the appropriate category (Added, Changed, Fixed, etc.)
-3. Include the version number and release date when cutting a release
-4. Keep descriptions clear and concise
-5. Link to relevant issues or pull requests when helpful
-
-### Categories
-
-- **Added**: New features and capabilities
-- **Changed**: Modifications to existing functionality
-- **Deprecated**: Features marked for future removal
-- **Removed**: Features removed in this version
-- **Fixed**: Bug fixes and corrections
-- **Security**: Security-related changes
-
-### Version Numbers
-
-- **Major** (X.0.0): Breaking changes
-- **Minor** (X.Y.0): New features, backward compatible
-- **Patch** (X.Y.Z): Bug fixes, backward compatible
-
----
-
-*For more information about contributing to AeroSocket, see our [Contributing Guidelines](CONTRIBUTING.md).*

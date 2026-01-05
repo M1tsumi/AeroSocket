@@ -3,9 +3,9 @@
 //! This module re-exports commonly used types and traits to make them
 //! easily accessible for users of the client library.
 
-pub use crate::client::{Client, ClientBuilder, ClientConnection};
+pub use crate::client::{Client, ClientBuilder};
 pub use crate::config::{ClientConfig, CompressionConfig, TlsConfig};
-pub use crate::connection::{ClientConnectionHandle, ConnectionMetadata, ConnectionState};
+pub use crate::connection::{ClientConnection, ClientConnectionHandle, ConnectionMetadata, ConnectionState};
 
 // Re-export core types for convenience
 pub use aerosocket_core::prelude::*;
