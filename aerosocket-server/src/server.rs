@@ -27,6 +27,7 @@ pub struct Server {
     config: ServerConfig,
     handler: BoxedHandler,
     rate_limiter: Option<Arc<RateLimitMiddleware>>,
+    manager: Arc<ConnectionManager>,
 }
 
 /// Connection manager for tracking active connections
@@ -80,6 +81,56 @@ impl ConnectionManager {
         let connections = self.connections.lock().await;
         connections.len()
     }
+
+    /// Broadcast binary message to all connections
+    pub async fn broadcast_binary_to_all(&self, data: &[u8]) -> Result<()> {
+        let data = data.to_vec();
+        let connections = self.get_all_connections().await;
+        for handle in connections {
+            if let Ok(mut conn) = handle.try_lock().await {
+                let _ = conn.send_binary(data.clone()).await;
+            }
+        }
+        Ok(())
+    }
+
+    /// Broadcast text message to all connections
+    pub async fn broadcast_text_to_all(&self, text: &str) -> Result<()> {
+        let connections = self.get_all_connections().await;
+        for handle in connections {
+            if let Ok(mut conn) = handle.try_lock().await {
+                let _ = conn.send_text(text).await;
+            }
+        }
+        Ok(())
+    }
+
+    /// Broadcast binary message to all connections except the specified one
+    pub async fn broadcast_binary_except(&self, data: &[u8], except_id: u64) -> Result<()> {
+        let data = data.to_vec();
+        let connections = self.get_all_connections().await;
+        for handle in connections {
+            if handle.id() != except_id {
+                if let Ok(mut conn) = handle.try_lock().await {
+                    let _ = conn.send_binary(data.clone()).await;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Broadcast text message to all connections except the specified one
+    pub async fn broadcast_text_except(&self, text: &str, except_id: u64) -> Result<()> {
+        let connections = self.get_all_connections().await;
+        for handle in connections {
+            if handle.id() != except_id {
+                if let Ok(mut conn) = handle.try_lock().await {
+                    let _ = conn.send_text(text).await;
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 impl std::fmt::Debug for Server {
@@ -87,6 +138,7 @@ impl std::fmt::Debug for Server {
         f.debug_struct("Server")
             .field("config", &self.config)
             .field("handler", &"<handler>")
+            .field("manager", &self.manager)
             .finish()
     }
 }
@@ -111,6 +163,7 @@ impl Server {
             config,
             handler,
             rate_limiter,
+            manager: Arc::new(ConnectionManager::new()),
         }
     }
 
@@ -121,8 +174,8 @@ impl Server {
 
     /// Start serving connections
     pub async fn serve(self) -> Result<()> {
-        let connection_manager = Arc::new(ConnectionManager::new());
-        self.serve_with_connection_manager(connection_manager).await
+        let manager = self.manager.clone();
+        self.serve_with_connection_manager(manager).await
     }
 
     /// Start serving with graceful shutdown
@@ -130,9 +183,9 @@ impl Server {
     where
         F: std::future::Future<Output = ()> + Send + 'static,
     {
-        let connection_manager = Arc::new(ConnectionManager::new());
         let shutdown_signal = Box::pin(shutdown_signal);
-        self.serve_with_connection_manager_and_shutdown(connection_manager, shutdown_signal)
+        let manager = self.manager.clone();
+        self.serve_with_connection_manager_and_shutdown(manager, shutdown_signal)
             .await
     }
 
@@ -408,7 +461,7 @@ impl Server {
 
         let connection_id = connection_manager.add_connection(connection).await;
 
-        #[cfg(feature = "metrics")]
+        #[cfg(feature = "prometheus")]
         {
             let active = connection_manager.connection_count().await as f64;
             metrics::gauge!("aerosocket_server_active_connections").set(active);
@@ -431,7 +484,7 @@ impl Server {
             rate_limiter.connection_closed(remote_addr.ip()).await;
         }
 
-        #[cfg(feature = "metrics")]
+        #[cfg(feature = "prometheus")]
         {
             let active = connection_manager.connection_count().await as f64;
             metrics::gauge!("aerosocket_server_active_connections").set(active);
@@ -450,19 +503,21 @@ impl Server {
         rate_limiter: Option<Arc<RateLimitMiddleware>>,
     ) -> Result<()> {
         // Perform WebSocket handshake
-        let (remote_addr, local_addr, endpoint) =
+        let (remote_addr, local_addr, endpoint, negotiated_extensions) =
             Self::perform_handshake(&mut stream, &config).await?;
 
         // Convert to boxed transport stream
         let boxed_stream: Box<dyn TransportStream> = Box::new(stream);
 
         // Create connection with stream
-        let connection = Connection::with_stream(remote_addr, local_addr, boxed_stream);
+        let mut connection = Connection::with_stream(remote_addr, local_addr, boxed_stream);
+        connection.metadata.compression_negotiated = negotiated_extensions.iter().any(|e| e.contains("permessage-deflate"));
+        connection.metadata.extensions = negotiated_extensions;
 
         // Add to connection manager
         let connection_id = connection_manager.add_connection(connection).await;
 
-        #[cfg(feature = "metrics")]
+        #[cfg(feature = "prometheus")]
         {
             let active = connection_manager.connection_count().await as f64;
             metrics::gauge!("aerosocket_server_active_connections").set(active);
@@ -489,7 +544,7 @@ impl Server {
             rate_limiter.connection_closed(remote_addr.ip()).await;
         }
 
-        #[cfg(feature = "metrics")]
+        #[cfg(feature = "prometheus")]
         {
             let active = connection_manager.connection_count().await as f64;
             metrics::gauge!("aerosocket_server_active_connections").set(active);
@@ -523,6 +578,12 @@ impl Server {
             allowed_origins: config.allowed_origins.clone(),
             host: None,
             auth: None,
+            compression: aerosocket_core::handshake::CompressionConfig {
+                enabled: config.compression.enabled,
+                client_max_window_bits: config.compression.client_max_window_bits,
+                server_max_window_bits: config.compression.server_max_window_bits,
+                compression_level: Some(config.compression.level as u32),
+            },
             extra_headers: config.extra_headers.clone(),
         };
 
@@ -537,7 +598,7 @@ impl Server {
         stream.write_all(response_str.as_bytes()).await?;
         stream.flush().await?;
 
-        #[cfg(feature = "metrics")]
+        #[cfg(feature = "prometheus")]
         {
             let elapsed = start.elapsed().as_secs_f64();
             metrics::histogram!("aerosocket_server_handshake_duration_seconds").record(elapsed);
@@ -548,7 +609,14 @@ impl Server {
         let local_addr = stream.local_addr()?;
         let endpoint = request.uri.clone();
 
-        Ok((remote_addr, local_addr, endpoint))
+        // Extract negotiated extensions from response headers
+        let negotiated_extensions = if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
+            ext_header.split(',').map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string()).collect()
+        } else {
+            vec![]
+        };
+
+        Ok((remote_addr, local_addr, endpoint, negotiated_extensions))
     }
 
     /// Read handshake request from TLS stream
@@ -598,11 +666,17 @@ impl Server {
     async fn perform_handshake(
         stream: &mut crate::tcp_transport::TcpStream,
         config: &ServerConfig,
-    ) -> Result<(SocketAddr, SocketAddr, String)> {
+    ) -> Result<(SocketAddr, SocketAddr, String, Vec<String>)> {
         let start = Instant::now();
         // Read HTTP request
         let request_data = Self::read_handshake_request(stream, config.handshake_timeout).await?;
         let request_str = String::from_utf8_lossy(&request_data);
+
+        // Check if it's a WebSocket upgrade request
+        if !request_str.contains("Upgrade: websocket") {
+            // Handle as HTTP request
+            return Self::handle_http_request(stream, &request_str, config).await;
+        }
 
         // Parse handshake request
         let request = parse_client_handshake(&request_str)?;
@@ -615,6 +689,12 @@ impl Server {
             allowed_origins: config.allowed_origins.clone(),
             host: None,
             auth: None,
+            compression: aerosocket_core::handshake::CompressionConfig {
+                enabled: config.compression.enabled,
+                client_max_window_bits: config.compression.client_max_window_bits,
+                server_max_window_bits: config.compression.server_max_window_bits,
+                compression_level: Some(config.compression.level as u32),
+            },
             extra_headers: config.extra_headers.clone(),
         };
 
@@ -629,7 +709,7 @@ impl Server {
         stream.write_all(response_str.as_bytes()).await?;
         stream.flush().await?;
 
-        #[cfg(feature = "metrics")]
+        #[cfg(feature = "prometheus")]
         {
             let elapsed = start.elapsed().as_secs_f64();
             metrics::histogram!("aerosocket_server_handshake_duration_seconds").record(elapsed);
@@ -640,7 +720,14 @@ impl Server {
         let local_addr = stream.local_addr()?;
         let endpoint = request.uri.clone();
 
-        Ok((remote_addr, local_addr, endpoint))
+        // Extract negotiated extensions from response headers
+        let negotiated_extensions = if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
+            ext_header.split(',').map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string()).collect()
+        } else {
+            vec![]
+        };
+
+        Ok((remote_addr, local_addr, endpoint, negotiated_extensions))
     }
 
     /// Read handshake request from stream
@@ -697,6 +784,84 @@ impl Server {
         }
 
         Ok(())
+    }
+
+    /// Handle HTTP request (for /health, /metrics)
+    async fn handle_http_request(
+        stream: &mut crate::tcp_transport::TcpStream,
+        request_str: &str,
+        config: &ServerConfig,
+    ) -> Result<(SocketAddr, SocketAddr, String, Vec<String>)> {
+        // Parse basic HTTP request
+        let mut headers = [httparse::EMPTY_HEADER; 64];
+        let mut req = httparse::Request::new(&mut headers);
+        req.parse(request_str.as_bytes()).map_err(|e| Error::Other(format!("HTTP parse error: {}", e)))?;
+
+        let method = req.method.unwrap_or("GET");
+        let path = req.path.unwrap_or("/");
+
+        let response = match (method, path) {
+            ("GET", "/health") => Self::handle_health_request(config),
+            #[cfg(feature = "prometheus")]
+            ("GET", "/metrics") => Self::handle_metrics_request(config).await,
+            _ => "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n".to_string(),
+        };
+
+        stream.write_all(response.as_bytes()).await?;
+        stream.flush().await?;
+
+        // Return dummy values since this is not a WebSocket connection
+        let remote_addr = stream.remote_addr()?;
+        let local_addr = stream.local_addr()?;
+        Ok((remote_addr, local_addr, path.to_string(), vec![]))
+    }
+
+    /// Handle /health request
+    fn handle_health_request(config: &ServerConfig) -> String {
+        // Simple health check - can be extended with custom checks
+        let status = "ok";
+        let body = format!("{{\"status\":\"{}\"}}", status);
+        format!(
+            "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
+            body.len(),
+            body
+        )
+    }
+
+    /// Handle /metrics request
+    #[cfg(feature = "prometheus")]
+    async fn handle_metrics_request(config: &ServerConfig) -> String {
+        use prometheus::Encoder;
+        let encoder = prometheus::TextEncoder::new();
+        let metric_families = prometheus::gather();
+        let mut buffer = Vec::new();
+        encoder.encode(&metric_families, &mut buffer).unwrap();
+        let body = String::from_utf8(buffer).unwrap();
+        format!(
+            "HTTP/1.1 200 OK\r\nContent-Type: text/plain; version=0.0.4; charset=utf-8\r\nContent-Length: {}\r\n\r\n{}",
+            body.len(),
+            body
+        )
+    }
+
+    /// Broadcast binary message to all connections
+    pub async fn broadcast_binary_to_all(&self, data: &[u8]) -> Result<()> {
+        self.manager.broadcast_binary_to_all(data).await
+    }
+
+    /// Broadcast text message to all connections
+    pub async fn broadcast_text_to_all(&self, text: &str) -> Result<()> {
+        self.manager.broadcast_text_to_all(text).await
+    }
+
+    /// Broadcast binary message to all connections except the specified one
+    pub async fn broadcast_binary_except(&self, data: &[u8], except_id: u64) -> Result<()> {
+        self.manager.broadcast_binary_except(data, except_id).await
+    }
+
+    /// Broadcast text message to all connections except the specified one
+    pub async fn broadcast_text_except(&self, text: &str, except_id: u64) -> Result<()> {
+        self.manager.broadcast_text_except(text, except_id).await
     }
 }
 

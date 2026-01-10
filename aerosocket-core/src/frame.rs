@@ -109,6 +109,25 @@ impl Frame {
         self
     }
 
+    /// Apply compression to the frame (for data frames)
+    #[cfg(feature = "compression")]
+    pub fn compress(mut self, enabled: bool) -> Self {
+        if enabled && self.opcode.is_data() && !self.rsv[0] {
+            use flate2::write::DeflateEncoder;
+            use flate2::Compression;
+            use std::io::Write;
+
+            let mut encoder = DeflateEncoder::new(Vec::new(), Compression::new(6));
+            if encoder.write_all(&self.payload).is_ok() && encoder.flush().is_ok() {
+                if let Ok(compressed) = encoder.finish() {
+                    self.payload = Bytes::from(compressed);
+                    self.rsv[0] = true;
+                }
+            }
+        }
+        self
+    }
+
     /// Serialize the frame to bytes
     pub fn to_bytes(&self) -> Bytes {
         let mut buf = BytesMut::new();
@@ -150,7 +169,7 @@ impl Frame {
     }
 
     /// Parse a frame from bytes
-    pub fn parse(buf: &mut BytesMut) -> Result<Self> {
+    pub fn parse(buf: &mut BytesMut, compression_enabled: bool) -> Result<Self> {
         if buf.len() < 2 {
             return Err(FrameError::InsufficientData {
                 needed: 2,
@@ -230,6 +249,20 @@ impl Frame {
             payload = mask_bytes(&payload, &mask);
         }
 
+        // Decompress payload if needed
+        #[cfg(feature = "compression")]
+        if rsv1 && compression_enabled {
+            use flate2::read::DeflateDecoder;
+            use std::io::Read;
+
+            let mut decoder = DeflateDecoder::new(&payload[..]);
+            let mut decompressed = Vec::new();
+            if let Err(_) = decoder.read_to_end(&mut decompressed) {
+                return Err(FrameError::DecompressionFailed.into());
+            }
+            payload = Bytes::from(decompressed);
+        }
+
         // Advance the buffer
         let frame_len = cursor.position() as usize + payload_len;
         buf.advance(frame_len);
@@ -239,7 +272,7 @@ impl Frame {
             return Err(FrameError::FragmentedControlFrame.into());
         }
 
-        if rsv1 || rsv2 || rsv3 {
+        if (rsv1 && !(compression_enabled && opcode.is_data())) || rsv2 || rsv3 {
             return Err(FrameError::ReservedBitsSet.into());
         }
 
@@ -316,18 +349,39 @@ fn mask_bytes(data: &[u8], mask: &[u8; 4]) -> Bytes {
 }
 
 /// Frame parser for incremental parsing
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct FrameParser {
     /// Buffer for partial frame data
     buffer: BytesMut,
     /// Expected frame size (if known)
     expected_size: Option<usize>,
+    /// Whether compression is enabled for this connection
+    compression_enabled: bool,
+}
+
+impl Default for FrameParser {
+    fn default() -> Self {
+        Self {
+            buffer: BytesMut::new(),
+            expected_size: None,
+            compression_enabled: false,
+        }
+    }
 }
 
 impl FrameParser {
     /// Create a new frame parser
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Create a new frame parser with compression enabled
+    pub fn with_compression(compression_enabled: bool) -> Self {
+        Self {
+            buffer: BytesMut::new(),
+            expected_size: None,
+            compression_enabled,
+        }
     }
 
     /// Feed data to the parser and try to extract frames
@@ -357,7 +411,7 @@ impl FrameParser {
     fn try_parse_frame(&mut self) -> Option<Result<Frame>> {
         let mut buf = self.buffer.clone();
 
-        match Frame::parse(&mut buf) {
+        match Frame::parse(&mut buf, self.compression_enabled) {
             Ok(frame) => {
                 // Remove the parsed data from the buffer
                 let parsed_len = self.buffer.len() - buf.len();
@@ -417,7 +471,7 @@ mod tests {
         let bytes = original.to_bytes();
         let mut buf = BytesMut::from(&bytes[..]);
 
-        let parsed = Frame::parse(&mut buf).unwrap();
+        let parsed = Frame::parse(&mut buf, false).unwrap();
         assert_eq!(parsed.kind(), FrameKind::Text);
         assert_eq!(parsed.payload, "hello");
         assert!(buf.is_empty());

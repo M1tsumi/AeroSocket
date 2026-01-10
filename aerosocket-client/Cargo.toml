@@ -23,6 +23,9 @@ tokio-runtime = ["aerosocket-core/tokio-runtime"]
 transport-tcp = ["aerosocket-transport-tcp"]
 transport-tls = ["aerosocket-transport-tls"]
 
+# Compression features
+compression = ["aerosocket-core/compression"]
+
 # Metrics features
 metrics = ["dep:metrics"]
 
@@ -34,7 +37,7 @@ serde = ["aerosocket-core/serde"]
 
 [dependencies]
 # Core dependencies
-aerosocket-core = { path = "../aerosocket-core", version = "0.3.0" }
+aerosocket-core = { path = "../aerosocket-core", version = "0.4.0" }
 bytes = { workspace = true }
 futures-util = { workspace = true }
 thiserror = { workspace = true }
@@ -54,8 +57,8 @@ tracing = { version = "0.1", optional = true }
 tokio = { workspace = true, features = ["io-util", "net", "time"] }
 
 # Optional transport dependencies
-aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.3.0", optional = true }
-aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.3.0", optional = true }
+aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.4.0", optional = true }
+aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.4.0", optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

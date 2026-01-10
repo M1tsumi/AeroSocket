@@ -45,7 +45,29 @@ pub struct HandshakeRequest {
     pub body: Vec<u8>,
 }
 
-/// WebSocket handshake response information
+/// Compression configuration for WebSocket connections
+#[derive(Debug, Clone)]
+pub struct CompressionConfig {
+    /// Whether compression is enabled
+    pub enabled: bool,
+    /// Maximum window size for decompression (client to server)
+    pub client_max_window_bits: Option<u8>,
+    /// Maximum window size for decompression (server to client)
+    pub server_max_window_bits: Option<u8>,
+    /// Compression level (0-9, where 9 is maximum compression)
+    pub compression_level: Option<u32>,
+}
+
+impl Default for CompressionConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            client_max_window_bits: Some(15),
+            server_max_window_bits: Some(15),
+            compression_level: Some(6),
+        }
+    }
+}
 #[derive(Debug, Clone)]
 pub struct HandshakeResponse {
     /// HTTP status code
@@ -73,6 +95,8 @@ pub struct HandshakeConfig {
     pub host: Option<String>,
     /// Authentication
     pub auth: Option<Auth>,
+    /// Compression configuration
+    pub compression: CompressionConfig,
     /// Additional headers
     pub extra_headers: HashMap<String, String>,
 }
@@ -145,6 +169,26 @@ pub fn create_client_handshake(
             HEADER_SEC_WEBSOCKET_EXTENSIONS.to_string(),
             config.extensions.join(", "),
         );
+    }
+
+    // Add compression extension if enabled
+    #[cfg(feature = "compression")]
+    if config.compression.enabled {
+        let mut ext_parts: Vec<String> = vec!["permessage-deflate".to_string()];
+        if let Some(bits) = config.compression.client_max_window_bits {
+            ext_parts.push(format!("client_max_window_bits={}", bits));
+        }
+        if let Some(bits) = config.compression.server_max_window_bits {
+            ext_parts.push(format!("server_max_window_bits={}", bits));
+        }
+        let compression_ext = ext_parts.join("; ");
+        let existing = headers.get(HEADER_SEC_WEBSOCKET_EXTENSIONS).cloned().unwrap_or_default();
+        let new_value = if existing.is_empty() {
+            compression_ext
+        } else {
+            format!("{}, {}", existing, compression_ext)
+        };
+        headers.insert(HEADER_SEC_WEBSOCKET_EXTENSIONS.to_string(), new_value);
     }
 
     // Add authentication header
@@ -367,6 +411,23 @@ pub fn create_server_handshake(
                     headers.insert(HEADER_SEC_WEBSOCKET_PROTOCOL.to_string(), protocol.clone());
                     break;
                 }
+            }
+        }
+    }
+
+    // Extension negotiation
+    #[cfg(feature = "compression")]
+    if config.compression.enabled {
+        if let Some(ext_header) = request.headers.get(HEADER_SEC_WEBSOCKET_EXTENSIONS) {
+            if ext_header.contains("permessage-deflate") {
+                let mut ext_parts: Vec<String> = vec!["permessage-deflate".to_string()];
+                if let Some(bits) = config.compression.server_max_window_bits {
+                    ext_parts.push(format!("server_max_window_bits={}", bits));
+                }
+                if let Some(bits) = config.compression.client_max_window_bits {
+                    ext_parts.push(format!("client_max_window_bits={}", bits));
+                }
+                headers.insert(HEADER_SEC_WEBSOCKET_EXTENSIONS.to_string(), ext_parts.join("; "));
             }
         }
     }

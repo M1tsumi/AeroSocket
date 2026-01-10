@@ -42,12 +42,13 @@ wasm-handlers = ["dep:wasmtime"]
 
 [dependencies]
 # Core dependencies
-aerosocket-core = { path = "../aerosocket-core", version = "0.3.0" }
+aerosocket-core = { path = "../aerosocket-core", version = "0.4.0" }
 async-trait = "0.1"
 bytes = "1.5"
 futures-util = "0.3"
 thiserror = { workspace = true }
 log = "0.4"
+httparse = { workspace = true }
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter"] }
 
@@ -55,8 +56,8 @@ tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter
 tokio = { workspace = true, features = ["io-util", "net", "time", "sync", "rt-multi-thread", "macros"] }
 
 # Optional transport dependencies
-aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.3.0", optional = true }
-aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.3.0", optional = true }
+aerosocket-transport-tcp = { path = "../aerosocket-transport-tcp", version = "0.4.0", optional = true }
+aerosocket-transport-tls = { path = "../aerosocket-transport-tls", version = "0.4.0", optional = true }
 
 # TLS dependencies
 tokio-rustls = { version = "0.24", optional = true }
@@ -65,7 +66,10 @@ rustls-pemfile = { version = "1.0", optional = true }
 
 # Optional metrics dependencies
 metrics = { workspace = true, optional = true }
-prometheus = { version = "0.14", optional = true }
+prometheus = { workspace = true, optional = true }
+
+# Optional compression dependencies
+flate2 = { workspace = true, optional = true }
 
 # Optional WASM runtime
 wasmtime = { version = "16.0", optional = true }

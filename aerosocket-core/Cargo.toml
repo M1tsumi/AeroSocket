@@ -20,6 +20,12 @@ default = ["tokio-runtime"]
 tokio-runtime = ["tokio"]
 transport-tls = []
 
+# Compression features
+compression = ["dep:flate2"]
+
+# Metrics features
+metrics = ["dep:metrics"]
+
 # Serialization features
 serde = ["dep:serde"]
 rkyv = ["dep:rkyv"]
@@ -43,6 +49,12 @@ tokio = { workspace = true, optional = true, features = ["io-util", "net", "time
 # Optional serialization
 serde = { workspace = true, optional = true, features = ["derive"] }
 rkyv = { workspace = true, optional = true }
+
+# Optional compression
+flate2 = { workspace = true, optional = true }
+
+# Optional metrics
+metrics = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

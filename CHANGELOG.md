@@ -5,6 +5,33 @@ All notable changes to AeroSocket will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-01-XX
+
+### Added
+- Per-message deflate compression (Permessage-Deflate / RFC 7692) — new `compression` feature flag
+- Prometheus-compatible `/metrics` endpoint — new `metrics` feature flag
+- Built-in `/health` HTTP endpoint with customizable checks
+- Flexible client-side automatic reconnection strategies (constant/exponential/jitter)
+- Broadcast convenience methods: `broadcast_binary_to_all()`, `broadcast_text_except()`
+- Richer error types and better tracing instrumentation
+
+### Changed
+- Improved handshake negotiation logic to handle compression & future extensions more cleanly
+- Enhanced `ConnectionInfo` with compression status and origin info
+
+### Fixed
+- Various post-v0.3.0 build & formatting issues reported by CI
+- Rare edge cases in high-concurrency graceful shutdown
+
+**Upgrade notes**  
+Most users can upgrade seamlessly.  
+Enable new features via Cargo:  
+```toml
+aerosocket = { version = "0.4", features = ["full", "compression", "metrics"] }
+```
+
+Special thanks to early testers who reported issues right after v0.3.0 — this release is much more production-ready because of you!
+
 ## [0.3.0] - 2026-01-04
 
 ### Added

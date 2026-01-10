@@ -18,7 +18,7 @@ pub struct Connection {
     /// Connection state
     state: ConnectionState,
     /// Connection metadata
-    metadata: ConnectionMetadata,
+    pub metadata: ConnectionMetadata,
     /// Transport stream
     stream: Option<Box<dyn TransportStream>>,
     /// Idle timeout duration
@@ -71,6 +71,8 @@ pub struct ConnectionMetadata {
     pub bytes_sent: u64,
     /// Bytes received count
     pub bytes_received: u64,
+    /// Whether compression was negotiated
+    pub compression_negotiated: bool,
 }
 
 impl Connection {
@@ -90,6 +92,7 @@ impl Connection {
                 messages_received: 0,
                 bytes_sent: 0,
                 bytes_received: 0,
+                compression_negotiated: false,
             },
             stream: None,
             idle_timeout: None,
@@ -117,6 +120,7 @@ impl Connection {
                 messages_received: 0,
                 bytes_sent: 0,
                 bytes_received: 0,
+                compression_negotiated: false,
             },
             stream: Some(stream),
             idle_timeout: None,
@@ -145,6 +149,7 @@ impl Connection {
                 messages_received: 0,
                 bytes_sent: 0,
                 bytes_received: 0,
+                compression_negotiated: false,
             },
             stream: Some(stream),
             idle_timeout,
@@ -311,7 +316,7 @@ impl Connection {
                 }
 
                 // Parse the frame to determine how much more data we need
-                match Frame::parse(&mut frame_buffer) {
+                match Frame::parse(&mut frame_buffer, self.metadata.compression_negotiated) {
                     Ok(frame) => {
                         // Handle control frames immediately
                         match frame.opcode {
