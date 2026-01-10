@@ -1,0 +1,500 @@
+2026-01-10T02:17:50.8479850Z Current runner version: '2.330.0'
+2026-01-10T02:17:50.8496430Z ##[group]Runner Image Provisioner
+2026-01-10T02:17:50.8496980Z Hosted Compute Agent
+2026-01-10T02:17:50.8497340Z Version: 20251211.462
+2026-01-10T02:17:50.8497950Z Commit: 6cbad8c2bb55d58165063d031ccabf57e2d2db61
+2026-01-10T02:17:50.8498410Z Build Date: 2025-12-11T16:28:49Z
+2026-01-10T02:17:50.8498830Z Worker ID: {b3a13062-a309-4fa6-98a5-08ee6f6f9571}
+2026-01-10T02:17:50.8499300Z ##[endgroup]
+2026-01-10T02:17:50.8499640Z ##[group]Operating System
+2026-01-10T02:17:50.8500040Z macOS
+2026-01-10T02:17:50.8500340Z 15.7.3
+2026-01-10T02:17:50.8500700Z 24G419
+2026-01-10T02:17:50.8500990Z ##[endgroup]
+2026-01-10T02:17:50.8501300Z ##[group]Runner Image
+2026-01-10T02:17:50.8501660Z Image: macos-15-arm64
+2026-01-10T02:17:50.8501990Z Version: 20260105.0094.1
+2026-01-10T02:17:50.8502710Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260105.0094/images/macos/macos-15-arm64-Readme.md
+2026-01-10T02:17:50.8503950Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260105.0094
+2026-01-10T02:17:50.8504720Z ##[endgroup]
+2026-01-10T02:17:50.8506130Z ##[group]GITHUB_TOKEN Permissions
+2026-01-10T02:17:50.8507880Z Contents: read
+2026-01-10T02:17:50.8508210Z Metadata: read
+2026-01-10T02:17:50.8508520Z Packages: read
+2026-01-10T02:17:50.8508850Z ##[endgroup]
+2026-01-10T02:17:50.8511500Z Secret source: Actions
+2026-01-10T02:17:50.8511920Z Prepare workflow directory
+2026-01-10T02:17:50.9140230Z Prepare all required actions
+2026-01-10T02:17:50.9216530Z Getting action download info
+2026-01-10T02:17:51.3001270Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-01-10T02:17:52.0501380Z Download action repository 'dtolnay/rust-toolchain@master' (SHA:f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561)
+2026-01-10T02:17:52.8594230Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-01-10T02:17:53.1650330Z Complete job name: Test Suite (macos-latest, stable)
+2026-01-10T02:17:53.2444330Z ##[group]Run actions/checkout@v4
+2026-01-10T02:17:53.2445060Z with:
+2026-01-10T02:17:53.2445390Z   repository: M1tsumi/AeroSocket
+2026-01-10T02:17:53.2446010Z   token: ***
+2026-01-10T02:17:53.2446300Z   ssh-strict: true
+2026-01-10T02:17:53.2446600Z   ssh-user: git
+2026-01-10T02:17:53.2446910Z   persist-credentials: true
+2026-01-10T02:17:53.2447250Z   clean: true
+2026-01-10T02:17:53.2447570Z   sparse-checkout-cone-mode: true
+2026-01-10T02:17:53.2447940Z   fetch-depth: 1
+2026-01-10T02:17:53.2448240Z   fetch-tags: false
+2026-01-10T02:17:53.2448550Z   show-progress: true
+2026-01-10T02:17:53.2448870Z   lfs: false
+2026-01-10T02:17:53.2449160Z   submodules: false
+2026-01-10T02:17:53.2449470Z   set-safe-directory: true
+2026-01-10T02:17:53.2449930Z env:
+2026-01-10T02:17:53.2450210Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:53.2450560Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:53.2450900Z   RUST_BACKTRACE: full
+2026-01-10T02:17:53.2451220Z ##[endgroup]
+2026-01-10T02:17:53.7381670Z Syncing repository: M1tsumi/AeroSocket
+2026-01-10T02:17:53.7400010Z ##[group]Getting Git version info
+2026-01-10T02:17:53.7401240Z Working directory is '/Users/runner/work/AeroSocket/AeroSocket'
+2026-01-10T02:17:53.7402440Z [command]/opt/homebrew/bin/git version
+2026-01-10T02:17:53.7741480Z git version 2.52.0
+2026-01-10T02:17:53.7780790Z ##[endgroup]
+2026-01-10T02:17:53.7796900Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/0d603134-931a-4f15-9402-32115e774176/.gitconfig'
+2026-01-10T02:17:53.7805850Z Temporarily overriding HOME='/Users/runner/work/_temp/0d603134-931a-4f15-9402-32115e774176' before making global git config changes
+2026-01-10T02:17:53.7810480Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-10T02:17:53.7814620Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/AeroSocket/AeroSocket
+2026-01-10T02:17:53.7924450Z Deleting the contents of '/Users/runner/work/AeroSocket/AeroSocket'
+2026-01-10T02:17:53.7930220Z ##[group]Initializing the repository
+2026-01-10T02:17:53.7932740Z [command]/opt/homebrew/bin/git init /Users/runner/work/AeroSocket/AeroSocket
+2026-01-10T02:17:53.8214490Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-01-10T02:17:53.8219140Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-01-10T02:17:53.8220940Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-01-10T02:17:53.8222370Z hint: call:
+2026-01-10T02:17:53.8223060Z hint:
+2026-01-10T02:17:53.8223960Z hint: 	git config --global init.defaultBranch <name>
+2026-01-10T02:17:53.8225070Z hint:
+2026-01-10T02:17:53.8226140Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-01-10T02:17:53.8227890Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-01-10T02:17:53.8229270Z hint:
+2026-01-10T02:17:53.8229960Z hint: 	git branch -m <name>
+2026-01-10T02:17:53.8230960Z hint:
+2026-01-10T02:17:53.8232150Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-01-10T02:17:53.8239100Z Initialized empty Git repository in /Users/runner/work/AeroSocket/AeroSocket/.git/
+2026-01-10T02:17:53.8251240Z [command]/opt/homebrew/bin/git remote add origin https://github.com/M1tsumi/AeroSocket
+2026-01-10T02:17:53.8416620Z ##[endgroup]
+2026-01-10T02:17:53.8421240Z ##[group]Disabling automatic garbage collection
+2026-01-10T02:17:53.8424040Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-01-10T02:17:53.8489210Z ##[endgroup]
+2026-01-10T02:17:53.8491910Z ##[group]Setting up auth
+2026-01-10T02:17:53.8496610Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-01-10T02:17:53.8551730Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-01-10T02:17:54.0057170Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-10T02:17:54.0122330Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-01-10T02:17:54.1198780Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-10T02:17:54.1275880Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-01-10T02:17:54.2319460Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-01-10T02:17:54.2443980Z ##[endgroup]
+2026-01-10T02:17:54.2511480Z ##[group]Fetching the repository
+2026-01-10T02:17:54.2523750Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c8ccac03b0a25ea528c4515c881bb97def27fae2:refs/remotes/pull/4/merge
+2026-01-10T02:17:54.9854280Z From https://github.com/M1tsumi/AeroSocket
+2026-01-10T02:17:54.9929870Z  * [new ref]         c8ccac03b0a25ea528c4515c881bb97def27fae2 -> pull/4/merge
+2026-01-10T02:17:55.0116310Z ##[endgroup]
+2026-01-10T02:17:55.0131620Z ##[group]Determining the checkout info
+2026-01-10T02:17:55.0133260Z ##[endgroup]
+2026-01-10T02:17:55.0134350Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-01-10T02:17:55.0136730Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-01-10T02:17:55.0189460Z ##[group]Checking out the ref
+2026-01-10T02:17:55.0201650Z [command]/opt/homebrew/bin/git checkout --progress --force refs/remotes/pull/4/merge
+2026-01-10T02:17:55.0944910Z HEAD is now at c8ccac0 Merge 5fcad3861a3e57b901feab6bab90d4ec966349f0 into c501b9bbe96341c4b399b9841976a6291eb0fc0b
+2026-01-10T02:17:55.0963850Z ##[endgroup]
+2026-01-10T02:17:55.1072560Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-01-10T02:17:55.1168260Z c8ccac03b0a25ea528c4515c881bb97def27fae2
+2026-01-10T02:17:55.1737930Z ##[group]Run dtolnay/rust-toolchain@master
+2026-01-10T02:17:55.1738830Z with:
+2026-01-10T02:17:55.1739380Z   toolchain: stable
+2026-01-10T02:17:55.1740020Z   components: rustfmt, clippy
+2026-01-10T02:17:55.1740700Z   target: wasm32-unknown-unknown
+2026-01-10T02:17:55.1741390Z env:
+2026-01-10T02:17:55.1741900Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:55.1742540Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:55.1743220Z   RUST_BACKTRACE: full
+2026-01-10T02:17:55.1743820Z ##[endgroup]
+2026-01-10T02:17:55.1866900Z ##[group]Run : parse toolchain version
+2026-01-10T02:17:55.1867690Z [36;1m: parse toolchain version[0m
+2026-01-10T02:17:55.1868460Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-01-10T02:17:55.1869690Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-01-10T02:17:55.1870980Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-01-10T02:17:55.1871720Z [36;1m  exit 1[0m
+2026-01-10T02:17:55.1872550Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-01-10T02:17:55.1873530Z [36;1m  if [[ macOS == macOS ]]; then[0m
+2026-01-10T02:17:55.1874780Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:55.1876040Z [36;1m  else[0m
+2026-01-10T02:17:55.1877120Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:55.1878220Z [36;1m  fi[0m
+2026-01-10T02:17:55.1878960Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-01-10T02:17:55.1880200Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:55.1881290Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-01-10T02:17:55.1882540Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:55.1883790Z [36;1melse[0m
+2026-01-10T02:17:55.1884360Z [36;1m  echo "toolchain=$toolchain" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:55.1885070Z [36;1mfi[0m
+2026-01-10T02:17:55.1946250Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:55.1951850Z env:
+2026-01-10T02:17:55.1953070Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:55.1954900Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:55.1956340Z   RUST_BACKTRACE: full
+2026-01-10T02:17:55.1957650Z   toolchain: stable
+2026-01-10T02:17:55.1958890Z ##[endgroup]
+2026-01-10T02:17:55.2346970Z ##[group]Run : construct rustup command line
+2026-01-10T02:17:55.2347830Z [36;1m: construct rustup command line[0m
+2026-01-10T02:17:55.2349160Z [36;1mecho "targets=$(for t in ${targets//,/ }; do echo -n ' --target' $t; done)" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:55.2350710Z [36;1mecho "components=$(for c in ${components//,/ }; do echo -n ' --component' $c; done)" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:55.2351940Z [36;1mecho "downgrade=" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:55.2385930Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:55.2386720Z env:
+2026-01-10T02:17:55.2387230Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:55.2387820Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:55.2388400Z   RUST_BACKTRACE: full
+2026-01-10T02:17:55.2388990Z   targets: wasm32-unknown-unknown
+2026-01-10T02:17:55.2389660Z   components: rustfmt, clippy
+2026-01-10T02:17:55.2390250Z ##[endgroup]
+2026-01-10T02:17:55.2874140Z ##[group]Run : set $CARGO_HOME
+2026-01-10T02:17:55.2874790Z [36;1m: set $CARGO_HOME[0m
+2026-01-10T02:17:55.2875570Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV[0m
+2026-01-10T02:17:55.2913250Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:55.2914280Z env:
+2026-01-10T02:17:55.2914900Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:55.2915990Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:55.2917300Z   RUST_BACKTRACE: full
+2026-01-10T02:17:55.2918070Z ##[endgroup]
+2026-01-10T02:17:55.3518830Z ##[group]Run : install rustup if needed
+2026-01-10T02:17:55.3519660Z [36;1m: install rustup if needed[0m
+2026-01-10T02:17:55.3520430Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-01-10T02:17:55.3522250Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://sh.rustup.rs | sh -s -- --default-toolchain none -y[0m
+2026-01-10T02:17:55.3523980Z [36;1m  echo "$CARGO_HOME/bin" >> $GITHUB_PATH[0m
+2026-01-10T02:17:55.3524670Z [36;1mfi[0m
+2026-01-10T02:17:55.3559560Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:55.3560340Z env:
+2026-01-10T02:17:55.3560820Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:55.3561400Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:55.3561990Z   RUST_BACKTRACE: full
+2026-01-10T02:17:55.3562560Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:55.3563210Z ##[endgroup]
+2026-01-10T02:17:55.3879260Z ##[group]Run rustup toolchain install stable --target wasm32-unknown-unknown --component rustfmt --component clippy --profile minimal --no-self-update
+2026-01-10T02:17:55.3881640Z [36;1mrustup toolchain install stable --target wasm32-unknown-unknown --component rustfmt --component clippy --profile minimal --no-self-update[0m
+2026-01-10T02:17:55.3918190Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:55.3918960Z env:
+2026-01-10T02:17:55.3919440Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:55.3920030Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:55.3920600Z   RUST_BACKTRACE: full
+2026-01-10T02:17:55.3921140Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:55.3921780Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-01-10T02:17:55.3922360Z ##[endgroup]
+2026-01-10T02:17:55.8926690Z info: syncing channel updates for 'stable-aarch64-apple-darwin'
+2026-01-10T02:17:56.1920730Z info: latest update on 2025-12-11, rust version 1.92.0 (ded5c06cf 2025-12-08)
+2026-01-10T02:17:56.2210590Z info: component 'clippy' for target 'aarch64-apple-darwin' is up to date
+2026-01-10T02:17:56.2211760Z info: component 'rustfmt' for target 'aarch64-apple-darwin' is up to date
+2026-01-10T02:17:56.2213010Z info: downloading component 'rust-std' for 'wasm32-unknown-unknown'
+2026-01-10T02:17:56.5695790Z info: installing component 'rust-std' for 'wasm32-unknown-unknown'
+2026-01-10T02:17:58.4025150Z 
+2026-01-10T02:17:58.4155100Z info: self-update is disabled for this build of rustup
+2026-01-10T02:17:58.4157280Z   stable-aarch64-apple-darwin updated - rustc 1.92.0 (ded5c06cf 2025-12-08) (from rustc 1.92.0 (ded5c06cf 2025-12-08))
+2026-01-10T02:17:58.4163810Z info: any updates to rustup will need to be fetched with your system package manager
+2026-01-10T02:17:58.4164180Z 
+2026-01-10T02:17:58.4509760Z ##[group]Run rustup default stable
+2026-01-10T02:17:58.4510110Z [36;1mrustup default stable[0m
+2026-01-10T02:17:58.4555300Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:58.4555800Z env:
+2026-01-10T02:17:58.4556440Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:58.4556860Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:58.4557090Z   RUST_BACKTRACE: full
+2026-01-10T02:17:58.4557330Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:58.4557580Z ##[endgroup]
+2026-01-10T02:17:58.5467740Z info: using existing install for 'stable-aarch64-apple-darwin'
+2026-01-10T02:17:58.5927990Z info: default toolchain set to 'stable-aarch64-apple-darwin'
+2026-01-10T02:17:58.5928690Z 
+2026-01-10T02:17:58.6003810Z   stable-aarch64-apple-darwin unchanged - rustc 1.92.0 (ded5c06cf 2025-12-08)
+2026-01-10T02:17:58.6106070Z 
+2026-01-10T02:17:58.6149090Z ##[group]Run : create cachekey
+2026-01-10T02:17:58.6149420Z [36;1m: create cachekey[0m
+2026-01-10T02:17:58.6149990Z [36;1mDATE=$(rustc +stable --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-01-10T02:17:58.6150600Z [36;1mHASH=$(rustc +stable --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-01-10T02:17:58.6152060Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-01-10T02:17:58.6184380Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:58.6184820Z env:
+2026-01-10T02:17:58.6185060Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:58.6185300Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:58.6185550Z   RUST_BACKTRACE: full
+2026-01-10T02:17:58.6185930Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:58.6186180Z ##[endgroup]
+2026-01-10T02:17:58.7114370Z ##[group]Run : disable incremental compilation
+2026-01-10T02:17:58.7114710Z [36;1m: disable incremental compilation[0m
+2026-01-10T02:17:58.7115660Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-01-10T02:17:58.7116410Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-01-10T02:17:58.7117040Z [36;1mfi[0m
+2026-01-10T02:17:58.7173540Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:58.7174460Z env:
+2026-01-10T02:17:58.7179090Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:58.7179640Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:58.7180110Z   RUST_BACKTRACE: full
+2026-01-10T02:17:58.7180610Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:58.7181340Z ##[endgroup]
+2026-01-10T02:17:58.7466400Z ##[group]Run : enable colors in Cargo output
+2026-01-10T02:17:58.7466690Z [36;1m: enable colors in Cargo output[0m
+2026-01-10T02:17:58.7466930Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-01-10T02:17:58.7467210Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-01-10T02:17:58.7467490Z [36;1mfi[0m
+2026-01-10T02:17:58.7501400Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:58.7501710Z env:
+2026-01-10T02:17:58.7501880Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:58.7502050Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:58.7502230Z   RUST_BACKTRACE: full
+2026-01-10T02:17:58.7502400Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:58.7502580Z   CARGO_INCREMENTAL: 0
+2026-01-10T02:17:58.7502920Z ##[endgroup]
+2026-01-10T02:17:58.7736650Z ##[group]Run : enable Cargo sparse registry
+2026-01-10T02:17:58.7737030Z [36;1m: enable Cargo sparse registry[0m
+2026-01-10T02:17:58.7737370Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-01-10T02:17:58.7737940Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "/Users/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-01-10T02:17:58.7738580Z [36;1m  if rustc +stable --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-01-10T02:17:58.7739040Z [36;1m    touch "/Users/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-01-10T02:17:58.7739470Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-01-10T02:17:58.7739880Z [36;1m  elif rustc +stable --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-01-10T02:17:58.7740350Z [36;1m    touch "/Users/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-01-10T02:17:58.7740860Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-01-10T02:17:58.7741140Z [36;1m  fi[0m
+2026-01-10T02:17:58.7741270Z [36;1mfi[0m
+2026-01-10T02:17:58.7773210Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:58.7773500Z env:
+2026-01-10T02:17:58.7773650Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:58.7773850Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:58.7774050Z   RUST_BACKTRACE: full
+2026-01-10T02:17:58.7774260Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:58.7774510Z   CARGO_INCREMENTAL: 0
+2026-01-10T02:17:58.7774670Z ##[endgroup]
+2026-01-10T02:17:58.8406640Z ##[group]Run : work around spurious network errors in curl 8.0
+2026-01-10T02:17:58.8407030Z [36;1m: work around spurious network errors in curl 8.0[0m
+2026-01-10T02:17:58.8408130Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-01-10T02:17:58.8409180Z [36;1mif rustc +stable --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-01-10T02:17:58.8409580Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-01-10T02:17:58.8409820Z [36;1mfi[0m
+2026-01-10T02:17:58.8440510Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:58.8440780Z env:
+2026-01-10T02:17:58.8440930Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:58.8441110Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:58.8441280Z   RUST_BACKTRACE: full
+2026-01-10T02:17:58.8441450Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:58.8441650Z   CARGO_INCREMENTAL: 0
+2026-01-10T02:17:58.8441810Z ##[endgroup]
+2026-01-10T02:17:58.8824480Z ##[group]Run rustc +stable --version --verbose
+2026-01-10T02:17:58.8824810Z [36;1mrustc +stable --version --verbose[0m
+2026-01-10T02:17:58.8855900Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-01-10T02:17:58.8856170Z env:
+2026-01-10T02:17:58.8856330Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:58.8856580Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:58.8856750Z   RUST_BACKTRACE: full
+2026-01-10T02:17:58.8856990Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:58.8857180Z   CARGO_INCREMENTAL: 0
+2026-01-10T02:17:58.8857390Z ##[endgroup]
+2026-01-10T02:17:58.9227730Z rustc 1.92.0 (ded5c06cf 2025-12-08)
+2026-01-10T02:17:58.9228470Z binary: rustc
+2026-01-10T02:17:58.9229030Z commit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234
+2026-01-10T02:17:58.9229690Z commit-date: 2025-12-08
+2026-01-10T02:17:58.9230150Z host: aarch64-apple-darwin
+2026-01-10T02:17:58.9230620Z release: 1.92.0
+2026-01-10T02:17:58.9231480Z LLVM version: 21.1.3
+2026-01-10T02:17:59.0765330Z ##[group]Run actions/cache@v4
+2026-01-10T02:17:59.0765640Z with:
+2026-01-10T02:17:59.0765820Z   path: ~/.cargo/registry
+~/.cargo/git
+~/.cargo/bin
+
+2026-01-10T02:17:59.0766130Z   key: macOS-cargo-stable-
+2026-01-10T02:17:59.0766340Z   restore-keys: macOS-cargo-stable-
+macOS-
+
+2026-01-10T02:17:59.0766560Z   enableCrossOsArchive: false
+2026-01-10T02:17:59.0766790Z   fail-on-cache-miss: false
+2026-01-10T02:17:59.0766980Z   lookup-only: false
+2026-01-10T02:17:59.0767130Z   save-always: false
+2026-01-10T02:17:59.0767270Z env:
+2026-01-10T02:17:59.0767410Z   CARGO_TERM_COLOR: always
+2026-01-10T02:17:59.0767580Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:17:59.0767790Z   RUST_BACKTRACE: full
+2026-01-10T02:17:59.0767970Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:17:59.0768230Z   CARGO_INCREMENTAL: 0
+2026-01-10T02:17:59.0768380Z ##[endgroup]
+2026-01-10T02:17:59.3972570Z Cache hit for: macOS-cargo-stable-
+2026-01-10T02:18:00.5883520Z Received 20971520 of 39659573 (52.9%), 20.0 MBs/sec
+2026-01-10T02:18:00.7168150Z Received 39659573 of 39659573 (100.0%), 33.5 MBs/sec
+2026-01-10T02:18:00.7237280Z Cache Size: ~38 MB (39659573 B)
+2026-01-10T02:18:00.7239570Z [command]/opt/homebrew/bin/gtar -xf /Users/runner/work/_temp/5b7753cd-b666-4a46-818c-7d89c632340b/cache.tzst -P -C /Users/runner/work/AeroSocket/AeroSocket --delay-directory-restore --use-compress-program unzstd
+2026-01-10T02:18:06.0004310Z Cache restored successfully
+2026-01-10T02:18:06.0347410Z Cache restored from key: macOS-cargo-stable-
+2026-01-10T02:18:06.1717980Z ##[group]Run actions/cache@v4
+2026-01-10T02:18:06.1718250Z with:
+2026-01-10T02:18:06.1718380Z   path: target
+2026-01-10T02:18:06.1718580Z   key: macOS-cargo-target-stable-
+2026-01-10T02:18:06.1718830Z   restore-keys: macOS-cargo-target-stable-
+macOS-
+
+2026-01-10T02:18:06.1719130Z   enableCrossOsArchive: false
+2026-01-10T02:18:06.1719340Z   fail-on-cache-miss: false
+2026-01-10T02:18:06.1719510Z   lookup-only: false
+2026-01-10T02:18:06.1719670Z   save-always: false
+2026-01-10T02:18:06.1719880Z env:
+2026-01-10T02:18:06.1720010Z   CARGO_TERM_COLOR: always
+2026-01-10T02:18:06.1720190Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:18:06.1720400Z   RUST_BACKTRACE: full
+2026-01-10T02:18:06.1720570Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:18:06.1720760Z   CARGO_INCREMENTAL: 0
+2026-01-10T02:18:06.1720920Z ##[endgroup]
+2026-01-10T02:18:06.5355340Z Cache hit for: macOS-cargo-target-stable-
+2026-01-10T02:18:07.6950600Z Received 33554432 of 358525177 (9.4%), 31.9 MBs/sec
+2026-01-10T02:18:08.7037710Z Received 134217728 of 358525177 (37.4%), 63.7 MBs/sec
+2026-01-10T02:18:09.6936780Z Received 226492416 of 358525177 (63.2%), 71.8 MBs/sec
+2026-01-10T02:18:10.6953680Z Received 289406976 of 358525177 (80.7%), 68.8 MBs/sec
+2026-01-10T02:18:11.5033300Z Received 358525177 of 358525177 (100.0%), 71.2 MBs/sec
+2026-01-10T02:18:11.5135070Z Cache Size: ~342 MB (358525177 B)
+2026-01-10T02:18:11.5303090Z [command]/opt/homebrew/bin/gtar -xf /Users/runner/work/_temp/2c76b25c-7665-4441-9ea2-0a36a2237905/cache.tzst -P -C /Users/runner/work/AeroSocket/AeroSocket --delay-directory-restore --use-compress-program unzstd
+2026-01-10T02:18:14.9369640Z Cache restored successfully
+2026-01-10T02:18:14.9668870Z Cache restored from key: macOS-cargo-target-stable-
+2026-01-10T02:18:14.9884150Z ##[group]Run rustc --version
+2026-01-10T02:18:14.9884720Z [36;1mrustc --version[0m
+2026-01-10T02:18:14.9885230Z [36;1mcargo --version[0m
+2026-01-10T02:18:14.9886460Z [36;1mrustup show[0m
+2026-01-10T02:18:15.0001000Z shell: /bin/bash -e {0}
+2026-01-10T02:18:15.0001440Z env:
+2026-01-10T02:18:15.0001670Z   CARGO_TERM_COLOR: always
+2026-01-10T02:18:15.0002090Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:18:15.0002550Z   RUST_BACKTRACE: full
+2026-01-10T02:18:15.0002850Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:18:15.0003340Z   CARGO_INCREMENTAL: 0
+2026-01-10T02:18:15.0003580Z ##[endgroup]
+2026-01-10T02:18:15.3902070Z rustc 1.92.0 (ded5c06cf 2025-12-08)
+2026-01-10T02:18:15.4921910Z cargo 1.92.0 (344c4567c 2025-10-21)
+2026-01-10T02:18:15.5134780Z Default host: aarch64-apple-darwin
+2026-01-10T02:18:15.5143270Z rustup home:  /Users/runner/.rustup
+2026-01-10T02:18:15.5150110Z 
+2026-01-10T02:18:15.5692310Z installed toolchains
+2026-01-10T02:18:15.5693550Z --------------------
+2026-01-10T02:18:15.5696300Z stable-aarch64-apple-darwin (active, default)
+2026-01-10T02:18:15.5697660Z 
+2026-01-10T02:18:15.5697840Z active toolchain
+2026-01-10T02:18:15.5698220Z ----------------
+2026-01-10T02:18:15.5699420Z name: stable-aarch64-apple-darwin
+2026-01-10T02:18:15.5699990Z active because: it's the default toolchain
+2026-01-10T02:18:15.5700460Z installed targets:
+2026-01-10T02:18:15.5702510Z   aarch64-apple-darwin
+2026-01-10T02:18:15.5702820Z   wasm32-unknown-unknown
+2026-01-10T02:18:15.5733820Z ##[group]Run cargo fmt --all -- --check
+2026-01-10T02:18:15.5734140Z [36;1mcargo fmt --all -- --check[0m
+2026-01-10T02:18:15.5766760Z shell: /bin/bash -e {0}
+2026-01-10T02:18:15.5766990Z env:
+2026-01-10T02:18:15.5767210Z   CARGO_TERM_COLOR: always
+2026-01-10T02:18:15.5767550Z   CARGO_TERM_VERBOSE: true
+2026-01-10T02:18:15.5767760Z   RUST_BACKTRACE: full
+2026-01-10T02:18:15.5768000Z   CARGO_HOME: /Users/runner/.cargo
+2026-01-10T02:18:15.5768320Z   CARGO_INCREMENTAL: 0
+2026-01-10T02:18:15.5768520Z ##[endgroup]
+2026-01-10T02:18:15.9714780Z Diff in /Users/runner/work/AeroSocket/AeroSocket/aerosocket-core/src/handshake.rs:182:
+2026-01-10T02:18:15.9715940Z              ext_parts.push(format!("server_max_window_bits={}", bits));
+2026-01-10T02:18:15.9716370Z          }
+2026-01-10T02:18:15.9716840Z          let compression_ext = ext_parts.join("; ");
+2026-01-10T02:18:15.9717680Z -        let existing = headers.get(HEADER_SEC_WEBSOCKET_EXTENSIONS).cloned().unwrap_or_default();
+2026-01-10T02:18:15.9718460Z +        let existing = headers
+2026-01-10T02:18:15.9718840Z +            .get(HEADER_SEC_WEBSOCKET_EXTENSIONS)
+2026-01-10T02:18:15.9719150Z +            .cloned()
+2026-01-10T02:18:15.9719420Z +            .unwrap_or_default();
+2026-01-10T02:18:15.9719690Z          let new_value = if existing.is_empty() {
+2026-01-10T02:18:15.9720020Z              compression_ext
+2026-01-10T02:18:15.9720250Z          } else {
+2026-01-10T02:18:15.9720620Z Diff in /Users/runner/work/AeroSocket/AeroSocket/aerosocket-core/src/handshake.rs:427:
+2026-01-10T02:18:15.9721120Z                  if let Some(bits) = config.compression.client_max_window_bits {
+2026-01-10T02:18:15.9721620Z                      ext_parts.push(format!("client_max_window_bits={}", bits));
+2026-01-10T02:18:15.9727680Z                  }
+2026-01-10T02:18:15.9728030Z -                headers.insert(HEADER_SEC_WEBSOCKET_EXTENSIONS.to_string(), ext_parts.join("; "));
+2026-01-10T02:18:15.9728510Z +                headers.insert(
+2026-01-10T02:18:15.9728810Z +                    HEADER_SEC_WEBSOCKET_EXTENSIONS.to_string(),
+2026-01-10T02:18:15.9729180Z +                    ext_parts.join("; "),
+2026-01-10T02:18:15.9729410Z +                );
+2026-01-10T02:18:15.9729610Z              }
+2026-01-10T02:18:15.9729850Z          }
+2026-01-10T02:18:15.9730030Z      }
+2026-01-10T02:18:15.9950360Z Diff in /Users/runner/work/AeroSocket/AeroSocket/aerosocket-server/src/server.rs:511:
+2026-01-10T02:18:15.9951700Z  
+2026-01-10T02:18:15.9952460Z          // Create connection with stream
+2026-01-10T02:18:15.9960160Z          let mut connection = Connection::with_stream(remote_addr, local_addr, boxed_stream);
+2026-01-10T02:18:15.9962120Z -        connection.metadata.compression_negotiated = negotiated_extensions.iter().any(|e| e.contains("permessage-deflate"));
+2026-01-10T02:18:15.9963680Z +        connection.metadata.compression_negotiated = negotiated_extensions
+2026-01-10T02:18:15.9964570Z +            .iter()
+2026-01-10T02:18:15.9965100Z +            .any(|e| e.contains("permessage-deflate"));
+2026-01-10T02:18:15.9966100Z          connection.metadata.extensions = negotiated_extensions;
+2026-01-10T02:18:15.9966920Z  
+2026-01-10T02:18:15.9967400Z          // Add to connection manager
+2026-01-10T02:18:15.9968620Z Diff in /Users/runner/work/AeroSocket/AeroSocket/aerosocket-server/src/server.rs:610:
+2026-01-10T02:18:15.9969140Z          let endpoint = request.uri.clone();
+2026-01-10T02:18:15.9969450Z  
+2026-01-10T02:18:15.9969650Z          // Extract negotiated extensions from response headers
+2026-01-10T02:18:15.9970130Z -        let negotiated_extensions = if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
+2026-01-10T02:18:15.9970710Z -            ext_header.split(',').map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string()).collect()
+2026-01-10T02:18:15.9971130Z -        } else {
+2026-01-10T02:18:15.9971440Z -            vec![]
+2026-01-10T02:18:15.9971590Z -        };
+2026-01-10T02:18:15.9971760Z +        let negotiated_extensions =
+2026-01-10T02:18:15.9972810Z +            if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
+2026-01-10T02:18:15.9973220Z +                ext_header
+2026-01-10T02:18:15.9973600Z +                    .split(',')
+2026-01-10T02:18:15.9973950Z +                    .map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string())
+2026-01-10T02:18:15.9974310Z +                    .collect()
+2026-01-10T02:18:15.9974480Z +            } else {
+2026-01-10T02:18:15.9974690Z +                vec![]
+2026-01-10T02:18:15.9974890Z +            };
+2026-01-10T02:18:15.9975040Z  
+2026-01-10T02:18:15.9975290Z          Ok((remote_addr, local_addr, endpoint, negotiated_extensions))
+2026-01-10T02:18:15.9975610Z      }
+2026-01-10T02:18:15.9975940Z Diff in /Users/runner/work/AeroSocket/AeroSocket/aerosocket-server/src/server.rs:721:
+2026-01-10T02:18:15.9976300Z          let endpoint = request.uri.clone();
+2026-01-10T02:18:15.9976500Z  
+2026-01-10T02:18:15.9976690Z          // Extract negotiated extensions from response headers
+2026-01-10T02:18:15.9977190Z -        let negotiated_extensions = if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
+2026-01-10T02:18:15.9977830Z -            ext_header.split(',').map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string()).collect()
+2026-01-10T02:18:15.9978240Z -        } else {
+2026-01-10T02:18:15.9978500Z -            vec![]
+2026-01-10T02:18:15.9978740Z -        };
+2026-01-10T02:18:15.9978930Z +        let negotiated_extensions =
+2026-01-10T02:18:15.9979260Z +            if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
+2026-01-10T02:18:15.9979620Z +                ext_header
+2026-01-10T02:18:15.9980110Z +                    .split(',')
+2026-01-10T02:18:15.9980410Z +                    .map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string())
+2026-01-10T02:18:15.9980760Z +                    .collect()
+2026-01-10T02:18:15.9981070Z +            } else {
+2026-01-10T02:18:15.9981230Z +                vec![]
+2026-01-10T02:18:15.9981450Z +            };
+2026-01-10T02:18:15.9981620Z  
+2026-01-10T02:18:15.9981980Z          Ok((remote_addr, local_addr, endpoint, negotiated_extensions))
+2026-01-10T02:18:15.9982290Z      }
+2026-01-10T02:18:15.9982610Z Diff in /Users/runner/work/AeroSocket/AeroSocket/aerosocket-server/src/server.rs:795:
+2026-01-10T02:18:15.9983030Z          // Parse basic HTTP request
+2026-01-10T02:18:15.9983360Z          let mut headers = [httparse::EMPTY_HEADER; 64];
+2026-01-10T02:18:15.9983770Z          let mut req = httparse::Request::new(&mut headers);
+2026-01-10T02:18:15.9984210Z -        req.parse(request_str.as_bytes()).map_err(|e| Error::Other(format!("HTTP parse error: {}", e)))?;
+2026-01-10T02:18:15.9984730Z +        req.parse(request_str.as_bytes())
+2026-01-10T02:18:15.9985050Z +            .map_err(|e| Error::Other(format!("HTTP parse error: {}", e)))?;
+2026-01-10T02:18:15.9985310Z  
+2026-01-10T02:18:15.9985490Z          let method = req.method.unwrap_or("GET");
+2026-01-10T02:18:15.9985740Z          let path = req.path.unwrap_or("/");
+2026-01-10T02:18:16.0120320Z ##[error]Process completed with exit code 1.
+2026-01-10T02:18:16.0236210Z Post job cleanup.
+2026-01-10T02:18:16.1636760Z [command]/opt/homebrew/bin/git version
+2026-01-10T02:18:16.1841570Z git version 2.52.0
+2026-01-10T02:18:16.1865490Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/7c79d33a-7807-4606-bfc7-e437b40d054d/.gitconfig'
+2026-01-10T02:18:16.1878780Z Temporarily overriding HOME='/Users/runner/work/_temp/7c79d33a-7807-4606-bfc7-e437b40d054d' before making global git config changes
+2026-01-10T02:18:16.1879390Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-10T02:18:16.1882260Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/AeroSocket/AeroSocket
+2026-01-10T02:18:16.1989900Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-01-10T02:18:16.2099310Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-01-10T02:18:16.3554360Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-10T02:18:16.3607990Z http.https://github.com/.extraheader
+2026-01-10T02:18:16.3617660Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-01-10T02:18:16.3683350Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-01-10T02:18:16.4410220Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-10T02:18:16.4474600Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-01-10T02:18:16.6082910Z Cleaning up orphan processes

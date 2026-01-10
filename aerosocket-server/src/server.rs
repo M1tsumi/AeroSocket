@@ -453,11 +453,17 @@ impl Server {
         connection_manager: Arc<ConnectionManager>,
         rate_limiter: Option<Arc<RateLimitMiddleware>>,
     ) -> Result<()> {
-        let (remote_addr, local_addr, endpoint) =
+        let (remote_addr, local_addr, endpoint, negotiated_extensions) =
             Self::perform_tls_handshake(&mut stream, &config).await?;
 
         let boxed_stream: Box<dyn TransportStream> = Box::new(stream);
-        let connection = Connection::with_stream(remote_addr, local_addr, boxed_stream);
+
+        // Create connection with stream
+        let mut connection = Connection::with_stream(remote_addr, local_addr, boxed_stream);
+        connection.metadata.compression_negotiated = negotiated_extensions
+            .iter()
+            .any(|e| e.contains("permessage-deflate"));
+        connection.metadata.extensions = negotiated_extensions;
 
         let connection_id = connection_manager.add_connection(connection).await;
 
@@ -511,7 +517,9 @@ impl Server {
 
         // Create connection with stream
         let mut connection = Connection::with_stream(remote_addr, local_addr, boxed_stream);
-        connection.metadata.compression_negotiated = negotiated_extensions.iter().any(|e| e.contains("permessage-deflate"));
+        connection.metadata.compression_negotiated = negotiated_extensions
+            .iter()
+            .any(|e| e.contains("permessage-deflate"));
         connection.metadata.extensions = negotiated_extensions;
 
         // Add to connection manager
@@ -560,7 +568,7 @@ impl Server {
     async fn perform_tls_handshake(
         stream: &mut crate::tls_transport::TlsStreamWrapper,
         config: &ServerConfig,
-    ) -> Result<(SocketAddr, SocketAddr, String)> {
+    ) -> Result<(SocketAddr, SocketAddr, String, Vec<String>)> {
         let start = Instant::now();
         // Read HTTP request over TLS
         let request_data =
@@ -610,11 +618,15 @@ impl Server {
         let endpoint = request.uri.clone();
 
         // Extract negotiated extensions from response headers
-        let negotiated_extensions = if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
-            ext_header.split(',').map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string()).collect()
-        } else {
-            vec![]
-        };
+        let negotiated_extensions =
+            if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
+                ext_header
+                    .split(',')
+                    .map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string())
+                    .collect()
+            } else {
+                vec![]
+            };
 
         Ok((remote_addr, local_addr, endpoint, negotiated_extensions))
     }
@@ -721,11 +733,15 @@ impl Server {
         let endpoint = request.uri.clone();
 
         // Extract negotiated extensions from response headers
-        let negotiated_extensions = if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
-            ext_header.split(',').map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string()).collect()
-        } else {
-            vec![]
-        };
+        let negotiated_extensions =
+            if let Some(ext_header) = response.headers.get("Sec-WebSocket-Extensions") {
+                ext_header
+                    .split(',')
+                    .map(|s| s.trim().split(';').next().unwrap_or(s.trim()).to_string())
+                    .collect()
+            } else {
+                vec![]
+            };
 
         Ok((remote_addr, local_addr, endpoint, negotiated_extensions))
     }
@@ -795,7 +811,8 @@ impl Server {
         // Parse basic HTTP request
         let mut headers = [httparse::EMPTY_HEADER; 64];
         let mut req = httparse::Request::new(&mut headers);
-        req.parse(request_str.as_bytes()).map_err(|e| Error::Other(format!("HTTP parse error: {}", e)))?;
+        req.parse(request_str.as_bytes())
+            .map_err(|e| Error::Other(format!("HTTP parse error: {}", e)))?;
 
         let method = req.method.unwrap_or("GET");
         let path = req.path.unwrap_or("/");

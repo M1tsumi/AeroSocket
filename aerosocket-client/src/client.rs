@@ -14,7 +14,7 @@ use aerosocket_core::{
     },
     protocol::constants::{HEADER_SEC_WEBSOCKET_KEY, MAX_HEADER_SIZE},
     transport::TransportStream,
-    Error, Message, Result,
+    Error, Result,
 };
 
 #[cfg(feature = "transport-tcp")]

@@ -68,6 +68,8 @@ impl Default for CompressionConfig {
         }
     }
 }
+
+/// WebSocket handshake response
 #[derive(Debug, Clone)]
 pub struct HandshakeResponse {
     /// HTTP status code
@@ -182,7 +184,10 @@ pub fn create_client_handshake(
             ext_parts.push(format!("server_max_window_bits={}", bits));
         }
         let compression_ext = ext_parts.join("; ");
-        let existing = headers.get(HEADER_SEC_WEBSOCKET_EXTENSIONS).cloned().unwrap_or_default();
+        let existing = headers
+            .get(HEADER_SEC_WEBSOCKET_EXTENSIONS)
+            .cloned()
+            .unwrap_or_default();
         let new_value = if existing.is_empty() {
             compression_ext
         } else {
@@ -427,7 +432,10 @@ pub fn create_server_handshake(
                 if let Some(bits) = config.compression.client_max_window_bits {
                     ext_parts.push(format!("client_max_window_bits={}", bits));
                 }
-                headers.insert(HEADER_SEC_WEBSOCKET_EXTENSIONS.to_string(), ext_parts.join("; "));
+                headers.insert(
+                    HEADER_SEC_WEBSOCKET_EXTENSIONS.to_string(),
+                    ext_parts.join("; "),
+                );
             }
         }
     }
