@@ -22,6 +22,36 @@ use std::sync::Arc;
 #[cfg(feature = "transport-tls")]
 use webpki_roots::TLS_SERVER_ROOTS;
 
+/// Reconnection configuration
+#[derive(Debug, Clone)]
+pub struct ReconnectionConfig {
+    /// Whether automatic reconnection is enabled
+    pub enabled: bool,
+    /// Maximum number of reconnection attempts
+    pub max_attempts: Option<usize>,
+    /// Initial delay before first reconnection attempt
+    pub initial_delay: Duration,
+    /// Maximum delay between reconnection attempts
+    pub max_delay: Duration,
+    /// Backoff multiplier for exponential backoff
+    pub backoff_multiplier: f64,
+    /// Jitter factor to add randomness to delays
+    pub jitter: f64,
+}
+
+impl Default for ReconnectionConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            max_attempts: None,
+            initial_delay: Duration::from_millis(1000),
+            max_delay: Duration::from_secs(30),
+            backoff_multiplier: 2.0,
+            jitter: 0.1,
+        }
+    }
+}
+
 /// Client configuration
 #[derive(Debug, Clone)]
 pub struct ClientConfig {
@@ -47,6 +77,8 @@ pub struct ClientConfig {
     pub headers: Vec<(String, String)>,
     /// Authentication
     pub auth: Option<aerosocket_core::Auth>,
+    /// Reconnection configuration
+    pub reconnection: ReconnectionConfig,
 }
 
 impl Default for ClientConfig {
@@ -63,6 +95,7 @@ impl Default for ClientConfig {
             protocols: Vec::new(),
             headers: Vec::new(),
             auth: None,
+            reconnection: ReconnectionConfig::default(),
         }
     }
 }
@@ -154,6 +187,36 @@ impl ClientConfig {
     /// Set TLS configuration
     pub fn tls(mut self, config: TlsConfig) -> Self {
         self.tls = Some(config);
+        self
+    }
+
+    /// Enable automatic reconnection
+    pub fn enable_reconnection(mut self) -> Self {
+        self.reconnection.enabled = true;
+        self
+    }
+
+    /// Set reconnection configuration
+    pub fn reconnection_config(mut self, config: ReconnectionConfig) -> Self {
+        self.reconnection = config;
+        self
+    }
+
+    /// Set maximum reconnection attempts
+    pub fn max_reconnection_attempts(mut self, attempts: usize) -> Self {
+        self.reconnection.max_attempts = Some(attempts);
+        self
+    }
+
+    /// Set initial reconnection delay
+    pub fn reconnection_initial_delay(mut self, delay: Duration) -> Self {
+        self.reconnection.initial_delay = delay;
+        self
+    }
+
+    /// Set maximum reconnection delay
+    pub fn reconnection_max_delay(mut self, delay: Duration) -> Self {
+        self.reconnection.max_delay = delay;
         self
     }
 }

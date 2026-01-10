@@ -172,6 +172,10 @@ pub enum FrameError {
     #[error("Reserved bits set in frame")]
     ReservedBitsSet,
 
+    /// Decompression failed
+    #[error("Decompression failed")]
+    DecompressionFailed,
+
     /// Control frames cannot be fragmented
     #[error("Control frames cannot be fragmented")]
     FragmentedControlFrame,
