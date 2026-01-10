@@ -257,7 +257,7 @@ impl Frame {
 
             let mut decoder = DeflateDecoder::new(&payload[..]);
             let mut decompressed = Vec::new();
-            if let Err(_) = decoder.read_to_end(&mut decompressed) {
+            if decoder.read_to_end(&mut decompressed).is_err() {
                 return Err(FrameError::DecompressionFailed.into());
             }
             payload = Bytes::from(decompressed);
