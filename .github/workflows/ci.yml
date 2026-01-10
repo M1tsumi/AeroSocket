@@ -122,6 +122,8 @@ jobs:
   security:
     name: Security Audit
     runs-on: ubuntu-latest
+    if: success()
+    needs: test
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
